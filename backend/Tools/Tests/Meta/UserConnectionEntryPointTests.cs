@@ -78,17 +78,6 @@ public class UserConnectionEntryPointTests(OrleansTestClusterFixture fixture)
     }
 
     [Fact]
-    public async Task HandshakeProjections_NotSent_SnapshotReRead()
-    {
-        var harness = new Harness(this);
-        harness.Loader.Load(harness.UserId).Returns(Snapshot("fresh"));
-
-        await harness.Connect([Payload("stale")]);
-
-        harness.Written().Should().Equal("fresh", Previews);
-    }
-
-    [Fact]
     public async Task GapDetected_BuffersAndResendsSnapshot()
     {
         var harness = new Harness(this);
@@ -147,7 +136,7 @@ public class UserConnectionEntryPointTests(OrleansTestClusterFixture fixture)
         await harness.Connect();
 
         var second = harness.CreateSession();
-        await harness.EntryPoint.OnConnected(second.Session, []);
+        await harness.EntryPoint.OnConnected(second.Session);
 
         harness.Connection.Received(1).ForceDisconnect();
         harness.Lifetime.IsTerminated.Should().BeTrue();
@@ -230,7 +219,7 @@ public class UserConnectionEntryPointTests(OrleansTestClusterFixture fixture)
             }
 
             var previews = Substitute.For<ICardPreviewGenerator>();
-            previews.GetBundlesAsync().Returns(Task.FromResult<IReadOnlyList<CardPreviewBundle>>([]));
+            previews.Bundles.Returns([]);
 
             Users = new ConnectedUsers(Substitute.For<IServiceSlicedState<ConnectedUsersLiveData, List<ConnectedUserEntry>>>());
 
@@ -267,9 +256,9 @@ public class UserConnectionEntryPointTests(OrleansTestClusterFixture fixture)
         public Func<IProjectionPayload, Task>? Listener { get; private set; }
         public Action? OnGap { get; private set; }
 
-        public Task Connect(IReadOnlyList<IProjectionPayload>? handshakeProjections = null)
+        public Task Connect()
         {
-            return EntryPoint.OnConnected(Session, handshakeProjections ?? []);
+            return EntryPoint.OnConnected(Session);
         }
 
         // Projections and the initial card previews in the order they were written; config values are skipped.

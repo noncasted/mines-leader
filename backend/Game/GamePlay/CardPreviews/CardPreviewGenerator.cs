@@ -1,4 +1,5 @@
 using Cluster.Configs;
+using Infrastructure;
 using Internal;
 using Game.GamePlay.Boards;
 using Game.Session;
@@ -10,19 +11,19 @@ namespace Game.GamePlay.CardPreviews;
 public interface ICardPreviewGenerator
 {
     /// <summary>
-    /// Returns pre-generated preview bundles. Generation runs lazily on the first call
-    /// once <see cref="ICardConfigs"/> exposes a non-null <c>Value</c>.
+    /// The preview bundles of the current card configs. Generated in the local setup of the gateway, before it accepts a
+    /// socket, and again on every change of the configs: a connection never pays for the generation.
     /// </summary>
-    Task<IReadOnlyList<CardPreviewBundle>> GetBundlesAsync();
+    IReadOnlyList<CardPreviewBundle> Bundles { get; }
 }
 
 /// <summary>
-/// Generates card preview bundles once at startup and caches them in-memory.
+/// Generates card preview bundles and keeps them in memory.
 /// Each scenario: parse layout -> instantiate card with real <see cref="ICardConfigs"/> ->
 /// drive card.Use() with a production-safe <see cref="PreviewPlayer"/> stub ->
 /// collect <see cref="ICardActionData"/> from the resulting <see cref="MoveSnapshot"/>.
 /// </summary>
-public sealed class CardPreviewGenerator : ICardPreviewGenerator
+public sealed class CardPreviewGenerator : ICardPreviewGenerator, ILocalSetupCompleted
 {
     public CardPreviewGenerator(ICardConfigs configs, ILogger<CardPreviewGenerator> logger)
     {
@@ -32,38 +33,20 @@ public sealed class CardPreviewGenerator : ICardPreviewGenerator
 
     private readonly ICardConfigs _configs;
     private readonly ILogger<CardPreviewGenerator> _logger;
-    private readonly SemaphoreSlim _lock = new(1, 1);
-    private IReadOnlyList<CardPreviewBundle>? _cached;
+    private IReadOnlyList<CardPreviewBundle>? _bundles;
 
-    public async Task<IReadOnlyList<CardPreviewBundle>> GetBundlesAsync()
+    public IReadOnlyList<CardPreviewBundle> Bundles =>
+        _bundles ?? throw new InvalidOperationException("Card previews are read before the local setup generated them");
+
+    // The configs are loaded on the Orleans start, before the local setup; the gateway takes sockets only after it.
+    public Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        if (_cached != null)
-            return _cached;
-
-        await _lock.WaitAsync();
-
-        try
-        {
-            if (_cached != null)
-                return _cached;
-
-            _cached = Generate();
-            return _cached;
-        }
-        finally
-        {
-            _lock.Release();
-        }
+        _configs.View(lifetime, _ => _bundles = Generate());
+        return Task.CompletedTask;
     }
 
     private IReadOnlyList<CardPreviewBundle> Generate()
     {
-        if (_configs.Value == null)
-        {
-            _logger.LogWarning("[CardPreview] ICardConfigs.Value is null — skipping preview generation");
-            return Array.Empty<CardPreviewBundle>();
-        }
-
         var bundles = new List<CardPreviewBundle>();
 
         foreach (var (cardType, scenario) in CardPreviewScenarios.All)

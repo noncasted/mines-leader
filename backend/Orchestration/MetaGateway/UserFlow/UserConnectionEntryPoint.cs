@@ -13,7 +13,7 @@ namespace MetaGateway.UserFlow;
 
 public interface IUserConnectionEntryPoint
 {
-    Task OnConnected(IUserSession session, IReadOnlyList<IProjectionPayload> projections);
+    Task OnConnected(IUserSession session);
 }
 
 // Projections of a user: a snapshot of all projection sources plus the updates published to the user channel.
@@ -59,9 +59,9 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
     private readonly ICardPreviewGenerator _cardPreviewGenerator;
     private readonly ILogger<UserConnectionEntryPoint> _logger;
 
-    // `projections` (read by the handshake in UserFactory.Resolve) are not sent: they were read before the
-    // subscription, an update published in between would be missing from them. The snapshot is re-read instead.
-    public async Task OnConnected(IUserSession user, IReadOnlyList<IProjectionPayload> projections)
+    // The snapshot is read after the subscription, so an update published in between is not lost; the handshake reads
+    // no projections for the same reason.
+    public async Task OnConnected(IUserSession user)
     {
         // The replaced session of the same user is closed; its lifetime end removes only its own entry.
         var replaced = _users.Add(user);
@@ -77,7 +77,7 @@ public class UserConnectionEntryPoint : IUserConnectionEntryPoint
             var writer = user.Connection.Writer;
             var stream = new ProjectionStream(user, _logger);
 
-            var cardPreviews = await _cardPreviewGenerator.GetBundlesAsync();
+            var cardPreviews = _cardPreviewGenerator.Bundles;
 
             stream.BeginResync();
 

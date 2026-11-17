@@ -173,7 +173,7 @@ public class BackendConnectionMiddleware
             await trace.Phase("Meta projections", async () => {
                 // OnConnected advises the dispatcher on the reader before its first await: a run without a handler
                 // throws.
-                var connected = _entryPoint.OnConnected(userSession, resolvedUser.Projections);
+                var connected = _entryPoint.OnConnected(userSession);
                 trace.Detached(() => connection.Run().NoAwait());
                 await connected;
             });
