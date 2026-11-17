@@ -144,6 +144,11 @@ namespace GamePlay.Services
                         RememberRoundPlayer(record);
                     }
                 }
+                catch (OperationCanceledException) when (lifetime.IsTerminated == true)
+                {
+                    // The match scope is torn down while a record is shown (a card flies): its waits are canceled.
+                    return;
+                }
                 catch (Exception e)
                 {
                     Debug.LogError($"Exception occurred while processing move snapshot records: {e}");
