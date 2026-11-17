@@ -29,7 +29,11 @@ namespace GamePlay.Cards
             var entryLifetime = _entries.Add(card);
             Positions.AddCard(entryLifetime, card);
 
-            card.Lifetime.Listen(() => _entries.Remove(card));
+            // A played card has already left the hand through Remove when its lifetime ends.
+            card.Lifetime.Listen(() => {
+                if (_entries.Contains(card) == true)
+                    _entries.Remove(card);
+            });
         }
 
         public void Remove(ICard card)
