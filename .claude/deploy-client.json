@@ -1,0 +1,22 @@
+{
+  "tests": "tools/scripts/run-tests.sh",
+  "deploy": "tools/scripts/deploy-webgl.sh",
+  "exclude": [
+    "builds",
+    "client/build",
+    "client/Build",
+    "client/traces"
+  ],
+  "same": [],
+  "targets": [
+    {
+      "name": "web",
+      "profile": "Assets/Settings/Build Profiles/web_dev - Desktop - Development.asset",
+      "output": "builds/web",
+      "deployArgs": [],
+      "indexContains": [],
+      "indexExcludes": [],
+      "files": ["TemplateData/favicon.ico"]
+    }
+  ]
+}

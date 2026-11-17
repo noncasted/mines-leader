@@ -4,23 +4,35 @@ The skills live in `tools/framework/.claude/skills`; what differs per game is he
 
 ## deploy-client
 
-Not finished: `.claude/deploy-client.json` (targets for `tools/framework/tools/scripts/deploy-client.sh`) is added by a
-later step of the framework 0.9.0 update. Without it the script exits 2: stop and say so.
-
-The values of the old copy of the skill (one target, web):
+`.claude/deploy-client.json`: one target, `web`.
 
 | What | web |
 |------|-----|
 | Build profile | `Assets/Settings/Build Profiles/web_dev - Desktop - Development.asset` |
-| Build output | `client/build` (Unity path: `build`); `client/Build` must not hold a build next to it |
+| Build output | `builds/web` of the copy of the run (gone after the run unless `KEEP_COPY=1`) |
 | Stripping settings | `Assets/Settings/DefaultSubmoduleStrippingSettings.asset` |
 | Tests | `tools/scripts/run-tests.sh` (backend, container generator, Unity EditMode) |
-| Deploy | `BUILD_DIR=client/build tools/scripts/deploy-webgl.sh` (`--list`, `--rollback <tag>`) |
+| Deploy | `tools/scripts/deploy-webgl.sh` with `BUILD_DIR` of the run (`--list`, `--rollback <tag>`, no target arguments) |
 | Deploy details | `client/deploy/README.md` |
 
 The web build is served by an nginx container on the Coolify host at `/`; `nginx.conf changed` in the output of the deploy
 script means the web service needs a restart in Coolify. The link is printed as `URL: ...` when `PUBLIC_URL` is set in
 `deploy.env`.
+
+Backend of a build: a player always talks to `_productionApiUrl` of `OptionsContainer.asset` (`BackendOptions.Url`:
+`_environment` counts only in the editor), so every build of the profile goes to `https://meta.minesleader.xyz`. A build
+for the local cluster: put `http://localhost:7101` into `_productionApiUrl` for the moment of the snapshot (the line
+`Snapshot ready` of the run), then restore it; never commit it. Such a build is checked on `http://localhost:<port>/`
+(a secure context, the Cache API works) with nginx of `client/deploy/nginx.conf`.
+
+Tests and the shared Unity lock: `run-tests.sh` takes `UNITY_LOCK` (default `/tmp/claude-1000/unity-batchmode.lock`),
+the variable passes through `deploy-client.sh`; the builds take only the build slots (`unity-build.slot<i>.lock`).
+
+Known issue (framework v0.9.0, 2026-11-17): `checks web` fails with `the catalog in the .data file does not name
+<bundle>` for every bundle not preloaded. `verify.sh` greps the brotli-unpacked `.data`, but the catalog
+(`Resources/Content/catalog.json`) lies in `data.unity3d`, a UnityFS archive in LZ4HC chunks, so a name split by LZ4
+back-references is not found; unpacked, the catalog names all 9 bundles. The fix belongs to the framework; until then
+the run ends `DEPLOY-CLIENT FAILED` and uploads nothing.
 
 Credentials: `~/.config/mines-leader/deploy.env`, `tools/scripts/.deploy-password`.
 
