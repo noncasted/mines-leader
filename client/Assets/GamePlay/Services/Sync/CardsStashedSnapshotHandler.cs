@@ -1,4 +1,3 @@
-using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
 using GamePlay.Loop;
@@ -38,13 +37,8 @@ namespace GamePlay.Services
 
         private async UniTask StashThenDestroy(ICard card)
         {
-            try
-            {
-                await card.Stash.Enter(card.Lifetime);
-            }
-            catch (OperationCanceledException)
-            {
-            }
+            // The flight is canceled with the card lifetime (the match is torn down): nothing is left to destroy then.
+            await card.Stash.Enter(card.Lifetime).SuppressCancellationThrow();
 
             if (card.Lifetime.IsTerminated == false)
                 await card.Destroy();

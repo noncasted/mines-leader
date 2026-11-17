@@ -21,6 +21,7 @@ namespace GamePlay.Services
 
         private IUpdater _updater;
         private ICurrentCamera _currentCamera;
+        private IReadOnlyLifetime _scopeLifetime;
 
         private float _shakeTimer;
         private float _currentShakeTime;
@@ -46,6 +47,7 @@ namespace GamePlay.Services
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
+            _scopeLifetime = lifetime;
             _updater.Add(lifetime, this);
         }
 
@@ -63,7 +65,8 @@ namespace GamePlay.Services
 
         public void Enable()
         {
-            _currentCamera.SetCamera(_camera);
+            // The game camera stays current until the game scope ends.
+            _currentCamera.SetCamera(_scopeLifetime, _camera);
         }
 
         public void Shake(float time, float intensity)

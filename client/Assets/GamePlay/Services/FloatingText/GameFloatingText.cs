@@ -31,7 +31,7 @@ namespace GamePlay.Services
         private int _index;
 
         [Inject]
-        internal void Construct(IUpdater updater)
+        public void Construct(IUpdater updater)
         {
             _updater = updater;
         }

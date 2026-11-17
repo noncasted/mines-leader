@@ -50,7 +50,9 @@ namespace GamePlay.Cards
             IReadOnlyList<IBoardCell> selected = null;
             var position = Vector2Int.zero;
 
-            await _updater.RunUpdateAction(
+            // The end of the state lifetime (the turn is over, the card is taken over or torn down) cancels the
+            // selection: nothing is dropped then.
+            var isCanceled = await _updater.RunUpdateAction(
                 stateLifetime,
                 () => selectionLifetime.IsTerminated == false,
                 _ => {
@@ -85,11 +87,11 @@ namespace GamePlay.Cards
                     }
 
                     selected = dropData;
-                });
+                }).SuppressCancellationThrow();
 
             DeselectAll();
 
-            if (selected == null || selected.Count == 0)
+            if (isCanceled == true || selected == null || selected.Count == 0)
                 return new CardDropResult() { IsSuccess = false };
 
             return new CardDropResult()

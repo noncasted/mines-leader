@@ -157,16 +157,23 @@ namespace Menu.Decks
             var startPosition = cardTransform.anchoredPosition;
             Vector2 startPointer = Input.mousePosition;
 
-            await _updater.RunUpdateAction(
+            // The drag is canceled when the decks are closed mid-drag: the card goes back to its spot, nothing is dropped.
+            var isCanceled = await _updater.RunUpdateAction(
                 lifetime,
                 () => Input.GetMouseButton(0),
                 _ => {
                     Vector2 pointer = Input.mousePosition;
                     var delta = (pointer - startPointer) / _canvas.scaleFactor;
                     cardTransform.anchoredPosition = startPosition + delta;
-                });
+                }).SuppressCancellationThrow();
 
             spot.PointerHandler.gameObject.SetActive(true);
+
+            if (isCanceled == true)
+            {
+                spot.ReturnToSpot();
+                return;
+            }
 
             foreach (var deckCard in _deckCards)
             {

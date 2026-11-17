@@ -31,7 +31,7 @@ namespace GamePlay.Cards
         private IUpdater _updater;
 
         [Inject]
-        internal void Construct(IUpdater updater)
+        public void Construct(IUpdater updater)
         {
             _updater = updater;
         }
@@ -64,20 +64,26 @@ namespace GamePlay.Cards
             _renderer.sprite = null;
             Vector2 landing;
 
-            if (isOwned == true)
+            // The animation throws OperationCanceledException when the lifetime ends: the renderer is hidden anyway.
+            try
             {
-                _renderer.flipX = true;
-                landing = await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionCoinFlip);
+                if (isOwned == true)
+                {
+                    _renderer.flipX = true;
+                    landing = await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionCoinFlip);
+                }
+                else
+                {
+                    _renderer.flipX = false;
+                    landing = await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionCoinFlip);
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(0.4f));
             }
-            else
+            finally
             {
-                _renderer.flipX = false;
-                landing = await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionCoinFlip);
+                _renderer.gameObject.SetActive(false);
             }
-
-            await UniTask.Delay(TimeSpan.FromSeconds(0.4f));
-
-            _renderer.gameObject.SetActive(false);
 
             return landing;
         }
@@ -87,20 +93,26 @@ namespace GamePlay.Cards
             _renderer.sprite = null;
             Vector2 landing;
 
-            if (isOwned == true)
+            // The animation throws OperationCanceledException when the lifetime ends: the renderer is hidden anyway.
+            try
             {
-                _renderer.flipX = true;
-                landing = await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionDiceRoll);
+                if (isOwned == true)
+                {
+                    _renderer.flipX = true;
+                    landing = await Animate(lifetime.Intersect(_lifetime), _ownPath, Sprites.GameField.GameActionDiceRoll);
+                }
+                else
+                {
+                    _renderer.flipX = false;
+                    landing = await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionDiceRoll);
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(0.4f));
             }
-            else
+            finally
             {
-                _renderer.flipX = false;
-                landing = await Animate(lifetime.Intersect(_lifetime), _opponentPath, Sprites.GameField.GameActionDiceRoll);
+                _renderer.gameObject.SetActive(false);
             }
-
-            await UniTask.Delay(TimeSpan.FromSeconds(0.4f));
-
-            _renderer.gameObject.SetActive(false);
 
             return landing;
         }

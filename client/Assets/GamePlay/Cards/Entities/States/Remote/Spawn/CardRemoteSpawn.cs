@@ -47,6 +47,8 @@ namespace GamePlay.Cards
 
             var lifetime = _stateLifetime.OccupyLifetime();
 
+            // The action throws OperationCanceledException when the state lifetime ends (another state took the card
+            // over, or the card is torn down): such a card is not moved to Idle.
             await _updater.RunUpdateAction(lifetime, options.Time, delta => {
                 var moveFactor = moveCurve.StepForward(delta);
                 var heightFactor = heightCurve.StepForward(delta);
@@ -59,11 +61,6 @@ namespace GamePlay.Cards
                 _transform.SetPosition(position);
                 _transform.SetRotation(rotation);
             });
-
-            // The action also completes when the state lifetime ends: another state took the card over, or the card
-            // is torn down (scope disposal). The finished spawn must not move such a card to Idle.
-            if (lifetime.IsTerminated == true)
-                return;
 
             _idle.Enter();
         }

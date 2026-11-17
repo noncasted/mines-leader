@@ -53,8 +53,10 @@ namespace GamePlay.Cards
                 slot,
                 twistAngle,
                 options,
-                dropPosition);
+                dropPosition).SuppressCancellationThrow();
 
+            // The motion is canceled when the card is taken over or torn down mid-flight: the action is still shown
+            // (its own lifetime), as before the motion became cancelable.
             await _actionSync.Dispatch(lifetime, data);
         }
     }
