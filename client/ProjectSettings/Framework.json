@@ -7,5 +7,5 @@
   "SoundsFolder": "Assets/Art/Audio/Sounds",
   "MusicFolder": "Assets/Art/Audio/Music",
   "FavoriteScenes": [ "Startup", "Menu", "Game_Field" ],
-  "StrippedPlayerAssemblies": [ "Unity.2D.Tilemap.Runtime" ]
+  "StrippedPlayerAssemblies": [ "Unity.2D.Tilemap.Runtime", "Internal.EncodedAudio" ]
 }
