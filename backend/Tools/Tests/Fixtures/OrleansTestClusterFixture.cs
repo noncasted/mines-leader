@@ -91,6 +91,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 services.AddSingleton<DirectStorage>();
                 services.AddSingleton<IStateStorage, StateStorage>();
                 services.AddSingleton<IEventStorage, EventStorage>();
+                services.AddSingleton(provider => new Lazy<ITransactionConfig>(provider.GetRequiredService<ITransactionConfig>));
                 services.AddSingleton<ITransactions, Transactions>();
                 services.AddSingleton<IOrleans, OrleansUtils>();
                 services.AddSingleton<ISideEffectsStorage, SideEffectsStorage>();
