@@ -27,7 +27,6 @@ public class UserCommandsDispatcher : IUserCommandsDispatcher
 
         reader.OneWay.Advise(session.Lifetime, oneWay => HandleOneWay(oneWay).NoAwait());
         reader.Requests.Advise(session.Lifetime, request => HandleRequest(request).NoAwait());
-        reader.Responses.Advise(session.Lifetime, HandleResponse);
 
         async Task HandleOneWay(OneWayMessageFromClient oneWay)
         {
@@ -89,11 +88,6 @@ public class UserCommandsDispatcher : IUserCommandsDispatcher
             }
 
             writer.WriteResponse(result, request.RequestId);
-        }
-
-        void HandleResponse(ResponseMessageFromClient response)
-        {
-            writer.OnRequestHandled(response.Context, response.RequestId);
         }
     }
 }

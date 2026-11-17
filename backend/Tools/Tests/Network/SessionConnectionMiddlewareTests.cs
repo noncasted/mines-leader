@@ -1,6 +1,6 @@
 using System.Net.WebSockets;
 using Common.Network;
-using Common.Reactive;
+using Internal;
 using FluentAssertions;
 using Game.Global;
 using Game.Session;
@@ -131,7 +131,7 @@ public class SessionConnectionMiddlewareTests
         public ISession AddSession(Guid reservedUser)
         {
             _world = new SessionWorld(SessionType.Match, 2, joinTimeout: Wait);
-            _world.Session.TryReserve(reservedUser).Should().BeTrue();
+            _world.Session.Reserve(reservedUser).Should().Be(SessionReservation.Reserved);
             _sessions.Add(_world.Session.Id, _world.Session);
             return _world.Session;
         }

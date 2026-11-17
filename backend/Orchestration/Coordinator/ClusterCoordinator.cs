@@ -1,6 +1,6 @@
 using Cluster.Deploy;
 using Cluster.State;
-using Common.Reactive;
+using Internal;
 using Infrastructure;
 
 namespace Coordinator;
@@ -14,20 +14,17 @@ public class ClusterCoordinator : ILocalSetupCompleted
         IOrleans orleans,
         IDeployContext deployContext,
         IClusterFeatures clusterFeatures,
-        ISideEffectsStorage sideEffectsStorage,
         ILogger<ClusterCoordinator> logger)
     {
         _orleans = orleans;
         _deployContext = deployContext;
         _clusterFeatures = clusterFeatures;
-        _sideEffectsStorage = sideEffectsStorage;
         _logger = logger;
     }
 
     private readonly IOrleans _orleans;
     private readonly IDeployContext _deployContext;
     private readonly IClusterFeatures _clusterFeatures;
-    private readonly ISideEffectsStorage _sideEffectsStorage;
     private readonly ILogger<ClusterCoordinator> _logger;
 
     public async Task OnLocalSetupCompleted(IReadOnlyLifetime lifetime)
@@ -35,9 +32,6 @@ public class ClusterCoordinator : ILocalSetupCompleted
         _logger.LogInformation("[Coordinator] Starting cluster coordinator...");
 
         await _clusterFeatures.SetAcceptingConnections(false);
-
-        _logger.LogInformation("[Coordinator] Requeueing stuck side effects...");
-        await _sideEffectsStorage.RequeueStuck();
 
         await _clusterFeatures.SetAcceptingConnections(true);
         await _clusterFeatures.SetGameFlag(GameFlagNames.Matchmaking, true);

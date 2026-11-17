@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Cluster.Discovery;
 using Common.Extensions;
-using Common.Reactive;
+using Internal;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 

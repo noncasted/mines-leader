@@ -1,4 +1,4 @@
-using Common.Reactive;
+using Internal;
 using Infrastructure.State;
 
 namespace Benchmarks;

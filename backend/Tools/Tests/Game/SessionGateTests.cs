@@ -74,7 +74,7 @@ public class SessionGateTests
         var ticket = world.Tickets.Issue(userId, session.Id);
 
         world.Sessions.Enter(ticket).Status.Should().Be(SessionAuthStatus.Ok);
-        session.TryReserve(userId).Should().BeTrue();
+        session.Reserve(userId).Should().Be(SessionReservation.Reserved);
 
         world.Sessions.Enter(ticket).Status.Should().Be(SessionAuthStatus.InvalidTicket);
     }
@@ -210,7 +210,7 @@ public class SessionGateTests
         public ISession AddSession(Guid reservedUser, out SessionContainerData data)
         {
             var world = new SessionWorld(SessionType.Match, 2, Time, _joinTimeout);
-            world.Session.TryReserve(reservedUser).Should().BeTrue();
+            world.Session.Reserve(reservedUser).Should().Be(SessionReservation.Reserved);
             Add(world.Session);
             data = world.Data;
             return world.Session;

@@ -4,7 +4,7 @@ using Cluster.Deploy;
 using Cluster.Monitoring;
 using Cluster.State;
 using Common;
-using Common.Reactive;
+using Internal;
 using FluentAssertions;
 using Infrastructure;
 using Infrastructure.Startup;

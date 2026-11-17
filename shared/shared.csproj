@@ -24,6 +24,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\tools\framework\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\tools\framework\common\framework.common.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

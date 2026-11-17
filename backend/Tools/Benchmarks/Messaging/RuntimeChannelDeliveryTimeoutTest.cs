@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Common.Extensions;
-using Common.Reactive;
+using Internal;
 using Infrastructure;
 
 namespace Benchmarks;

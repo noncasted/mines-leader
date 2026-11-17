@@ -1,4 +1,4 @@
-using Common.Reactive;
+using Internal;
 using Infrastructure;
 
 namespace Tests.Fixtures;

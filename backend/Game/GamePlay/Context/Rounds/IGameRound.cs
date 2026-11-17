@@ -1,4 +1,4 @@
-using Common.Reactive;
+using Internal;
 
 namespace Game.GamePlay;
 

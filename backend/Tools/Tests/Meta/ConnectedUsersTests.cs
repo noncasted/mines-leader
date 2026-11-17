@@ -1,6 +1,6 @@
 using Cluster.Deploy;
 using Cluster.Monitoring;
-using Common.Reactive;
+using Internal;
 using FluentAssertions;
 using MetaGateway.UserFlow;
 using MetaGateway.UserFlow.Connection;
