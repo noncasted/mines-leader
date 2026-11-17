@@ -117,13 +117,13 @@ public class StatesSchemaTests : IAsyncLifetime
         await SideEffectsSetup.Run(configuration);
 
         await Execute($"""
-                       INSERT INTO {DbLookup.SE_DeadLetter} (id, payload, retry_count, created_at)
+                       INSERT INTO {SideEffectTables.DeadLetter} (id, payload, retry_count, created_at)
                        VALUES (gen_random_uuid(), '{"{}"}', 5, now());
                        """);
 
         await StatesCleanup.Run(configuration);
 
-        (await Count(DbLookup.SE_DeadLetter)).Should().Be(0);
+        (await Count(SideEffectTables.DeadLetter)).Should().Be(0);
     }
 
     [Fact]
@@ -134,12 +134,12 @@ public class StatesSchemaTests : IAsyncLifetime
         await StatesSetup.Run(configuration);
         await SideEffectsSetup.Run(configuration);
 
-        (await ReadTables()).Should().Contain(DbLookup.SE_DeadLetter);
+        (await ReadTables()).Should().Contain(SideEffectTables.DeadLetter);
 
         await StatesDrop.Run(configuration);
 
         (await ReadTables()).Should().NotContain([
-            DbLookup.SE_Queue, DbLookup.SE_Processing, DbLookup.SE_Retry, DbLookup.SE_DeadLetter
+            SideEffectTables.Queue, SideEffectTables.Processing, SideEffectTables.RetryQueue, SideEffectTables.DeadLetter
         ]);
     }
 

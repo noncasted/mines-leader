@@ -32,7 +32,7 @@ public class MatchmakingTests
     private readonly IClusterParticipantContext _participantContext;
     private readonly IMessaging _messaging;
     private readonly ILogger<Matchmaking> _logger;
-    private readonly ViewableProperty<bool> _isInitialized = new(false);
+    private readonly SharedViewableProperty<bool> _isInitialized = new(false);
     private readonly ConcurrentQueue<(string Channel, MatchSearchResultUpdate Update)> _sent = new();
     private readonly Matchmaking _sut;
 

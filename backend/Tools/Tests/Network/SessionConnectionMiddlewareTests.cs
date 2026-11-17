@@ -154,7 +154,7 @@ public class SessionConnectionMiddlewareTests
         public async Task<TestWebHost> Start()
         {
             var participant = Substitute.For<IClusterParticipantContext>();
-            participant.IsInitialized.Returns(new ViewableProperty<bool>(true));
+            participant.IsInitialized.Returns(new SharedViewableProperty<bool>(true));
 
             var builder = TestWebHost.CreateBuilder("Production");
             builder.Services.AddSingleton(Collection);

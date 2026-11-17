@@ -22,7 +22,7 @@ namespace Flow.Mocks
 
         [SerializeField] private GameMatchType _mode;
 
-        public override async UniTaskVoid Process()
+        public override async UniTask Process()
         {
             var scope = await Bootstrap();
 

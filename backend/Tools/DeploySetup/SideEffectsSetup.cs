@@ -11,18 +11,18 @@ public static class SideEffectsSetup
         await using var connection = await configuration.GetConnection();
 
         var queue = $@"
-            CREATE TABLE {DbLookup.SE_Queue} (
+            CREATE TABLE {SideEffectTables.Queue} (
                 id uuid NOT NULL,
                 payload jsonb NOT NULL,
                 retry_count integer NOT NULL DEFAULT 0,
                 created_at timestamptz NOT NULL,
                 PRIMARY KEY (id)
             );
-            CREATE INDEX ix_{DbLookup.SE_Queue} ON {DbLookup.SE_Queue} USING btree (created_at);
+            CREATE INDEX ix_{SideEffectTables.Queue} ON {SideEffectTables.Queue} USING btree (created_at);
         ";
 
         var processing = $@"
-            CREATE TABLE {DbLookup.SE_Processing} (
+            CREATE TABLE {SideEffectTables.Processing} (
                 id uuid NOT NULL,
                 payload jsonb NOT NULL,
                 retry_count integer NOT NULL DEFAULT 0,
@@ -33,7 +33,7 @@ public static class SideEffectsSetup
         ";
 
         var retry = $@"
-            CREATE TABLE {DbLookup.SE_Retry} (
+            CREATE TABLE {SideEffectTables.RetryQueue} (
                 id uuid NOT NULL,
                 payload jsonb NOT NULL,
                 retry_count integer NOT NULL DEFAULT 0,
@@ -41,11 +41,11 @@ public static class SideEffectsSetup
                 retry_after timestamptz NOT NULL,
                 PRIMARY KEY (id)
             );
-            CREATE INDEX ix_{DbLookup.SE_Retry} ON {DbLookup.SE_Retry} USING btree (retry_after);
+            CREATE INDEX ix_{SideEffectTables.RetryQueue} ON {SideEffectTables.RetryQueue} USING btree (retry_after);
         ";
 
         var deadLetter = $@"
-            CREATE TABLE {DbLookup.SE_DeadLetter} (
+            CREATE TABLE {SideEffectTables.DeadLetter} (
                 id uuid NOT NULL,
                 payload jsonb NOT NULL,
                 retry_count integer NOT NULL DEFAULT 0,
@@ -56,10 +56,10 @@ public static class SideEffectsSetup
             );
         ";
 
-        await connection.CreateIfNotExists(DbLookup.SE_Queue, queue);
-        await connection.CreateIfNotExists(DbLookup.SE_Processing, processing);
-        await connection.CreateIfNotExists(DbLookup.SE_Retry, retry);
-        await connection.CreateIfNotExists(DbLookup.SE_DeadLetter, deadLetter);
+        await connection.CreateIfNotExists(SideEffectTables.Queue, queue);
+        await connection.CreateIfNotExists(SideEffectTables.Processing, processing);
+        await connection.CreateIfNotExists(SideEffectTables.RetryQueue, retry);
+        await connection.CreateIfNotExists(SideEffectTables.DeadLetter, deadLetter);
 
     }
 }

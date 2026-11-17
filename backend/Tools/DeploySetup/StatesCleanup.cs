@@ -14,10 +14,10 @@ public static class StatesCleanup
         foreach (var info in StatesLookup.All)
             await connection.Truncate(info.TableName);
 
-        await connection.Truncate(DbLookup.SE_Queue);
-        await connection.Truncate(DbLookup.SE_Processing);
-        await connection.Truncate(DbLookup.SE_Retry);
-        await connection.Truncate(DbLookup.SE_DeadLetter);
+        await connection.Truncate(SideEffectTables.Queue);
+        await connection.Truncate(SideEffectTables.Processing);
+        await connection.Truncate(SideEffectTables.RetryQueue);
+        await connection.Truncate(SideEffectTables.DeadLetter);
 
         // Marten event sourcing tables
         await connection.Truncate("mt_streams");

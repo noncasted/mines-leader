@@ -58,7 +58,8 @@ public class DeployIdentity : BackgroundService
 
         await _deployContext.Set(deployId, lifetime);
 
-        await _messaging.AddPipeRequestHandler<DeployIdRequest, DeployIdResponse>(lifetime,
+        // Bound to the deploy epoch: a coordinator replaced by a newer deploy stops answering the pipe at once.
+        await _messaging.AddPipeRequestHandler<DeployIdRequest, DeployIdResponse>(_deployContext.DeployLifetime,
             DeployIdPipe.Id,
             _ => Task.FromResult(new DeployIdResponse { DeployId = deployId }));
 
