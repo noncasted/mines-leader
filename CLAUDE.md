@@ -53,10 +53,8 @@ Docs of this game; the shared ones are in the index above. Values of this game f
 | DeployId, IDeployManagement, IDeployContext, IDeployAware, DeployIdPipe, DeployIdentity, DeployLifetime, LiveState, cluster restart | /docs/obsidian/architecture/deploy-epoch.md |
 | error lookup, why X fails, memory leak, NullRef | .claude/docs/ERRORS.md |
 | game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking, BoardParser, game tests | .claude/docs/GAMEPLAY.md |
-| menu UI, UI Toolkit, .uss, color palette, MenuTheme, pixel art | .claude/docs/UI_MENU.md |
 | new card, card idea, card design, card validation, fail reasons, why card rejected | /docs/obsidian/game/cards/fail/fail_reasons.md |
 | trigger keywords, documentation finder, reading order | .claude/docs/TRIGGERS.md |
-| code examples, Docs_*.cs, working examples | .claude/docs/CODE_EXAMPLES.md |
 | common mistakes, top errors, checklist failures | .claude/docs/CLAUDE_MISTAKES.md |
 | PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | .claude/docs/PREFAB_CODEGEN.md |
 | deploy client, WebGL deploy, deploy-webgl.sh, nginx.conf, Coolify web, rollback client | client/deploy/README.md, .claude/skills/deploy-client/SKILL.md, .claude/project-skills.md (deploy-client) |
@@ -105,7 +103,6 @@ If the user wants error handling, they will say so. Until then — **fail fast, 
 
 **Patterns & rules:** container, lifetimes, reactive, API design, code style, Orleans, Blazor, decision trees - the
 framework docs (index above, `tools/framework/.claude/docs`).
-- `.claude/docs/UI_MENU.md` — Menu UI Toolkit: color palette, reusable panel classes
 
 **Reference & lookup:**
 - `.claude/docs/ERRORS.md` — error lookup table with causes & fixes
@@ -114,6 +111,4 @@ framework docs (index above, `tools/framework/.claude/docs`).
 - `.claude/docs/VOCABULARY.md` — consistent terminology
 - `.claude/docs/CLAUDE_MISTAKES.md` — history of AI mistakes and lessons
 - `.claude/docs/TRIGGERS.md` — keyword-based documentation finder, reading orders
-- `.claude/docs/CODE_EXAMPLES.md` — index of runnable code examples
 - `.claude/docs/TELEMETRY.md` — backend/.telemetry directory: metrics, logs, game session logs
-- `client/Assets/Common/Docs/Claude/*.cs` — runnable code examples for all patterns

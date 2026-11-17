@@ -401,7 +401,7 @@ public class RuntimePipe : Grain, IRuntimePipe
 - Orleans gives disconnected clients a ~65s grace window before dropping them; during
   that window the grain will still route observer callbacks to the dead client.
 
-→ [deploy-epoch.md §Фиксы пайпа](../../obsidian/architecture/deploy-epoch.md)
+→ [deploy-epoch.md §Фиксы пайпа](../../docs/obsidian/architecture/deploy-epoch.md)
 
 ---
 
@@ -441,7 +441,7 @@ else
 - Symmetric startup code for coordinator and participants tempts you to make the
   coordinator "wait for itself" — it may mask latent Orleans routing hiccups for minutes.
 
-→ [deploy-epoch.md §Диаграмма рестарта координатора](../../obsidian/architecture/deploy-epoch.md)
+→ [deploy-epoch.md §Диаграмма рестарта координатора](../../docs/obsidian/architecture/deploy-epoch.md)
 
 ---
 
@@ -531,8 +531,6 @@ background-image: resource("GamePlay/UI/card_desc");
 5. **Never create wrapper elements just for background** — put `background-image` directly on the semantic root element (e.g., `round-button`, not `round-bg`).
 6. **Use `-unity-text-auto-size: best-fit`** for pixel-art labels that must fit tight bounds.
 7. **USS is for reusable classes and pseudo-selectors only** — per-element positioning, sizing, and sprite references belong inline in UXML.
-
-→ [UI_MENU.md](UI_MENU.md)
 
 ---
 - **Container Details:** `tools/framework/.claude/docs/COMMON_CONTAINER.md`

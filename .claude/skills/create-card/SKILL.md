@@ -282,7 +282,6 @@ _roundActionService.Schedule(disposeAction, _config.Duration);
 Also create the `NewCardDisposeAction : IRoundAction` class in the same file.
 
 ### 3.2 CardFactory Registration
-**File:** `backend/Game/GamePlay/Cards/CardFactory.cs`
 
 Add case(s) to the `Create` switch. The constructor args depend on what the card needs:
 
@@ -379,7 +378,7 @@ Cards group by their config structure:
 If creating a new editor, follow the pattern from existing editors (e.g., `CardLockdownConfigEditor.razor` or `CardSiphonConfigEditor.razor`).
 
 ### 4.2 Update Configs.razor
-**File:** `backend/Console/Pages/Configs/Configs.razor`
+**File:** `backend/Console/Game/Configs/Configs.razor`
 
 If the card uses a custom editor, add a type check in the appropriate target section:
 ```razor
@@ -518,7 +517,7 @@ CardType.NewCard_Max => Sync<CardNewCardAction.Snapshot, CardActionSnapshot.NewC
 ```
 
 ### 5.3 Card Info JSON
-**File:** `client/Assets/Resources/cards-info.json`
+**File:** `client/Assets/Common/Resources/cards-info.json`
 
 Add entry:
 ```json

@@ -332,7 +332,7 @@ If the Resources tab is ever wanted back, do **not** reintroduce a remote git bu
 | migrator (runs then exits) | N/A | 0 MiB | 0 MiB |
 | **Total project footprint** | ~2.47 GB | **~734 MiB** | ~1.14 GiB |
 
-Measured on the production VPS via `docker stats --no-stream` filtering by `zufqewcez1k024uw3hnzspzp` prefix. Full methodology in `docs/tasks/current/aspire_coolify_compose_deploy/memory_baseline.md`.
+Measured on the production VPS via `docker stats --no-stream` filtering by `zufqewcez1k024uw3hnzspzp` prefix.
 
 The "benchmarks running" column is taken with the silo bench harness actively driving grains; expect silo to fall back to ~120 MiB and total to ~750 MiB once benchmarks stop. If silo stays above ~200 MiB at idle, that is a real leak worth investigating, not a benchmark artefact.
 

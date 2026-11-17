@@ -9,13 +9,13 @@ BEHAVIOR: When triggered, do not read, summarize, or explain this file. Execute 
 
 # Write Integration Tests
 
-This skill writes tests for backend features using the project's custom cluster test framework in `backend/Tests/`.
+This skill writes tests for backend features using the project's custom cluster test framework in `backend/Tools/Tests/`.
 
 ## Before writing ANY test
 
 1. **Understand what's being tested.** Read the feature code — grain interfaces, implementations, state classes, relevant services.
 
-2. **Find similar existing tests.** Search `backend/Tests/` for tests that cover similar functionality (same domain, similar grain patterns, similar state operations). Read 1-2 of the closest matches to see how they handle setup, assertions, and cleanup for that type of feature. This step is critical — the existing tests are the ground truth for conventions and available infrastructure.
+2. **Find similar existing tests.** Search `backend/Tools/Tests/` for tests that cover similar functionality (same domain, similar grain patterns, similar state operations). Read 1-2 of the closest matches to see how they handle setup, assertions, and cleanup for that type of feature. This step is critical — the existing tests are the ground truth for conventions and available infrastructure.
 
 3. **Decide the test type** based on what the feature does:
 
@@ -138,7 +138,7 @@ The outer class is `{Feature}Test`. The inner class is always `Root` and inherit
 Tests use Orleans-style constructor injection. Inject only what you need: `ClusterTestUtils` is always first, then `IOrleans`, `ITransactions`, `IUserFactory`, or other services.
 
 ### Group and Title
-- `Group` — a constant from `TestGroups`. Check `backend/Tests/TestGroups.cs` for the current list of groups. If the feature doesn't fit any existing group, add a new one. Groups are semantic categories — choose by what the feature IS, not where the code lives. For example, task scheduling infrastructure is NOT "State" just because it lives in the Infrastructure folder.
+- `Group` — a constant from `TestGroups`. Check `backend/Tools/Benchmarks/TestGroups.cs` for the current list of groups. If the feature doesn't fit any existing group, add a new one. Groups are semantic categories — choose by what the feature IS, not where the code lives. For example, task scheduling infrastructure is NOT "State" just because it lives in the Infrastructure folder.
 - `Title` — kebab-case descriptive name: `"user-deck"`, `"cell-state-transitions"`, `"transactions-state"`
 
 ### Progress tracking
@@ -261,10 +261,10 @@ var results = await participants.Get<int, IMyGrain>(grain => grain.GetValue());
 ## File placement
 
 Place the test file in the subfolder matching its `Group`. Each group has a corresponding folder:
-- `TestGroups.Game` → `backend/Tests/Game/`
-- `TestGroups.Meta` → `backend/Tests/Meta/`
-- `TestGroups.State` → `backend/Tests/State/`
-- `TestGroups.Messaging` → `backend/Tests/Messaging/`
+- `TestGroups.Game` → `backend/Tools/Tests/Game/`
+- `TestGroups.Meta` → `backend/Tools/Tests/Meta/`
+- `TestGroups.State` → `backend/Tools/Tests/State/`
+- `TestGroups.Messaging` → `backend/Tools/Tests/Messaging/`
 
 If you add a new group, create a matching folder.
 
