@@ -28,11 +28,11 @@ for the local cluster: put `http://localhost:7101` into `_productionApiUrl` for 
 Tests and the shared Unity lock: `run-tests.sh` takes `UNITY_LOCK` (default `/tmp/claude-1000/unity-batchmode.lock`),
 the variable passes through `deploy-client.sh`; the builds take only the build slots (`unity-build.slot<i>.lock`).
 
-Known issue (framework v0.9.0, 2026-11-17): `checks web` fails with `the catalog in the .data file does not name
-<bundle>` for every bundle not preloaded. `verify.sh` greps the brotli-unpacked `.data`, but the catalog
-(`Resources/Content/catalog.json`) lies in `data.unity3d`, a UnityFS archive in LZ4HC chunks, so a name split by LZ4
-back-references is not found; unpacked, the catalog names all 9 bundles. The fix belongs to the framework; until then
-the run ends `DEPLOY-CLIENT FAILED` and uploads nothing.
+Content check of `checks web`: since framework v0.9.1 `verify.sh` looks for the bundle names in the catalog
+(`Resources/Content/catalog.json`) unpacked from `data.unity3d` (UnityFS, LZ4 blocks) by `deploy-client/webdata.py`;
+needs `python3`. On v0.9.0 it grepped the packed `.data` and failed with `the catalog in the .data file does not name
+<bundle>` for every bundle not preloaded. Run of 2026-11-17 on v0.9.1: all stages PASS, `content 9 bundle files
+(2 preloaded)`.
 
 Credentials: `~/.config/mines-leader/deploy.env`, `tools/scripts/.deploy-password`.
 
