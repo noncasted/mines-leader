@@ -12,6 +12,7 @@
         <ProjectReference Include="..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
         <ProjectReference Include="..\Cluster.Game\Cluster.Game.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\tools\framework\backend\MatchMetrics\MatchMetrics.csproj"/>
         <ProjectReference Include="..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
     </ItemGroup>
 

@@ -32,6 +32,17 @@ namespace Shared
     [MemoryPackUnion(NetworkContextTags.LatencyPeerEcho, typeof(SharedSessionLatency.PeerEcho))]
     [MemoryPackUnion(NetworkContextTags.PeerSignal, typeof(SharedSessionPeer.Signal))]
     [MemoryPackUnion(NetworkContextTags.PeerTunnel, typeof(SharedSessionPeer.Tunnel))]
+    [MemoryPackUnion(NetworkContextTags.TelemetrySessionStart, typeof(SharedClientTelemetry.SessionStart))]
+    [MemoryPackUnion(NetworkContextTags.TelemetrySessionStarted, typeof(SharedClientTelemetry.SessionStarted))]
+    [MemoryPackUnion(NetworkContextTags.TelemetryBatch, typeof(SharedClientTelemetry.Batch))]
+    [MemoryPackUnion(NetworkContextTags.TelemetryBatchResult, typeof(SharedClientTelemetry.BatchResult))]
+    [MemoryPackUnion(NetworkContextTags.TelemetrySessionEnd, typeof(SharedClientTelemetry.SessionEnd))]
+    [MemoryPackUnion(NetworkContextTags.TelemetryStartupTrace, typeof(SharedClientTelemetry.StartupTrace))]
+    [MemoryPackUnion(NetworkContextTags.TelemetryStartupTraceResult, typeof(SharedClientTelemetry.StartupTraceResult))]
+    [MemoryPackUnion(NetworkContextTags.MatchMetricsOpen, typeof(SharedMatchMetrics.Open))]
+    [MemoryPackUnion(NetworkContextTags.MatchMetricsOpened, typeof(SharedMatchMetrics.Opened))]
+    [MemoryPackUnion(NetworkContextTags.MatchMetricsBatch, typeof(SharedMatchMetrics.Batch))]
+    [MemoryPackUnion(NetworkContextTags.MatchMetricsBatchResult, typeof(SharedMatchMetrics.BatchResult))]
     public partial class NetworkContextUnion
     {
     }

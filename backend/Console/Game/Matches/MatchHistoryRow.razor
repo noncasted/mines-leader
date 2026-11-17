@@ -1,0 +1,43 @@
+@using Meta.Matches
+
+<tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer"
+    @onclick="@(() => Navigation.NavigateTo(string.Format(GameConsoleConstants.Pages.Match, MatchId)))">
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@Match.StartDate.ToString("yyyy-MM-dd HH:mm")</td>
+    <td class="px-4 py-2.5 text-xs">
+        <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">@Match.Type</span>
+    </td>
+    <td class="px-4 py-2.5 text-xs">@string.Join(", ", Match.Participants.Select(PlayerName))</td>
+    <td class="px-4 py-2.5 text-xs font-medium">@Winner()</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@Duration()</td>
+    <td class="px-4 py-2.5">
+        <LucideIcon Name="chevron-right" Size="14" class="text-muted-foreground"/>
+    </td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public Guid MatchId { get; set; }
+    [Parameter, EditorRequired] public MatchState Match { get; set; } = null!;
+
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
+
+    private string Winner()
+    {
+        if (Match.IsClosed == false)
+            return "running";
+
+        return Match.HasWinner == true ? PlayerName(Match.Winner) : "no winner";
+    }
+
+    // A record older than the history has no nicknames: the id stands for the player.
+    private string PlayerName(Guid userId)
+    {
+        var nickname = Match.NicknameOf(userId);
+
+        return string.IsNullOrEmpty(nickname) ? userId.ToString()[..8] : nickname;
+    }
+
+    private string Duration()
+    {
+        return Match.IsClosed == true ? Match.Time.ToString(@"mm\:ss") : "--";
+    }
+}

@@ -1,5 +1,6 @@
 @page "/match/{Id}"
 @using global::Infrastructure
+@using global::Game.MatchMetrics
 @using Meta.Matches
 @using Meta.Users
 @using Shared
@@ -44,6 +45,10 @@
                         <span class="text-sm font-medium">@_matchState.Time.ToString(@"mm\:ss")</span>
                     </div>
                     <div class="flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground uppercase tracking-wide">Status</span>
+                        <span class="text-sm font-medium">@Status()</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
                         <span class="text-xs text-muted-foreground uppercase tracking-wide">Type</span>
                         <span class="text-sm font-medium">@_matchState.Type</span>
                     </div>
@@ -63,6 +68,14 @@
             }
         </div>
 
+        <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Game metrics</h3>
+        <div class="grid grid-cols-2 gap-4">
+            @foreach (var card in _cards)
+            {
+                <MatchPlayerMetricsCard MatchId="@_matchId" Card="@card"/>
+            }
+        </div>
+
     </div>
 </div>
 
@@ -70,11 +83,13 @@
     [Parameter] public string Id { get; set; } = string.Empty;
 
     [Inject] public IOrleans Orleans { get; set; } = null!;
+    [Inject] public IMatchMetricsReader MetricsReader { get; set; } = null!;
     [Inject] public ToastService ToastService { get; set; } = null!;
 
     private Guid _matchId;
     private MatchState? _matchState;
     private List<ParticipantData> _participants = new();
+    private IReadOnlyList<MatchPlayerCard> _cards = [];
     private bool _isLoading = true;
 
     private record ParticipantData(
@@ -142,5 +157,15 @@
                 IsWinner: _matchState.Winner == userId
             ));
         }
+
+        _cards = await new MatchPlayerCards(MetricsReader).Get(_matchId, _matchState);
+    }
+
+    private string Status()
+    {
+        if (_matchState!.IsClosed == false)
+            return "Running";
+
+        return _matchState.HasWinner == true ? "Closed" : "Closed without a winner";
     }
 }

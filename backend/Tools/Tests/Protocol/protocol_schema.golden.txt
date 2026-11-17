@@ -335,7 +335,7 @@ type Shared.SharedMatchmaking+LobbyResult ServerUrl:System.String,SessionId:Syst
 type Shared.SharedMatchmaking+MatchResult ServerUrl:System.String,SessionId:System.Guid,Type:Shared.GameMatchType,Ticket:System.String,RequestId:System.Guid,Status:Shared.SharedMatchmaking+MatchSearchStatus
 type Shared.SharedMatchmaking+SearchLobby
 type Shared.SharedMatchmaking+SearchMatch Type:Shared.GameMatchType,RequestId:System.Guid
-type Shared.SharedMoveSnapshot Records:System.Collections.Generic.IReadOnlyList<Shared.IMoveSnapshotRecord>
+type Shared.SharedMoveSnapshot Records:System.Collections.Generic.IReadOnlyList<Shared.IMoveSnapshotRecord>,MatchMs:System.Int64
 type Shared.SharedSessionAuth+Request Ticket:System.String
 type Shared.SharedSessionAuth+Response Status:Shared.SessionAuthStatus
 type Shared.SharedSessionEntity+CreateRequest Id:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>,Payload:Shared.IEntityPayload
@@ -626,8 +626,19 @@ union Shared.INetworkContext 154 Shared.SharedMatchmaking+CancelSearch
 union Shared.INetworkContext 155 Shared.SharedMatchmaking+MatchResult
 union Shared.INetworkContext 156 Shared.SharedMatchmaking+LobbyResult
 union Shared.INetworkContext 20 Shared.SharedSessionEntity+CreateRequest
+union Shared.INetworkContext 200 Shared.SharedClientTelemetry+SessionStart
+union Shared.INetworkContext 201 Shared.SharedClientTelemetry+SessionStarted
+union Shared.INetworkContext 202 Shared.SharedClientTelemetry+Batch
+union Shared.INetworkContext 203 Shared.SharedClientTelemetry+BatchResult
+union Shared.INetworkContext 204 Shared.SharedClientTelemetry+SessionEnd
+union Shared.INetworkContext 205 Shared.SharedClientTelemetry+StartupTrace
+union Shared.INetworkContext 206 Shared.SharedClientTelemetry+StartupTraceResult
 union Shared.INetworkContext 21 Shared.SharedSessionEntity+CreateResponse
 union Shared.INetworkContext 22 Shared.SharedSessionEntity+CreatedOverview
+union Shared.INetworkContext 220 Shared.SharedMatchMetrics+Open
+union Shared.INetworkContext 221 Shared.SharedMatchMetrics+Opened
+union Shared.INetworkContext 222 Shared.SharedMatchMetrics+Batch
+union Shared.INetworkContext 223 Shared.SharedMatchMetrics+BatchResult
 union Shared.INetworkContext 23 Shared.SharedSessionEntity+Destroy
 union Shared.INetworkContext 24 Shared.SharedSessionEntity+DestroyUpdate
 union Shared.INetworkContext 30 Shared.SharedSessionObject+SetProperty

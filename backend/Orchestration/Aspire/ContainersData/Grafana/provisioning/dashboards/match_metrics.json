@@ -1,0 +1,242 @@
+{
+  "uid": "match-metrics",
+  "title": "Match metrics",
+  "description": "Dev only: match_metric_* of the local Postgres. Time axis = seconds of the run from 1970-01-01 00:00 UTC.",
+  "editable": true,
+  "schemaVersion": 39,
+  "timezone": "utc",
+  "time": {
+    "from": "1970-01-01T00:00:00.000Z",
+    "to": "1970-01-01T00:30:00.000Z"
+  },
+  "timepicker": {
+    "hidden": false
+  },
+  "refresh": "",
+  "templating": {
+    "list": [
+      {
+        "name": "match_id",
+        "label": "Match",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "match-metrics-pg"
+        },
+        "query": "SELECT match_id::text AS __value,\n       to_char(min(opened_at), 'YYYY-MM-DD HH24:MI:SS') || '  ' || left(match_id::text, 8) AS __text\nFROM match_metric_streams\nGROUP BY match_id\nORDER BY min(opened_at) DESC\nLIMIT 200",
+        "definition": "SELECT match_id::text AS __value,\n       to_char(min(opened_at), 'YYYY-MM-DD HH24:MI:SS') || '  ' || left(match_id::text, 8) AS __text\nFROM match_metric_streams\nGROUP BY match_id\nORDER BY min(opened_at) DESC\nLIMIT 200",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "options": []
+      },
+      {
+        "name": "user_id",
+        "label": "User",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "match-metrics-pg"
+        },
+        "query": "SELECT DISTINCT user_id::text FROM match_metric_streams WHERE match_id::text = '${match_id}'",
+        "definition": "SELECT DISTINCT user_id::text FROM match_metric_streams WHERE match_id::text = '${match_id}'",
+        "refresh": 1,
+        "sort": 0,
+        "multi": true,
+        "includeAll": true,
+        "current": {},
+        "options": []
+      },
+      {
+        "name": "series",
+        "label": "Series",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "match-metrics-pg"
+        },
+        "query": "SELECT DISTINCT name FROM match_metric_series ORDER BY 1",
+        "definition": "SELECT DISTINCT name FROM match_metric_series ORDER BY 1",
+        "refresh": 1,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "options": []
+      },
+      {
+        "name": "group",
+        "label": "Group by tag",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "match-metrics-pg"
+        },
+        "query": "SELECT 'none' UNION SELECT DISTINCT jsonb_object_keys(tags) FROM match_metric_series WHERE name = '${series}' ORDER BY 1",
+        "definition": "SELECT 'none' UNION SELECT DISTINCT jsonb_object_keys(tags) FROM match_metric_series WHERE name = '${series}' ORDER BY 1",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "none",
+          "value": "none"
+        },
+        "options": []
+      },
+      {
+        "name": "step",
+        "label": "Step, s",
+        "type": "custom",
+        "query": "1,5,10,30,60",
+        "current": {
+          "text": "10",
+          "value": "10"
+        },
+        "options": [
+          {
+            "text": "1",
+            "value": "1",
+            "selected": false
+          },
+          {
+            "text": "5",
+            "value": "5",
+            "selected": false
+          },
+          {
+            "text": "10",
+            "value": "10",
+            "selected": true
+          },
+          {
+            "text": "30",
+            "value": "30",
+            "selected": false
+          },
+          {
+            "text": "60",
+            "value": "60",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "$series by $group (sum) (per $step s of the run)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "match-metrics-pg"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "stacking": {
+              "mode": "normal"
+            },
+            "fillOpacity": 80,
+            "lineWidth": 1
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "sum"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "match-metrics-pg"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "-- $series of the match by the tag $group, buckets of $step seconds of the run\n-- (the time axis is the clock of the run: 1970-01-01 00:00 = the start of the run)\nSELECT to_timestamp(b.t) AS time,\n       coalesce(nullif(s.tags ->> '${group}', ''), '-') AS metric,\n       sum(b.v) AS value\nFROM match_metric_streams st\nJOIN match_metric_chunks c ON c.stream_id = st.id\nJOIN match_metric_series s ON s.id = c.series_id\nCROSS JOIN LATERAL (\n  SELECT ((c.start + u.i - 1) / ${step}) * ${step} AS t, u.v\n  FROM unnest(c.values) WITH ORDINALITY AS u(v, i)\n) b\nWHERE st.match_id::text = '${match_id}'\n  AND st.user_id::text IN (${user_id:sqlstring})\n  AND s.name = '${series}'\n  AND b.t BETWEEN $__unixEpochFrom() AND $__unixEpochTo()\nGROUP BY 1, 2\nORDER BY 1, 2"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "$series totals by $group",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "match-metrics-pg"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 9,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "match-metrics-pg"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- $series of the match by the tag $group: totals of the selected players\nSELECT coalesce(nullif(s.tags ->> '${group}', ''), '-') AS \"${group}\",\n       sum(t.sum) AS sum,\n       round((100 * sum(t.sum) / nullif(sum(sum(t.sum)) OVER (), 0))::numeric, 1) AS \"share %\"\nFROM match_metric_streams st\nJOIN match_metric_totals t ON t.stream_id = st.id\nJOIN match_metric_series s ON s.id = t.series_id\nWHERE st.match_id::text = '${match_id}'\n  AND st.user_id::text IN (${user_id:sqlstring})\n  AND s.name = '${series}'\nGROUP BY 1\nORDER BY 2 DESC"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Totals by player",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "match-metrics-pg"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 15,
+        "x": 9,
+        "y": 12
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "match-metrics-pg"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- totals of every series name per stream of the match (user 00000000-... - the server)\nSELECT st.user_id::text AS \"user\",\n       st.kind AS \"stream kind\",\n       s.name AS series,\n       sum(t.sum) AS sum,\n       sum(t.count) AS count,\n       max(t.max) AS max\nFROM match_metric_streams st\nJOIN match_metric_totals t ON t.stream_id = st.id\nJOIN match_metric_series s ON s.id = t.series_id\nWHERE st.match_id::text = '${match_id}'\n  AND st.user_id::text IN (${user_id:sqlstring})\nGROUP BY 1, 2, 3\nORDER BY 1, 3"
+        }
+      ]
+    }
+  ]
+}

@@ -12,6 +12,7 @@ namespace Tests.Deploy;
 /// F2.10: direct-state tables carry only the primary key index; cleanup also empties the dead-letter table.
 /// F2.39: drop also removes the dead-letter table.
 /// F2.40: benchmark state tables only with Benchmarks:Enabled.
+/// The tables of the match metrics (framework MatchMetricsSchema) come from MatchMetricsSetup.
 /// Every test runs the migrator steps against its own empty database.
 /// </summary>
 public class StatesSchemaTests : IAsyncLifetime
@@ -68,6 +69,18 @@ public class StatesSchemaTests : IAsyncLifetime
 
         tables.Should().NotContain(BenchmarkTables());
         tables.Should().Contain(DeployStates.Select(false).Where(i => i.IsEventState == false).Select(i => i.TableName));
+    }
+
+    [Fact]
+    public async Task MatchMetricsSetup_CreatesTheTablesOfTheModule_Twice()
+    {
+        await MatchMetricsSetup.Run(CreateConfiguration());
+        await MatchMetricsSetup.Run(CreateConfiguration());
+
+        (await ReadTables()).Should().Contain([
+            "match_metric_series", "match_metric_streams", "match_metric_slots", "match_metric_chunks",
+            "match_metric_totals", "match_metric_events"
+        ]);
     }
 
     [Fact]

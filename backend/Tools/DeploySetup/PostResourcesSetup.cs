@@ -64,6 +64,8 @@ public static class PostResourcesSetup
         await BenchmarkSetup.Run(configuration);
         await using (var connection = await configuration.GetConnection())
             await global::Console.AuditLogTable.Create(connection);
+        await MatchMetricsSetup.Run(configuration);
+        await DeadMatchRecordsCleanup.Run(configuration);
 
         if (requiresCleanup)
             await StatesCleanup.Run(configuration);

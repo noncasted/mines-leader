@@ -8,6 +8,10 @@ namespace Shared
     public partial class SharedMoveSnapshot : INetworkContext
     {
         public IReadOnlyList<IMoveSnapshotRecord> Records { get; set; }
+
+        // The clock of the match, one for both players: milliseconds of the server since the start of the game of the
+        // session (IMatchClock), stamped on every snapshot. A rematch is a new session: its clock starts at 0 again.
+        public long MatchMs { get; set; }
     }
 
     [MemoryPackable]

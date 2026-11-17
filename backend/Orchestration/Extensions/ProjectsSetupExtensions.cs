@@ -9,6 +9,7 @@ using Cluster.State;
 using Common;
 using Common.Extensions;
 using Game.Global;
+using Game.MatchMetrics;
 using Infrastructure;
 using Infrastructure.Execution;
 using Infrastructure.Startup;
@@ -75,7 +76,8 @@ public static class ProjectsSetupExtensions
 
             // Project services
             builder
-                .AddBackendMatchServices();
+                .AddBackendMatchServices()
+                .AddMatchSummaries();
 
             builder.Services.AddOpenApi();
 
@@ -101,6 +103,9 @@ public static class ProjectsSetupExtensions
             builder
                 .AddGlobalSessions();
 
+            // The stream of the server of every match (SessionMetrics in the container of a session).
+            builder.AddMatchMetricsWriter();
+
             builder.Services.AddOpenApi();
 
             return builder;
@@ -115,7 +120,8 @@ public static class ProjectsSetupExtensions
 
             // Cluster services
             builder
-                .AddBase(GameRoles.Silo);
+                .AddBase(GameRoles.Silo)
+                .AddMatchSummaries();
 
             builder.Add<SideEffectsWorker>()
                    .As<IHostedService>();
@@ -140,7 +146,7 @@ public static class ProjectsSetupExtensions
             builder.Services.AddHttpClient("meta", c => c.BaseAddress = new Uri("http://meta"));
 
             // Console-only services
-            builder.Services.AddSingleton<IMatchHistoryStorage, MatchHistoryStorage>();
+            builder.AddMatchSummaries();
 
             // Benchmark roots (IClusterTest): only when the benchmarks are on (AddTests).
             if (ReadBenchmarksAvailability(builder).IsEnabled == false)

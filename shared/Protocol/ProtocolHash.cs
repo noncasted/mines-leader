@@ -7,6 +7,6 @@ namespace Shared
         // members of every [MemoryPackable] shared type of the framework and of this project, enum values).
         // ProtocolSchemaTests fails with the new value when the schema changes: update it here together with the
         // golden file.
-        public const string Value = "bb1b3ece7c5d38f0";
+        public const string Value = "f1459c107e28ee7f";
     }
 }

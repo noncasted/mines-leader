@@ -7,6 +7,8 @@ using Cluster.Discovery;
 using Cluster.State;
 using Console.Monitoring;
 using ConsoleGateway;
+using Game.ClientTelemetry;
+using Game.MatchMetrics;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
@@ -43,6 +45,8 @@ builder.AddConsoleInfrastructureCard(new ConsoleInfrastructureCard
     Target = GameConsoleConstants.Pages.Benchmarks
 });
 builder.AddCommonConsoleComponents();
+builder.AddClientTelemetryReader();
+builder.AddMatchMetricsReader();
 builder.Services.AddBlazorBlueprintComponents();
 builder.AddConsoleInfrastructure(new ConsoleInfrastructureOptions
 {

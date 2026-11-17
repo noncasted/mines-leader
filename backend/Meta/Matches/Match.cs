@@ -1,5 +1,4 @@
 using Cluster.Configs;
-using Common;
 using Infrastructure;
 using Infrastructure.State;
 using Meta.Users;
@@ -7,94 +6,16 @@ using Shared;
 
 namespace Meta.Matches;
 
-public interface IMatch : IGrainWithGuidKey
-{
-    [Transaction]
-    Task Setup(GameMatchType type, IReadOnlyList<Guid> participants);
-
-    [Transaction]
-    Task<MatchCompletionSummary> OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats);
-
-    [Transaction]
-    Task<MatchState> GetState();
-}
-
-[GenerateSerializer]
-[GrainEventState(State = "match_entity", Lookup = "Match", Key = GrainKeyType.Guid)]
-public class MatchState : IEventStateValue
-{
-    [Id(0)] public string Id { get; set; } = string.Empty;
-    [Id(1)] public GameMatchType Type { get; set; }
-    [Id(2)] public Guid Winner { get; set; }
-    [Id(3)] public TimeSpan Time { get; set; }
-    [Id(4)] public DateTime StartDate { get; set; }
-    [Id(5)] public IReadOnlyList<Guid> Participants { get; set; } = new List<Guid>();
-    [Id(6)] public Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks { get; set; } = new();
-    [Id(7)] public Dictionary<Guid, int> RatingChanges { get; set; } = new();
-
-    public int Version => 0;
-
-    public void Apply(MatchSetup e)
-    {
-        Type = e.Type;
-        StartDate = e.StartDate;
-        Participants = e.Participants;
-        ParticipantDecks = e.ParticipantDecks;
-    }
-
-    public void Apply(MatchCompleted e)
-    {
-        Winner = e.Winner;
-        Time = e.Time;
-    }
-
-    public void Apply(MatchRatingCalculated e)
-    {
-        foreach (var change in e.Changes)
-            RatingChanges[change.Key] = change.Value;
-    }
-
-    public MatchOverview CreateOverview(Guid matchId)
-    {
-        return new MatchOverview
-        {
-            Id = matchId,
-            Date = StartDate,
-            Participants = Participants.ToList(),
-            Winner = Winner,
-            Time = Time,
-            Type = Type
-        };
-    }
-}
-
-public record MatchSetup
-(GameMatchType Type,
-    DateTime StartDate,
-    IReadOnlyList<Guid> Participants,
-    Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks);
-
-public record MatchCompleted(Guid Winner, TimeSpan Time);
-
-public record MatchRatingCalculated(Dictionary<Guid, int> Changes);
-
-/// <summary>Итоги матча для экрана результатов: считаются здесь же, где применяются к грейнам игроков.</summary>
-[GenerateSerializer]
-public class MatchCompletionSummary
-{
-    [Id(0)] public TimeSpan Duration { get; set; }
-    [Id(1)] public Dictionary<Guid, int> RatingChanges { get; set; } = new();
-    [Id(2)] public Dictionary<Guid, int> Ratings { get; set; } = new();
-}
-
 public class Match : Grain, IMatch
 {
     public Match(
         [EventState] EventState<MatchState> state,
         IOrleans orleans,
-        IRatingConfig ratingConfig)
+        IRatingConfig ratingConfig,
+        IMatchSummaryCollection summaries)
     {
         _state = state;
+        _summaries = summaries;
         _orleans = orleans;
         _ratingConfig = ratingConfig;
     }
@@ -102,17 +23,24 @@ public class Match : Grain, IMatch
     private readonly EventState<MatchState> _state;
     private readonly IOrleans _orleans;
     private readonly IRatingConfig _ratingConfig;
+    private readonly IMatchSummaryCollection _summaries;
+
+    private Guid Id => this.GetPrimaryKey();
 
     public async Task Setup(GameMatchType type, IReadOnlyList<Guid> participants)
     {
-        var deckResults = await Task.WhenAll(participants.Select(async p => {
-            var cards = await _orleans.CreateUserHandle(p).Deck.GetSelected();
-            return (UserId: p, Cards: cards);
+        var users = await Task.WhenAll(participants.Select(async p => {
+            var handle = _orleans.CreateUserHandle(p);
+            var cards = await handle.Deck.GetSelected();
+            var user = await handle.Entity.GetState();
+            return (UserId: p, Cards: cards, user.Name);
         }));
 
-        var decks = deckResults.ToDictionary(r => r.UserId, r => r.Cards);
+        var decks = users.ToDictionary(r => r.UserId, r => r.Cards);
+        var nicknames = users.ToDictionary(r => r.UserId, r => r.Name);
 
-        await _state.Apply(new MatchSetup(type, DateTime.UtcNow, participants, decks));
+        var state = await _state.Apply(new MatchSetup(type, DateTime.UtcNow, participants, decks, nicknames));
+        await Publish(state);
     }
 
     public async Task<MatchCompletionSummary> OnComplete(Guid winnerId, Dictionary<Guid, UserStatsDelta> matchStats)
@@ -142,9 +70,11 @@ public class Match : Grain, IMatch
             {
                 [winnerId] = winRatingRecord.GetRating(),
                 [loserId] = lossRatingRecord.GetRating()
-            }));
+            }),
+            new MatchClosed(endDate));
 
         await _state.Write();
+        await Publish(state);
 
         var overview = state.CreateOverview(this.GetPrimaryKey());
 
@@ -201,8 +131,27 @@ public class Match : Grain, IMatch
         }.AddToTransaction();
     }
 
+    public async Task Close()
+    {
+        var state = await _state.Read();
+
+        if (state.IsSetUp == false)
+            throw new InvalidOperationException($"[Match] Match {Id} is closed before its setup");
+
+        if (state.IsClosed == true)
+            return;
+
+        state = await _state.Apply(new MatchClosed(DateTime.UtcNow));
+        await Publish(state);
+    }
+
     public Task<MatchState> GetState()
     {
         return _state.Read();
+    }
+
+    private Task Publish(MatchState state)
+    {
+        return _summaries.OnUpdatedTransactional(Id, state);
     }
 }

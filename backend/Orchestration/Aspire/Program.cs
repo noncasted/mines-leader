@@ -28,6 +28,7 @@ var sessionTicketSecret = configuration["SessionTicketSecret"] ?? Convert.ToBase
 
 var upstream = DbUpstreamFactory.Create(builder, configuration);
 var pgbouncer = PgBouncerFactory.Create(builder, upstream);
+GrafanaFactory.Create(builder, configuration, upstream);
 
 var dbConnection = $"Host=127.0.0.1;" +
                    $"Port={pgbouncer.Port};" +

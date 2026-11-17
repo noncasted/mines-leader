@@ -24,6 +24,8 @@
         <Project Path="../tools/framework/backend/Console/Console.csproj" />
         <Project Path="../tools/framework/backend/Infrastructure/Infrastructure.csproj" />
         <Project Path="../tools/framework/backend/Session/Session.csproj" />
+        <Project Path="../tools/framework/backend/ClientTelemetry/ClientTelemetry.csproj" />
+        <Project Path="../tools/framework/backend/MatchMetrics/MatchMetrics.csproj" />
     </Folder>
     <Project Path="Cluster.Game/Cluster.Game.csproj" />
     <Project Path="Console/Console.csproj" />

@@ -22,6 +22,7 @@
         <ProjectReference Include="..\..\..\tools\framework\common\framework.common.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Console\Console.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\MatchMetrics\MatchMetrics.csproj"/>
         <ProjectReference Include="..\..\Orchestration\Extensions\Extensions.csproj"/>
         <ProjectReference Include="..\Benchmarks\Benchmarks.csproj"/>
     </ItemGroup>

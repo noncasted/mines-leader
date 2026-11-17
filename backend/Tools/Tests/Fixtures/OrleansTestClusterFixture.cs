@@ -13,6 +13,7 @@ using Marten;
 using Meta.Bots;
 using Meta.Users;
 using Microsoft.Extensions.DependencyInjection;
+using Meta.Matches;
 using NSubstitute;
 using Orleans.Serialization.Configuration;
 using Orleans.TestingHost;
@@ -111,6 +112,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 // Mock StateCollections for domain grains
                 services.AddSingleton(Substitute.For<IUserCollection>());
                 services.AddSingleton(Substitute.For<IBotCollection>());
+                services.AddSingleton(Substitute.For<IMatchSummaryCollection>());
 
                 // Messaging
                 services.AddSingleton<IMessaging, Infrastructure.Messaging>();
