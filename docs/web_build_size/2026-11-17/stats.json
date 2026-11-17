@@ -1,0 +1,306 @@
+{
+ "method": "WebGL build size of mines-leader in gzip -9 (MB = 10^6).\n\nUsage: measure.py <build dir> <out stats.json> [--section before/addressables] [--meta key=value ...]\nEngine: Build/*.br unpacked with `brotli -d`, re-packed with python gzip level 9 (mtime 0); loader.js gzip -9 as is.\n.data entries are parsed (UnityWebData1.0) and each entry is gzipped separately.\nAddressables content: StreamingAssets/aa/**: bundles as is (LZ4 in the bundle) = served now (nginx gzip off),\ngzip9 = gzip -9 on top of the LZ4 bundle. Service files: catalog.bin, settings.json, AddressablesLink/link.xml (link.xml is in the build total but not downloaded by the player, so not in stages); catalog.hash -> content.other, not counted.\nBuilt-in bundles (monoscripts, unitybuiltinassets) are counted in the menu stage.\n\"served\" of totals/stages = engine in gzip9 + content as served now (LZ4 bundles and service files without transfer compression).\nStages (cumulative, engine included): menu, match - by the group lists below (ScopeExtensions + StartupAssetsPreload).",
+ "before": {
+  "addressables": {
+   "build": {
+    "commit": "e895fe1d",
+    "branch": "framework-0.9.0",
+    "framework": "a11e507a",
+    "unity": "7000.0.0a10",
+    "profile": "Assets/Settings/Build Profiles/web_dev - Desktop - Development.asset",
+    "content": "Addressables, LZ4",
+    "command": "Unity -batchmode -quit -projectPath client -activeBuildProfile <profile> -executeMethod Internal.WebGlBuild.Build -buildOutput builds/web-2026-11-17-addressables",
+    "dir": "/var/tmp/unity-copies/mines-leader/framework-0-9-0/builds/web-2026-11-17-addressables"
+   },
+   "engine": {
+    "loader.js": {
+     "file": "3b915c5169bec8f42d6b6bf9641e3a8c.loader.js",
+     "raw": 28175,
+     "gzip9": 9852
+    },
+    "data": {
+     "file": "619aa11a30910904802e29ec22d45cb7.data.br",
+     "raw": 4006209,
+     "gzip9": 1394769,
+     "entries": {
+      "RuntimeInitializeOnLoads.json": {
+       "raw": 3180,
+       "gzip9": 547
+      },
+      "ScriptingAssemblies.json": {
+       "raw": 4835,
+       "gzip9": 1078
+      },
+      "data.unity3d": {
+       "raw": 301584,
+       "gzip9": 245129
+      },
+      "boot.config": {
+       "raw": 114,
+       "gzip9": 118
+      },
+      "Il2CppData/Metadata/global-metadata.dat": {
+       "raw": 3231584,
+       "gzip9": 1008352
+      },
+      "Resources/unity default resources": {
+       "raw": 464672,
+       "gzip9": 135707
+      }
+     }
+    },
+    "wasm": {
+     "file": "6bde548c2765e5342dc30ec7f454dd03.wasm.br",
+     "raw": 10909186,
+     "gzip9": 4125836
+    },
+    "framework.js": {
+     "file": "8bbcf77a023cd9e72ce52ceda1f62b2b.framework.js.br",
+     "raw": 333081,
+     "gzip9": 76652
+    }
+   },
+   "engineGzip9": 5607109,
+   "content": {
+    "bundlesByGroup": {
+     "Sprites_CardsIcons": {
+      "file": "WebGL/sprites_cardsicons_assets_all_9dd97008e636cf4873d3ea9e3258d473.bundle",
+      "lz4": 85584,
+      "gzip9": 65660
+     },
+     "Shared_GamePlay": {
+      "file": "WebGL/shared_gameplay_assets_all_e3a820e36a1bb6954c4219ff230480a2.bundle",
+      "lz4": 24784,
+      "gzip9": 13510
+     },
+     "Sprites_MenuPlay": {
+      "file": "WebGL/sprites_menuplay_assets_all_4d6a4f45fc1814dd2323bb8e8025c026.bundle",
+      "lz4": 2272,
+      "gzip9": 2034
+     },
+     "Sprites_GameField": {
+      "file": "WebGL/sprites_gamefield_assets_all_9574a56853bf614040a2ac83de7d8ad6.bundle",
+      "lz4": 16832,
+      "gzip9": 14661
+     },
+     "Shared_Common": {
+      "file": "WebGL/shared_common_assets_all_66a064f59e216c28c32f65b8c32250f5.bundle",
+      "lz4": 83216,
+      "gzip9": 67673
+     },
+     "Assets_Internal": {
+      "file": "WebGL/assets_internal_assets_all_688d336536e9ac78618f4f474715d61c.bundle",
+      "lz4": 2560,
+      "gzip9": 2322
+     },
+     "Sprites_CardBuffs": {
+      "file": "WebGL/sprites_cardbuffs_assets_all_c27213862d93ab2e9522e39e1f05037e.bundle",
+      "lz4": 2560,
+      "gzip9": 2293
+     },
+     "Sprites_GameCells": {
+      "file": "WebGL/sprites_gamecells_assets_all_d75123b877f5f3518067e40df648a91f.bundle",
+      "lz4": 14976,
+      "gzip9": 13755
+     },
+     "Sprites_MenuUnlocks": {
+      "file": "WebGL/sprites_menuunlocks_assets_all_8157585c350581f1fe5dc36954b0b13d.bundle",
+      "lz4": 2192,
+      "gzip9": 1968
+     },
+     "Sprites_MenuNavigation": {
+      "file": "WebGL/sprites_menunavigation_assets_all_46ee99048cba5c946fda4f1a658e148d.bundle",
+      "lz4": 2272,
+      "gzip9": 2036
+     },
+     "Sprites_Portraits": {
+      "file": "WebGL/sprites_portraits_assets_all_af4a7fe5dbd685932375fd8a0196bdc8.bundle",
+      "lz4": 2144,
+      "gzip9": 1930
+     },
+     "Sprites_Cards": {
+      "file": "WebGL/sprites_cards_assets_all_7f9f0d034d8387c64a89e5361a4b754c.bundle",
+      "lz4": 2192,
+      "gzip9": 1972
+     },
+     "Assets_Global": {
+      "file": "WebGL/assets_global_assets_all_5018d3c2397d9eec4baafb6526623b35.bundle",
+      "lz4": 2752,
+      "gzip9": 2493
+     },
+     "Sprites_Settings": {
+      "file": "WebGL/sprites_settings_assets_all_b49ef3c976af36e213ed6735663ebf31.bundle",
+      "lz4": 2128,
+      "gzip9": 1909
+     },
+     "Sprites_GameUIPlate": {
+      "file": "WebGL/sprites_gameuiplate_assets_all_0d7ad38a1e2d173bc7370943a0a23498.bundle",
+      "lz4": 2320,
+      "gzip9": 2083
+     },
+     "Shared_Menu": {
+      "file": "WebGL/shared_menu_assets_all_0e7fc2e885bbdd8ecdf418e180df2afd.bundle",
+      "lz4": 6144,
+      "gzip9": 5372
+     },
+     "Scenes_Menu": {
+      "file": "WebGL/scenes_menu_scenes_all_09b94d8e27fd93b1a1f62b4b50065373.bundle",
+      "lz4": 63568,
+      "gzip9": 52881
+     },
+     "Prefabs_Menu": {
+      "file": "WebGL/prefabs_menu_assets_all_fdf2b08018f867009f93ca741f7250e5.bundle",
+      "lz4": 23488,
+      "gzip9": 20780
+     },
+     "Audio_GamePlay": {
+      "file": "WebGL/audio_gameplay_assets_all_bb39c169de4e44f59bc3f22ae59fb7dd.bundle",
+      "lz4": 295120,
+      "gzip9": 294805
+     },
+     "Sprites_GameUI": {
+      "file": "WebGL/sprites_gameui_assets_all_acd86a32ae3326d1f377679a9120b1d2.bundle",
+      "lz4": 2976,
+      "gzip9": 2565
+     },
+     "Assets_GamePlay": {
+      "file": "WebGL/assets_gameplay_assets_all_78decea5213f70c7709af8df26203c76.bundle",
+      "lz4": 9600,
+      "gzip9": 8612
+     },
+     "Audio_Global": {
+      "file": "WebGL/audio_global_assets_all_3a055cd83edd225f68a3e57aba0a8220.bundle",
+      "lz4": 506496,
+      "gzip9": 506018
+     },
+     "Scenes_GamePlay": {
+      "file": "WebGL/scenes_gameplay_scenes_all_88b385f7f481ea5c0524e01afcfd8f45.bundle",
+      "lz4": 181520,
+      "gzip9": 130737
+     },
+     "Prefabs_Global": {
+      "file": "WebGL/prefabs_global_assets_all_7d12e12bd7bde7f4239c82128570d8b4.bundle",
+      "lz4": 16688,
+      "gzip9": 14902
+     },
+     "Prefabs_GamePlay": {
+      "file": "WebGL/prefabs_gameplay_assets_all_db11302dfdcc45f2365a308614470e9e.bundle",
+      "lz4": 38400,
+      "gzip9": 33326
+     }
+    },
+    "builtinBundles": {
+     "f8e488b9921462bc1ee2bcddb6c53b69_monoscripts_0e82e60caeceb9fb3645bd7a9eaf73a6": {
+      "file": "WebGL/f8e488b9921462bc1ee2bcddb6c53b69_monoscripts_0e82e60caeceb9fb3645bd7a9eaf73a6.bundle",
+      "lz4": 8720,
+      "gzip9": 8000
+     },
+     "f8e488b9921462bc1ee2bcddb6c53b69_unitybuiltinassets_86c09e34b19a6abd346434d56c3c018a": {
+      "file": "WebGL/f8e488b9921462bc1ee2bcddb6c53b69_unitybuiltinassets_86c09e34b19a6abd346434d56c3c018a.bundle",
+      "lz4": 136640,
+      "gzip9": 107426
+     }
+    },
+    "unknownBundles": {},
+    "missingGroups": [],
+    "service": {
+     "settings.json": {
+      "served": 801,
+      "gzip9": 424
+     },
+     "catalog.bin": {
+      "served": 17278,
+      "gzip9": 7655
+     },
+     "AddressablesLink/link.xml": {
+      "served": 65338,
+      "gzip9": 3780
+     }
+    },
+    "other": {
+     "catalog.hash": {
+      "served": 32,
+      "gzip9": 52
+     }
+    }
+   },
+   "totals": {
+    "engineGzip9": 5607109,
+    "bundlesGzip9": 1381723,
+    "bundlesServed": 1538144,
+    "serviceGzip9": 11859,
+    "serviceServed": 83417,
+    "buildGzip9": 7000691,
+    "buildServed": 7228670
+   },
+   "groups": {
+    "menu": {
+     "groups": [
+      "Assets_Internal",
+      "Sprites_CardsIcons",
+      "Sprites_CardBuffs",
+      "Sprites_MenuPlay",
+      "Sprites_Portraits",
+      "Audio_Global",
+      "Assets_Global",
+      "Prefabs_Global",
+      "Scenes_Menu",
+      "Prefabs_Menu",
+      "Prefabs_GamePlay",
+      "Sprites_GameCells",
+      "Sprites_MenuNavigation",
+      "Sprites_MenuUnlocks",
+      "Sprites_GameField",
+      "Sprites_GameUI",
+      "Sprites_Settings",
+      "Shared_Common",
+      "Shared_Menu"
+     ],
+     "served": 1040687,
+     "gzip9": 938083
+    },
+    "match": {
+     "groups": [
+      "Scenes_GamePlay",
+      "Assets_GamePlay",
+      "Audio_GamePlay",
+      "Sprites_Cards",
+      "Sprites_GameUIPlate",
+      "Shared_GamePlay"
+     ],
+     "served": 515536,
+     "gzip9": 451719
+    }
+   },
+   "stages": {
+    "menu": {
+     "gzip9": 6545192,
+     "served": 6647796
+    },
+    "match": {
+     "gzip9": 6996911,
+     "served": 7163332
+    }
+   },
+   "totalsMB": {
+    "engineGzip9": 5.607,
+    "bundlesGzip9": 1.382,
+    "bundlesServed": 1.538,
+    "serviceGzip9": 0.012,
+    "serviceServed": 0.083,
+    "buildGzip9": 7.001,
+    "buildServed": 7.229
+   },
+   "stagesMB": {
+    "menu": {
+     "gzip9": 6.545,
+     "served": 6.648
+    },
+    "match": {
+     "gzip9": 6.997,
+     "served": 7.163
+    }
+   }
+  }
+ }
+}
