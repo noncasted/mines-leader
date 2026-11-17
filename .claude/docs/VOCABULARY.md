@@ -18,7 +18,7 @@
 | Observable dictionary | ViewableDictionary | Reactive map, observed key-value store | COMMON_REACTIVE_COLLECTIONS.md |
 | Future-only notification | Advise | Subscribe to future events only | COMMON_REACTIVE_*.md |
 | Immediate + future notification | View | Subscribe with initial state callback | COMMON_REACTIVE_*.md |
-| Dependency injection | VContainer | DI container, scope builder | COMMON_CONTAINER.md |
+| Dependency injection | Framework container (`Internal`, generated) | DI container, scope builder | COMMON_CONTAINER.md |
 | MonoBehaviour registration | ISceneService | Component service, MB registration | COMMON_CONTAINER.md |
 | Initialization callback | OnSetup | Setup phase, lifecycle hook | COMMON_CONTAINER.md |
 | Scope initialization | IScopeSetup | Setup interface, lifecycle interface | COMMON_CONTAINER.md |
@@ -30,7 +30,7 @@
 
 | Pattern | Term | Description |
 |---------|------|-------------|
-| Marker interface | `ISceneService` | Tags component for VContainer registration |
+| Marker interface | `ISceneService` | Tags component for container registration |
 | Lifecycle interface | `IScopeSetup` | Component wants `OnSetup(IReadOnlyLifetime)` callback |
 | Injection interface | `IViewInjector` | Component receives field injection via Inject(resolver) |
 | Registration method | `Create(IScopeBuilder builder)` | Component registers itself with scope |

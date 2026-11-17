@@ -2,7 +2,7 @@
 
 ## Overview
 Competitive multiplayer minesweeper. Three codebases in one repo:
-- **`client/`** — Unity3D (VContainer DI, UniTask, custom reactive/lifetime framework)
+- **`client/`** — Unity3D (own DI container of the framework with compile-time generation, UniTask, custom reactive/lifetime framework)
 - **`backend/`** — .NET Orleans (distributed actor model); subfolders: `Game/`, `Meta/`, `Infrastructure/`, `Orchestration/`
 - **`shared/`** — Protocol, domain models, configs — used by both client and backend
 
@@ -36,32 +36,30 @@ game), the protocol base (`shared`, assembly `Framework.Shared`, namespace `Shar
 - The game part of the console is `backend/Console` (assembly `Console.Game`): home page, game pages, benchmarks.
   Game flags and extra infrastructure cards are registered in `ConsoleGateway/Program.cs`.
 
+## Framework docs
+
+The patterns shared by the games on the framework live in `tools/framework/.claude/docs`. Their index with the
+keywords and the architecture principles:
+
+@tools/framework/.claude/docs/INDEX.md
+
 ## Keyword → Documentation (FAST LOOKUP)
+
+Docs of this game; the shared ones are in the index above. Values of this game for the shared skills:
+`.claude/project-skills.md`.
 
 | Keywords | Go to |
 |----------|-------|
-| MonoBehaviour, ISceneService, IScopeSetup, Create(), OnSetup(), [Inject] | .claude/docs/COMMON_CONTAINER.md |
-| Lifetime, Advise, View, Terminate, subscription, cleanup | .claude/docs/COMMON_LIFETIMES.md |
-| EventSource, ViewableProperty, ViewableList, reactive, observable, event | .claude/docs/COMMON_REACTIVE_BASICS.md |
-| UniTask, async, IReadOnlyList, file I/O, callback wrapping | .claude/docs/API_DESIGN_FULL.md |
-| member order, _camelCase, GC.KeepAlive, NoAwait, braces | .claude/docs/CODE_STYLE_FULL.md |
-| Grain, IGrainWithGuidKey, [Transaction], constructor injection | .claude/docs/COMMON_ORLEANS.md |
-| State<T>, IStateValue, [GenerateSerializer], [Id(N)], StatesLookup, StateCollection | .claude/docs/COMMON_ORLEANS.md |
 | DeployId, IDeployManagement, IDeployContext, IDeployAware, DeployIdPipe, DeployIdentity, DeployLifetime, LiveState, cluster restart | /docs/obsidian/architecture/deploy-epoch.md |
-| Blazor, razor, @inject, UiComponent, early return, console UI | .claude/docs/BLAZOR.md |
-| which pattern to use, decision | .claude/docs/DECISION_TREES.md |
 | error lookup, why X fails, memory leak, NullRef | .claude/docs/ERRORS.md |
 | game flow, board, cell, mine, flag, card, CardType, ICard, snapshot, bot, matchmaking, BoardParser, game tests | .claude/docs/GAMEPLAY.md |
 | menu UI, UI Toolkit, .uss, color palette, MenuTheme, pixel art | .claude/docs/UI_MENU.md |
-| jsonb, GrainStateStorage, PostgresJsonbConverter, OrleansStorage, PostgreSQL | .claude/docs/COMMON_ORLEANS.md |
 | new card, card idea, card design, card validation, fail reasons, why card rejected | /docs/obsidian/game/cards/fail/fail_reasons.md |
-| IOrleans, GetGrain, AddressableDictionary, AddressableDictionaryView, messaging, ListenQueue | .claude/docs/COMMON_ORLEANS.md |
 | trigger keywords, documentation finder, reading order | .claude/docs/TRIGGERS.md |
 | code examples, Docs_*.cs, working examples | .claude/docs/CODE_EXAMPLES.md |
 | common mistakes, top errors, checklist failures | .claude/docs/CLAUDE_MISTAKES.md |
-| full examples, Lifetime details, reactive details | .claude/docs/COMMON_*.md |
 | PrefabBuilder, prefab codegen, [PrefabDefinition], Prefabs.cs, convert prefab | .claude/docs/PREFAB_CODEGEN.md |
-| deploy client, WebGL deploy, deploy-webgl.sh, nginx.conf, Coolify web, rollback client | client/deploy/README.md, .claude/skills/deploy-client/SKILL.md |
+| deploy client, WebGL deploy, deploy-webgl.sh, nginx.conf, Coolify web, rollback client | client/deploy/README.md, .claude/skills/deploy-client/SKILL.md, .claude/project-skills.md (deploy-client) |
 | telemetry, metrics, logs, backend/.telemetry, file logging, session logs | .claude/docs/TELEMETRY.md |
 | test logs, xUnit v3, UTF-16LE, get-test-log, TestResults, filter-class, ITestOutputHelper, dotnet test, run-tests.sh, run all tests | .claude/docs/TESTING.md |
 
@@ -69,7 +67,7 @@ game), the protocol base (`shared`, assembly `Framework.Shared`, namespace `Shar
 
 **Client (Unity3D):**
 - MonoBehaviour services: ISceneService + IScopeSetup + Create() + OnSetup()
-- DI: VContainer, field injection via [Inject], registration in Create()
+- DI: the framework container (generated at compile time), MonoBehaviour dependencies via an `[Inject]` method, registration in Create()
 - Reactive: EventSource (events) / ViewableProperty (state) / ViewableList (collections)
 - Lifetime: every Advise/View/ListenClick needs Lifetime or memory leak
 
@@ -101,22 +99,15 @@ If the user wants error handling, they will say so. Until then — **fail fast, 
 5. **Update knowledge base** when you learn new mistakes — never repeat!
 6. **New .cs files must be added to .csproj manually** — Unity (client) and backend both require manual .csproj entry
 7. **When compacting context:** always preserve — MonoBehaviour full pattern, Lifetime rules, list of modified files, any in-progress task state
-8. **Don't mix client/backend patterns** — VContainer/MonoBehaviour only in client, Orleans grain pattern only in backend
+8. **Don't mix client/backend patterns** — container/MonoBehaviour services only in client, Orleans grain pattern only in backend
 
 ## Full Documentation
 
-**Patterns & rules:**
-- `.claude/docs/COMMON_CONTAINER.md` — VContainer DI, MonoBehaviour service pattern, lifecycle phases
-- `.claude/docs/COMMON_LIFETIMES.md` + `.claude/docs/COMMON_LIFETIMES_PATTERNS.md` — Lifetime usage, scoped subscriptions
-- `.claude/docs/COMMON_REACTIVE_BASICS.md` / `.claude/docs/COMMON_REACTIVE_VALUES.md` / `.claude/docs/COMMON_REACTIVE_COLLECTIONS.md` / `.claude/docs/COMMON_REACTIVE_PATTERNS.md` — EventSource, ViewableProperty, ViewableList
-- `.claude/docs/API_DESIGN_FULL.md` — UniTask, return types, error handling
-- `.claude/docs/CODE_STYLE_FULL.md` — member order, naming, braces, NoAwait
-- `.claude/docs/COMMON_ORLEANS.md` — Grains, State<T>, IStateValue, StateCollection, IOrleans, messaging
-- `.claude/docs/BLAZOR.md` — Blazor console UI: early returns, injection, UiComponent
+**Patterns & rules:** container, lifetimes, reactive, API design, code style, Orleans, Blazor, decision trees - the
+framework docs (index above, `tools/framework/.claude/docs`).
 - `.claude/docs/UI_MENU.md` — Menu UI Toolkit: color palette, reusable panel classes
 
 **Reference & lookup:**
-- `.claude/docs/DECISION_TREES.md` — which pattern to use (8 decision trees)
 - `.claude/docs/ERRORS.md` — error lookup table with causes & fixes
 - `.claude/docs/GAMEPLAY.md` — game flow, board, cards, snapshot sync, bots, matchmaking
 - `.claude/docs/PREFAB_CODEGEN.md` — PrefabBuilder API, converting prefabs to code, codegen workflow

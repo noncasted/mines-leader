@@ -19,7 +19,7 @@ Reference for game flow, board system, card system, snapshot sync, and bot AI.
 
 ```
 mines-leader/
-├── client/          # Unity3D (VContainer DI, UniTask, reactive/lifetime framework)
+├── client/          # Unity3D (framework DI container, UniTask, reactive/lifetime framework)
 │   └── Assets/
 │       ├── GamePlay/    # Boards, Cards, Players, Sync, UI, Loop
 │       ├── Meta/        # Matchmaking, Auth, Deck management
