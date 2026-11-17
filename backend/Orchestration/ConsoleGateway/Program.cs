@@ -46,6 +46,13 @@ builder.AddConsoleInfrastructureCard(new ConsoleInfrastructureCard
 });
 builder.AddCommonConsoleComponents();
 builder.AddClientTelemetryReader();
+
+// The backend trace of a startup record: optional feature, on when the AppHost or the compose passes the section.
+var aspireDashboard = builder.Configuration.GetSection("AspireDashboard");
+
+if (aspireDashboard.Exists() == true)
+    builder.AddConsoleBackendTraces(aspireDashboard);
+
 builder.AddMatchMetricsReader();
 builder.Services.AddBlazorBlueprintComponents();
 builder.AddConsoleInfrastructure(new ConsoleInfrastructureOptions

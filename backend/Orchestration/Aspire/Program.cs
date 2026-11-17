@@ -49,6 +49,8 @@ var console = builder
               .AddProject<ConsoleGateway>("console")
               .WithEnvironment("CONSOLE_TOKEN", consoleToken);
 
+SetupDashboardApi();
+
 var game = builder
            .AddProject<GameGateway>("game")
            .WithEnvironment("GAME_SERVER_URL", serverUrl)
@@ -97,6 +99,23 @@ void SetupBenchmarks()
 
     foreach (var resource in ProjectResources())
         resource.WithEnvironment("Benchmarks__Enabled", "true");
+}
+
+// The console reads the backend traces of the client startup records from the telemetry API of the dashboard.
+// The dashboard URL is the AppHost ASPNETCORE_URLS (launchSettings applicationUrl, the DCP proxy of the dashboard
+// frontend). The API key is the one Aspire generates in CreateBuilder (AppHost:DashboardApiKey, kept in the user
+// secrets of the AppHost) and passes to the dashboard as DASHBOARD__API__PRIMARYAPIKEY.
+void SetupDashboardApi()
+{
+    var urls = configuration["ASPNETCORE_URLS"]
+               ?? throw new InvalidOperationException("ASPNETCORE_URLS of the AppHost is not set: the dashboard URL is unknown");
+    var dashboardUrl = urls.Split(';', StringSplitOptions.RemoveEmptyEntries)[0];
+
+    var dashboardApiKey = configuration["AppHost:DashboardApiKey"]
+                          ?? throw new InvalidOperationException("AppHost:DashboardApiKey is not set: the dashboard API is unsecured or disabled");
+
+    console.WithEnvironment("AspireDashboard__Url", dashboardUrl)
+           .WithEnvironment("AspireDashboard__ApiKey", dashboardApiKey);
 }
 
 void SetupDB()
