@@ -156,9 +156,11 @@ remote "mkdir -p '$DEPLOY_PATH/releases'"
 
 # nginx.conf is bind-mounted straight from this directory (see
 # client/deploy/docker-compose.yaml), so it ships with the deploy. It is only a
-# couple of KB — always send it and let rsync report whether it actually changed.
-conf_changed="$(rsync -ai --chmod=F644 -e "${SSH_CMD[*]} ${SSH_OPTS[*]}" \
-    "$ROOT/client/deploy/nginx.conf" "$DEPLOY_HOST:$DEPLOY_PATH/nginx.conf")"
+# couple of KB — always send it and let rsync report whether its content changed:
+# --checksum compares the content, and only a transfer ("<f...") counts. A fresh
+# checkout has a new mtime, which rsync itemizes as ".f..t" — no change for nginx.
+conf_changed="$(rsync -ai --checksum --chmod=F644 -e "${SSH_CMD[*]} ${SSH_OPTS[*]}" \
+    "$ROOT/client/deploy/nginx.conf" "$DEPLOY_HOST:$DEPLOY_PATH/nginx.conf" | grep '^<' || true)"
 
 # --link-dest hardlinks unchanged files against the live release, so a redeploy
 # only transfers the payloads that actually changed.
