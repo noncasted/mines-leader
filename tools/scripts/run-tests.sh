@@ -17,7 +17,9 @@
 #              (Postgres comes from Testcontainers - Docker must be running)
 #   generator  dotnet build tools/framework/client/core/Source~/ContainerGenerator -c Release + ContainerGenerator.Verify
 #   unity      Unity -batchmode -nographics -runTests -testPlatform EditMode on the copied client
-#              (all EditMode test assemblies of the project: Internal.Tests, ...)
+#              (all EditMode test assemblies of the project: Internal.Content.Tests and the tests of the packages in
+#              "testables" of the manifest: core, network); a watchdog kills the run when a script compilation is
+#              requested after the start of the tests (the UniTask waits would stop until the limit)
 #
 # Environment (all optional):
 #   TEST_COPY_DIR=/var/tmp          # parent of the snapshot; must be on the same btrfs as the repo
@@ -27,7 +29,8 @@
 #                                   # /tools/unity/<ver>/Editor/Unity or ~/Unity/Hub/Editor/<ver>/Editor/Unity
 #   UNITY_MIN_FREE_GB=8             # refuse to start Unity when MemAvailable is below this
 #   UNITY_TEST_FILTER=<filter>      # passed to Unity as -testFilter (e.g. a class full name)
-#   UNITY_TIMEOUT=3600              # seconds before a hung Unity run is killed
+#   UNITY_TIMEOUT=3600              # seconds before a hung Unity run is killed (SIGKILL)
+#   UNITY_LOCK=<file>               # lock shared by batchmode Unity runs; default /tmp/claude-1000/unity-batchmode.lock
 #   KEEP_COPY=1                     # do not delete the snapshot
 #
 # Usage:
@@ -58,7 +61,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 BACKEND_LOCK=/tmp/claude-1000/mines-leader-backend-build.lock
-UNITY_LOCK=/tmp/claude-1000/unity-batchmode.lock
+UNITY_LOCK="${UNITY_LOCK:-/tmp/claude-1000/unity-batchmode.lock}"
 mkdir -p /tmp/claude-1000
 
 COPY_PARENT="${TEST_COPY_DIR:-/var/tmp}"
@@ -68,7 +71,36 @@ mkdir -p "$LOG_DIR"
 WORK="$(mktemp -d "$COPY_PARENT/mines-leader-tests.XXXXXX")"
 COPY="$WORK/repo"
 
+# Every process started by the Unity run carries this value in its environment (not exported: the script and its other
+# steps do not carry it). Unity calls setsid and so do its import workers, the process group of `timeout` does not reach
+# them.
+RUN_MARKER="MINES_LEADER_TEST_RUN=$WORK"
+
+# Kills what is left of the Unity run of this script. Unity.Licensing.Client stays: it outlives the editor that started
+# it and serves every editor of the user. Fails when something survives SIGKILL.
+kill_own_processes() {
+    local attempt pid found
+    for attempt in 1 2 3 4 5 6 7 8 9 10; do
+        found=()
+        for pid in /proc/[0-9]*; do
+            pid="${pid#/proc/}"
+            if grep -qzxF -e "$RUN_MARKER" "/proc/$pid/environ" 2>/dev/null \
+                && [[ "$(cat "/proc/$pid/comm" 2>/dev/null)" != Unity.Licensing* ]]; then
+                found+=("$pid")
+            fi
+        done
+        if [[ ${#found[@]} -eq 0 ]]; then
+            return 0
+        fi
+        kill -KILL "${found[@]}" 2>/dev/null || true
+        sleep 1
+    done
+    echo "Processes of this run survived SIGKILL: ${found[*]}" >&2
+    return 1
+}
+
 cleanup() {
+    kill_own_processes || true
     if [[ "${KEEP_COPY:-0}" == "1" ]]; then
         echo "Snapshot kept: $WORK"
     else
@@ -214,13 +246,15 @@ run_generator() {
     local log="$LOG_DIR/generator.log"
     local tools="$COPY/tools/framework/client/core/Source~"
 
+    # SkipAnalyzersCopy: a Release build copies ContainerGenerator.dll into client/core/Analyzers of the snapshot, and
+    # Unity would recompile the scripts of the tested tree for a dll the tests did not get (releases/0.8.0.md #16).
     echo "Building ContainerGenerator and running ContainerGenerator.Verify (log: $log)"
-    if ! dotnet build "$tools/ContainerGenerator/ContainerGenerator.csproj" -c Release >"$log" 2>&1; then
+    if ! dotnet build "$tools/ContainerGenerator/ContainerGenerator.csproj" -c Release -p:SkipAnalyzersCopy=true >"$log" 2>&1; then
         grep -E ": error " "$log" | sort -u | head -30 || true
         record generator FAIL $((SECONDS - start)) "build failed, see $log"
         return
     fi
-    if ! dotnet run --project "$tools/ContainerGenerator.Verify/ContainerGenerator.Verify.csproj" -c Release >>"$log" 2>&1; then
+    if ! dotnet run --project "$tools/ContainerGenerator.Verify/ContainerGenerator.Verify.csproj" -c Release --property:SkipAnalyzersCopy=true >>"$log" 2>&1; then
         tail -30 "$log"
         record generator FAIL $((SECONDS - start)) "verify failed, see $log"
         return
@@ -266,6 +300,41 @@ for case in root.iter("test-case"):
 PY
 }
 
+# Watchdog of the Unity run: "<log>" "<found>" "<pid>". A script compilation requested after the start of the tests cannot
+# run before their end (the test runner locks the reload), and while it is pending EditorApplication.isCompiling stays
+# true: the UniTask loop of the editor stops, every test that awaits a frame or a timeout waits for the 180 s timeout of
+# the test framework and the run reaches its limit with no XML. Kills the Unity of this run at once and writes the line
+# of the log to <found>.
+# A content build of a test (the Scriptable Build Pipeline, "Build Player Scripts") requests two compilations that write
+# nothing into the tree: "Compiling scripts for player" (the player assemblies, apart from the editor ones) is never a
+# change; "Recompiling all scripts before compiling player scripts because Auto Refresh is disabled." is none only when the
+# next Tundra build reports "0 items updated", otherwise it is a real recompilation and kills the run.
+watch_compile_during_run() {
+    local log="$1" found="$2" pid="$3" line
+    while kill -0 "$pid" 2>/dev/null; do
+        if [[ -f "$log" ]]; then
+            line="$(awk '/^Running tests for ExecutionSettings/ { tests = 1 }
+                         !tests { next }
+                         pending != "" && /^\*\*\* Tundra build / {
+                             if ($0 !~ / 0 items updated,/) { print pending; exit }
+                             pending = ""
+                         }
+                         /Requested script compilation because: Compiling scripts for player$/ { next }
+                         /Requested script compilation because: Recompiling all scripts before compiling player scripts because Auto Refresh is disabled\.$/ {
+                             pending = NR ": " $0
+                             next
+                         }
+                         /Requested script compilation/ { print NR ": " $0; exit }' "$log")"
+            if [[ -n "$line" ]]; then
+                echo "$line" >"$found"
+                kill_own_processes >/dev/null 2>&1 || true
+                return 0
+            fi
+        fi
+        sleep 5
+    done
+}
+
 run_unity() {
     section "Unity EditMode"
     local start=$SECONDS
@@ -292,18 +361,46 @@ run_unity() {
         args+=(-testFilter "$UNITY_TEST_FILTER")
     fi
 
+    local limit="${UNITY_TIMEOUT:-3600}"
     echo "Unity: $unity"
-    echo "Running EditMode tests (log: $log; waits for other batchmode runs of this script)"
-    local code=0
-    (
-        flock 9
-        timeout --kill-after=60 "${UNITY_TIMEOUT:-3600}" "$unity" "${args[@]}" >/dev/null 2>&1
-    ) 9>"$UNITY_LOCK" || code=$?
+    echo "Running EditMode tests (limit: $limit s, log: $log; waits for other batchmode runs of this script)"
+    exec 9>"$UNITY_LOCK"
+    flock 9
+    # SIGKILL at the limit: on SIGTERM Unity shuts down for tens of seconds, writes no XML and crashes. In the
+    # background: `wait` lets the traps run. 9>&-: no process of Unity holds the lock.
+    local code=0 run_start=$SECONDS compiled="$log.compile-during-run"
+    rm -f "$compiled"
+    (env "$RUN_MARKER" timeout --signal=KILL "$limit" "$unity" "${args[@]}"; exit $?) >/dev/null 2>&1 9>&- &
+    local unity_pid=$!
+    watch_compile_during_run "$log" "$compiled" "$unity_pid" 9>&- &
+    local watcher=$!
+    wait "$unity_pid" || code=$?
+    wait "$watcher" 2>/dev/null || true
+    local elapsed=$((SECONDS - run_start)) survived=""
+    if ! kill_own_processes; then
+        survived="; processes survived SIGKILL"
+    fi
+    exec 9>&-
 
-    if [[ ! -s "$xml" ]]; then
-        echo "No test results (Unity exit code $code). Last log lines:" >&2
-        grep -n -E "error CS|Caught fatal signal|Aborting|Crash|Exception" "$log" | tail -20 >&2 || true
-        record unity FAIL $((SECONDS - start)) "no results, exit $code; see $log"
+    local reason=""
+    if [[ -s "$compiled" ]]; then
+        reason="killed: scripts changed during the test run, the UniTask waits would stop (log line $(cut -d: -f1 "$compiled"):"
+        reason+=" Requested script compilation; what wrote a script, an asmdef or a dll into the tested tree?)"
+    elif [[ $code -eq 137 && $elapsed -ge $limit ]]; then
+        reason="limit $limit s"
+    elif [[ $code -ne 0 && -f "$log" ]] && grep -q "Caught fatal signal" "$log"; then
+        reason="crash: $(grep -m1 -o "Caught fatal signal - signo:[0-9]*" "$log"), exit $code"
+    elif [[ $code -gt 128 ]]; then
+        reason="killed by signal $((code - 128))"
+    fi
+
+    if [[ -n "$reason" || ! -s "$xml" ]]; then
+        reason="${reason:-no results, exit $code}"
+        echo "Unity: $reason. Last log lines:" >&2
+        if [[ -f "$log" ]]; then
+            grep -n -E "error CS|Caught fatal signal|Aborting|Crash|Exception" "$log" | grep -v -E ": warning " | tail -20 | cut -c1-200 >&2 || true
+        fi
+        record unity FAIL $((SECONDS - start)) "$reason$survived; see $log"
         return
     fi
 
