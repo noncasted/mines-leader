@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: SharedCommon
   m_EditorClassIdentifier: Internal.Editor::Internal.ContentBundle
   _roots:
-  - {fileID: -8328923581568760697, guid: 74016c7665c4dd9909b208565a51a408, type: 3}
   - {fileID: -8328923581568760697, guid: c237cb65b90628d26bec7d5e95f1d78b, type: 3}
   - {fileID: -8328923581568760697, guid: c09d030a9fda5d2f58ad6e1cdfd6ecf6, type: 3}
   - {fileID: 11400000, guid: f20a0a776c428a09a8148113398cae3e, type: 2}

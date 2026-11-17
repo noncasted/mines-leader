@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Internal.Editor::Internal.ContentBundle
   _roots:
   - {fileID: 11400000, guid: 988b9a552b1ab318d981a583e17b506e, type: 2}
+  - {fileID: -8328923581568760697, guid: 74016c7665c4dd9909b208565a51a408, type: 3}
+  - {fileID: -8328923581568760697, guid: 66e1e310407cf49a6a8743a7ded9da22, type: 3}
   _isPreloaded: 1
   _isGzip: 0
