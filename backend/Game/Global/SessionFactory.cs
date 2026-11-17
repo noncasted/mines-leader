@@ -6,6 +6,7 @@ using Common.Extensions;
 using Common.Network;
 using Internal;
 using Game.GamePlay;
+using Game.MatchMetrics;
 using Game.Session;
 using Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -318,5 +319,6 @@ public class SessionFactory : ISessionFactory
         collection.Pass<IClusterFlags>(_serviceProvider);
         collection.Pass<IGameFlags>(_serviceProvider);
         collection.Pass<IPlayerConfig>(_serviceProvider);
+        collection.Pass<IMatchMetricsWriter>(_serviceProvider);
     }
 }

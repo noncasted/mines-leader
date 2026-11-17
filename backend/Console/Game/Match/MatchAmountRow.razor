@@ -1,0 +1,9 @@
+<div class="flex items-center justify-between text-xs pl-2">
+    <span class="font-mono">@(Name == "" ? "(none)" : Name)</span>
+    <span>@Value.ToString("0.##")</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Name { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public double Value { get; set; }
+}

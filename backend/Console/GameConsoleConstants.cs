@@ -12,6 +12,7 @@ public static class GameConsoleConstants
         public const string Users = "/users";
         public const string UserDashboard = "/users/{0}";
         public const string Match = "/match/{0}";
+        public const string MatchPlayer = "/match/{0}/players/{1}";
         public const string LiveMatches = "/matches";
         public const string Matchmaking = "/matchmaking";
         public const string MatchHistory = "/match-history";

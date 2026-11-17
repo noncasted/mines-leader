@@ -27,6 +27,12 @@ public static class GameContextServiceExtensions
                 .As<IService>()
                 .As<IGameFlow>();
 
+        services.Add<MatchClock>()
+                .As<IMatchClock>();
+
+        services.Add<SessionMetrics>()
+                .As<ISessionMetrics>();
+
         services.Add<SnapshotSender>()
                 .As<ISnapshotSender>();
 

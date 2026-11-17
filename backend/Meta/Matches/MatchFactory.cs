@@ -43,7 +43,6 @@ public class CreatedMatch
 public class MatchFactory : IMatchFactory
 {
     public MatchFactory(
-        IOrleans orleans,
         IMessaging messaging,
         IGameServerBalancer gameServers,
         IBotCollection botCollection,
@@ -52,7 +51,6 @@ public class MatchFactory : IMatchFactory
         ILogger<MatchFactory> logger)
     {
         _tickets = tickets;
-        _orleans = orleans;
         _messaging = messaging;
         _gameServers = gameServers;
         _botCollection = botCollection;
@@ -60,7 +58,6 @@ public class MatchFactory : IMatchFactory
         _logger = logger;
     }
 
-    private readonly IOrleans _orleans;
     private readonly IMessaging _messaging;
     private readonly IGameServerBalancer _gameServers;
     private readonly IBotCollection _botCollection;
@@ -70,9 +67,6 @@ public class MatchFactory : IMatchFactory
 
     public async Task<CreatedMatch> Create(IReadOnlyList<Guid> participants, GameMatchType type)
     {
-        var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
-        await _orleans.InTransaction(() => match.Setup(GameMatchType.Single, participants));
-
         var targetServer = _gameServers.Pick();
 
         var request = new MatchPayloads.Match.Request
@@ -85,7 +79,7 @@ public class MatchFactory : IMatchFactory
         var response = await _messaging.SendPipe<MatchPayloads.Match.Response>(pipeId, request);
 
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL}",
-            match.GetPrimaryKey(), targetServer.Url);
+            response.SessionId, targetServer.Url);
 
         return new CreatedMatch
         {
@@ -105,9 +99,6 @@ public class MatchFactory : IMatchFactory
         if (botId != Guid.Empty)
             await _botFactory.AssignDeck(botId);
 
-        var match = _orleans.GetGrain<IMatch>(Guid.NewGuid());
-        await _orleans.InTransaction(() => match.Setup(GameMatchType.Single, new[] { participant, botId }));
-
         var targetServer = _gameServers.Pick();
 
         var request = new MatchPayloads.Match.RequestWithBot
@@ -122,7 +113,7 @@ public class MatchFactory : IMatchFactory
         var response = await _messaging.SendPipe<MatchPayloads.Match.Response>(pipeId, request);
 
         _logger.LogInformation("[MatchFactory] Created match {MatchID} on server {ServerURL} with bot {BotID}",
-            match.GetPrimaryKey(), targetServer.Url, botId);
+            response.SessionId, targetServer.Url, botId);
 
         return new CreatedMatch
         {

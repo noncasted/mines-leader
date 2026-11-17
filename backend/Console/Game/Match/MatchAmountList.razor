@@ -1,0 +1,19 @@
+<div class="flex flex-col gap-1">
+    <div class="flex items-center justify-between text-xs">
+        <span class="text-muted-foreground uppercase tracking-wide">@Title</span>
+        @if (Total != null)
+        {
+            <span class="font-medium">@Total.Value.ToString("0.##")</span>
+        }
+    </div>
+    @foreach (var amount in Amounts)
+    {
+        <MatchAmountRow Name="@amount.Key" Value="@amount.Value"/>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public double? Total { get; set; }
+    [Parameter, EditorRequired] public IReadOnlyDictionary<string, double> Amounts { get; set; } = null!;
+}

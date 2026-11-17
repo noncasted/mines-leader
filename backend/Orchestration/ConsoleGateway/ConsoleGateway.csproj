@@ -31,6 +31,8 @@
         <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
         <ProjectReference Include="..\..\Tools\Benchmarks\Benchmarks.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\ClientTelemetry\ClientTelemetry.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\MatchMetrics\MatchMetrics.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\common\framework.common.csproj"/>
         <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
     </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using Cluster.Configs;
+using Common.Extensions;
 using Game.Session;
 using Infrastructure;
 using Meta.Matches;
@@ -25,7 +26,9 @@ public class GameFlow : Service, IGameFlow
         IBotConfig botConfig,
         ISnapshotSender snapshotSender,
         IAgentObservationPublisher observationPublisher,
-        IMatchStatsTracker statsTracker) : base("game-flow")
+        IMatchStatsTracker statsTracker,
+        IMatchClock clock,
+        ISessionMetrics sessionMetrics) : base("game-flow")
     {
         _orleans = orleans;
         _context = context;
@@ -40,6 +43,8 @@ public class GameFlow : Service, IGameFlow
         _snapshotSender = snapshotSender;
         _observationPublisher = observationPublisher;
         _statsTracker = statsTracker;
+        _clock = clock;
+        _sessionMetrics = sessionMetrics;
     }
 
     private readonly IOrleans _orleans;
@@ -55,6 +60,10 @@ public class GameFlow : Service, IGameFlow
     private readonly ISnapshotSender _snapshotSender;
     private readonly IAgentObservationPublisher _observationPublisher;
     private readonly IMatchStatsTracker _statsTracker;
+    private readonly IMatchClock _clock;
+    private readonly ISessionMetrics _sessionMetrics;
+
+    private bool _isCloseOnEndListened;
 
     public async Task<MatchTransitionResult> Process()
     {
@@ -67,6 +76,7 @@ public class GameFlow : Service, IGameFlow
 
         _sessionLogger.LogSessionCreated(_sessionData.Type, _sessionData.Id);
         await _orleans.InTransaction(() => match.Setup(_matchOptions.Type, ids.ToBackend(playerIds)));
+        ListenCloseOnEnd(match);
 
         foreach (var user in _users)
         {
@@ -80,8 +90,12 @@ public class GameFlow : Service, IGameFlow
         foreach (var user in _users.Where(u => u.IsBot))
             _sessionLogger.LogBotProfile(user.Id, MatchBotProfile.Resolve(_matchOptions, _botConfig).ToString());
 
+        // The clock of the match goes before the first snapshot of the game (sent by the listeners of the start).
+        _clock.Start();
+        _sessionMetrics.Start();
         _context.OnGameStarted();
         var winner = await _gameRound.Process(_sessionData.Lifetime);
+        _sessionMetrics.End(winner);
 
         var matchStats = _statsTracker.Collect();
 
@@ -91,6 +105,9 @@ public class GameFlow : Service, IGameFlow
             ? ids.ToSession(await _orleans.InTransaction(() =>
                 match.OnComplete(ids.ToBackend(winner), ids.ToBackend(matchStats))))
             : null;
+
+        if (winner == Guid.Empty)
+            await _orleans.InTransaction(match.Close);
 
         var completionSnapshot = new MoveSnapshot();
         completionSnapshot.RecordGameCompleted(winner, playerIds, matchStats, summary, _context.Boards.Values);
@@ -113,6 +130,17 @@ public class GameFlow : Service, IGameFlow
         }
 
         return MatchTransitionResult.End;
+    }
+
+    // A session that ends during a round (everybody left, the server stops) closes its match without a winner; a match
+    // closed already stays as it is. A rematch is a new session with its own record (MatchHandle).
+    private void ListenCloseOnEnd(IMatch match)
+    {
+        if (_isCloseOnEndListened == true)
+            return;
+
+        _isCloseOnEndListened = true;
+        _sessionData.Lifetime.Listen(() => _orleans.InTransaction(match.Close).NoAwait());
     }
 }
 

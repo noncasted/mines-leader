@@ -1,52 +1,40 @@
 @page "/match-history"
 @using Meta.Matches
-@using Meta.Users
 
 <PageTitle>Match History</PageTitle>
 <PageHeader Title="Match History"/>
 
-@if (_isLoading)
-{
-    <div class="flex items-center justify-center py-16">
-        <LucideIcon Name="loader-circle" Size="32" class="animate-spin text-primary"/>
-    </div>
-    return;
-}
-
 <div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
 
     <div class="flex items-center gap-4">
-        <span class="text-sm text-muted-foreground">@_totalCount matches total</span>
+        <input class="h-9 rounded-md border bg-transparent px-3 text-sm w-72"
+               placeholder="Player: meta id or nickname"
+               @bind="_player" @bind:event="oninput" @bind:after="Apply"/>
+        <select class="h-9 rounded-md border bg-transparent px-2 text-sm" @bind="_status" @bind:after="Apply">
+            <option value="all">All</option>
+            <option value="running">Running</option>
+            <option value="winner">Closed with a winner</option>
+            <option value="nowinner">Closed without a winner</option>
+        </select>
+        <span class="text-sm text-muted-foreground">@_total matches</span>
     </div>
 
     <div class="rounded-lg border">
         <table class="w-full text-sm">
             <thead>
             <tr class="border-b bg-muted/50">
-                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Date</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Started</th>
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">Type</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Players</th>
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">Winner</th>
                 <th class="h-10 px-4 text-left font-medium text-muted-foreground">Duration</th>
-                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Players</th>
                 <th class="h-10 px-4 w-10"></th>
             </tr>
             </thead>
             <tbody>
-            @foreach (var match in _entries)
+            @foreach (var entry in _entries)
             {
-                <tr class="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer"
-                    @onclick="@(() => Navigation.NavigateTo(string.Format(GameConsoleConstants.Pages.Match, match.Id)))">
-                    <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.Date.ToString("yyyy-MM-dd HH:mm")</td>
-                    <td class="px-4 py-2.5 text-xs">
-                        <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">@match.Type</span>
-                    </td>
-                    <td class="px-4 py-2.5 text-xs font-medium">@ResolveName(match.Winner)</td>
-                    <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.Duration.ToString(@"mm\:ss")</td>
-                    <td class="px-4 py-2.5 text-xs text-muted-foreground">@match.ParticipantCount</td>
-                    <td class="px-4 py-2.5">
-                        <LucideIcon Name="chevron-right" Size="14" class="text-muted-foreground"/>
-                    </td>
-                </tr>
+                <MatchHistoryRow MatchId="@entry.Key" Match="@entry.Value"/>
             }
             @if (_entries.Count == 0)
             {
@@ -63,14 +51,10 @@
         <div class="flex items-center justify-between">
             <span class="text-xs text-muted-foreground">Page @(_page + 1) / @_totalPages</span>
             <div class="flex items-center gap-1">
-                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
-                          Disabled="@(_page == 0)"
-                          @onclick="PrevPage">
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" Disabled="@(_page == 0)" @onclick="PrevPage">
                     <LucideIcon Name="chevron-left" Size="14"/>
                 </BbButton>
-                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
-                          Disabled="@(_page >= _totalPages - 1)"
-                          @onclick="NextPage">
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" Disabled="@(_page >= _totalPages - 1)" @onclick="NextPage">
                     <LucideIcon Name="chevron-right" Size="14"/>
                 </BbButton>
             </div>
@@ -80,59 +64,54 @@
 </div>
 
 @code {
-    [Inject] public IMatchHistoryStorage MatchHistoryStorage { get; set; } = null!;
-    [Inject] public IUserCollection UserCollection { get; set; } = null!;
-    [Inject] public NavigationManager Navigation { get; set; } = null!;
-    [Inject] public ToastService ToastService { get; set; } = null!;
+    [Inject] public IMatchSummaryCollection Summaries { get; set; } = null!;
 
     private const int PageSize = 20;
 
-    private IReadOnlyList<MatchHistoryEntry> _entries = [];
-    private int _totalCount;
+    private string _player = string.Empty;
+    private string _status = "all";
+    private IReadOnlyList<KeyValuePair<Guid, MatchState>> _entries = [];
+    private int _total;
     private int _page;
-    private int _totalPages;
-    private bool _isLoading = true;
+    private int _totalPages = 1;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await LoadPage();
-        _isLoading = false;
+        Load();
     }
 
-    private async Task LoadPage()
+    // The records in memory of the host, newest first (the same filter as /api/match-history/matches).
+    private void Load()
     {
-        try
+        var filter = new MatchListFilter
         {
-            var result = await MatchHistoryStorage.GetPage(_page * PageSize, PageSize);
-            _entries = result.Entries;
-            _totalCount = result.TotalCount;
-            _totalPages = _totalCount == 0 ? 1 : (_totalCount + PageSize - 1) / PageSize;
-        }
-        catch (Exception ex)
-        {
-            ToastService.Error($"[MatchHistory] {ex.Message}", "Error");
-        }
+            IsClosed = _status switch { "running" => false, "winner" or "nowinner" => true, _ => null },
+            HasWinner = _status switch { "winner" => true, "nowinner" => false, _ => null }
+        };
+
+        if (string.IsNullOrWhiteSpace(_player) == false)
+            filter = filter.WithPlayer(_player.Trim());
+
+        _total = filter.Count(Summaries.Values);
+        _totalPages = _total == 0 ? 1 : (_total + PageSize - 1) / PageSize;
+        _entries = (filter with { Offset = _page * PageSize, Limit = PageSize }).Apply(Summaries);
     }
 
-    private async Task PrevPage()
+    private void Apply()
     {
-        if (_page <= 0) return;
+        _page = 0;
+        Load();
+    }
+
+    private void PrevPage()
+    {
         _page--;
-        await LoadPage();
+        Load();
     }
 
-    private async Task NextPage()
+    private void NextPage()
     {
-        if (_page >= _totalPages - 1) return;
         _page++;
-        await LoadPage();
-    }
-
-    private string ResolveName(Guid userId)
-    {
-        if (userId == Guid.Empty) return "--";
-        if (UserCollection.TryGetValue(userId, out var user))
-            return user.Name;
-        return userId.ToString()[..8] + "...";
+        Load();
     }
 }
