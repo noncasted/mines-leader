@@ -203,6 +203,7 @@ CORS_ALLOWED_ORIGINS                           # optional, default https://mines
 GAME_SERVER_URL                                # public URL announced to the Unity client
 ASPIRE_TOKEN                                   # aspire-dashboard browser token
 OTEL_API_KEY                                   # services → dashboard OTLP header
+ASPIRE_API_KEY                                 # dashboard telemetry API key (x-api-key), console reads startup backend traces
 ```
 
 `CONSOLE_TOKEN` (`ConsoleAccess`, `Orchestration/Extensions/ConsoleAccess.cs`): empty or `local-dev-token` turns console auth and the internal endpoint check off, which is allowed only in Development; console, meta and game fail at startup with such a value in any other environment. Locally the dev token comes from `Aspire/appsettings.json`, so `curl http://localhost:7102/api/sessions` works without a header; in prod it needs `-H "Authorization: Bearer $CONSOLE_TOKEN"`.
@@ -211,7 +212,7 @@ OTEL_API_KEY                                   # services → dashboard OTLP hea
 
 `SESSION_TICKET_SECRET` (`SessionTicketsSetup`, `Orchestration/Extensions/SessionTicketsSetup.cs`): the key of the signed tickets of the game sessions (S4), `openssl rand -base64 48`. Meta signs a ticket for every participant of a match / lobby result, game signs the rematch tickets and verifies all of them, so both need the same value. Empty in Development = a fixed development key (Aspire passes it explicitly); outside Development an empty, short, non-base64 or development key fails startup. Rotating it only fails the tickets issued in the last minute (a player in the middle of entering a match).
 
-All `${NAME:?}` variables in the compose (`DB_*`, `CONSOLE_TOKEN`, `SESSION_TICKET_SECRET`, `GAME_SERVER_URL`, `ASPIRE_TOKEN`, `OTEL_API_KEY`) are required: compose fails instead of falling back to an empty or dev value.
+All `${NAME:?}` variables in the compose (`DB_*`, `CONSOLE_TOKEN`, `SESSION_TICKET_SECRET`, `GAME_SERVER_URL`, `ASPIRE_TOKEN`, `OTEL_API_KEY`, `ASPIRE_API_KEY`) are required: compose fails instead of falling back to an empty or dev value.
 
 ### Guest secret (S3) and session tickets (S4)
 

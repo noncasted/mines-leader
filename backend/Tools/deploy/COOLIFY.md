@@ -101,10 +101,13 @@ Set these in the Coolify UI ("Environment Variables" tab, all marked Build-time 
 | `GAME_SERVER_URL` | yes | Public URL of the game gateway advertised to clients |
 | `ASPIRE_TOKEN` | yes | Aspire dashboard browser token (secret) |
 | `OTEL_API_KEY` | yes | Shared secret for OTLP export from the services to the dashboard (secret) |
+| `ASPIRE_API_KEY` | yes | Key of the dashboard telemetry HTTP API (`DASHBOARD__API__PRIMARYAPIKEY`, header `x-api-key`); the console reads the backend traces of the client startup records with it (`AspireDashboard__ApiKey`). `openssl rand -hex 32` (secret) |
 
 Required variables are written as `${NAME:?}` in the compose: if one is missing or empty, the deploy fails at `docker compose` with `required variable NAME is missing a value` instead of starting a half-configured stack. For `CONSOLE_TOKEN` there is a second guard: outside Development console, meta and game refuse to start with an empty token or the dev value `local-dev-token` (`ConsoleAccess`), because that value turns authentication off. The same goes for an empty `Cors__AllowedOrigins` (`AllowedOrigins`) and for `SESSION_TICKET_SECRET` that is not base64, shorter than 32 bytes or the development key (`SessionTicketsSetup`).
 
 A new domain for the client (another host, another itch.io origin) must be added to `CORS_ALLOWED_ORIGINS` before players use it. A handshake without `Origin` (Unity editor, native build) is not affected.
+
+`ASPIRE_API_KEY` turns on the key check of the dashboard telemetry API (`/api/telemetry/*` on the frontend port 18888, the public domain of the dashboard): without it the API would be open. Setting it up the first time or rotating it: generate a key (`openssl rand -hex 32`), set `ASPIRE_API_KEY` in Coolify, redeploy (or restart `aspire-dashboard` and `console`: both read it at start). The console calls `http://aspire-dashboard:18888` over the internal network.
 
 `SERVICE_FQDN_<NAME>_<PORT>` env vars are already baked into the compose. Coolify auto-generates URLs, or you can override per-service via Coolify UI.
 

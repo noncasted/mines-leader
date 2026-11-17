@@ -256,6 +256,10 @@ services:
       # Required: outside Development ConsoleGateway refuses to start with an empty
       # token or the dev value "local-dev-token".
       CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
+      # Backend traces of the client startup records are read from the telemetry API of the
+      # dashboard (same network, no depends_on: the console lives without the dashboard).
+      AspireDashboard__Url: http://aspire-dashboard:18888
+      AspireDashboard__ApiKey: ${ASPIRE_API_KEY:?}
       SERVICE_FQDN_CONSOLE_8080: /
     expose:
       - "8080"
@@ -299,6 +303,10 @@ services:
       DASHBOARD__FRONTEND__BROWSERTOKEN: ${ASPIRE_TOKEN:?}
       DASHBOARD__OTLP__AUTHMODE: ApiKey
       DASHBOARD__OTLP__PRIMARYAPIKEY: ${OTEL_API_KEY:?}
+      # Telemetry HTTP API (/api/telemetry/*, header x-api-key) on the frontend port 18888,
+      # read by the console. Without a key the API would be open on the public domain.
+      DASHBOARD__API__AUTHMODE: ApiKey
+      DASHBOARD__API__PRIMARYAPIKEY: ${ASPIRE_API_KEY:?}
       DASHBOARD__OTLP__ENDPOINTURL: http://0.0.0.0:18889
       DASHBOARD__FRONTEND__ENDPOINTURLS: http://0.0.0.0:18888
       # No DASHBOARD__RESOURCESERVICECLIENT__*: we do not run a resource service,
