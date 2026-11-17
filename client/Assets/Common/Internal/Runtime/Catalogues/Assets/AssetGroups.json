@@ -4,5 +4,8 @@
     "Global",
     "Internal"
   ],
-  "nonAddressable": []
+  "preloaded": [
+    "Global",
+    "Internal"
+  ]
 }

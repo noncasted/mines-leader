@@ -5,7 +5,7 @@ using Unity.Scripting.LifecycleManagement;
 namespace Internal {
     [NoAutoStaticsCleanup]
     public static class GamePlayPrefabs {
-        private const string Address = "b0a1aef60c0591454860b3b7d718dc15";
+        private const string AssetGuid = "b0a1aef60c0591454860b3b7d718dc15";
 
         private static global::GamePlay.Cards.CardScopeEntity _cardLocal;
         private static global::GamePlay.Cards.CardScopeEntity _cardRemote;
@@ -41,7 +41,7 @@ namespace Internal {
             public override string Name => nameof(GamePlayPrefabs);
 
             protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+                await LoadAsset(AssetGuid);
                 _cardLocal = Asset.Get<global::GamePlay.Cards.CardScopeEntity>("CardLocal");
                 _cardRemote = Asset.Get<global::GamePlay.Cards.CardScopeEntity>("CardRemote");
                 _cellOpponent = Asset.Get<global::GamePlay.Boards.CellView>("CellOpponent");

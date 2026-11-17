@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class GameUISprites : SpriteGroup {
-        private const string Address = "af583db52f790598b91bd61d5d28d1a2";
+        private const string AssetGuid = "af583db52f790598b91bd61d5d28d1a2";
 
         private Sprite _card;
         private Sprite _healthLargeAdditionalEmpty;
@@ -193,7 +193,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _card = Asset.GetSheet("Card");
             _healthLargeAdditionalEmpty = Asset.GetSheet("HealthLargeAdditionalEmpty");
             _healthLargeAdditionalFull = Asset.GetSheet("HealthLargeAdditionalFull");

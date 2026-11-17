@@ -5,19 +5,14 @@ using Unity.Scripting.LifecycleManagement;
 namespace Internal {
     [NoAutoStaticsCleanup]
     public static class GlobalAudio {
-        private const string Address = "261778ee7ac1942e8882a6fc301f58d5";
+        private const string AssetGuid = "261778ee7ac1942e8882a6fc301f58d5";
 
-        private static global::Internal.Sound _gameMusic;
         private static global::Internal.Sound[] _uIButtonClick;
         private static global::Internal.Sound[] _uIElementHover;
 
         public static AudioGroup Group { get; } = new Loader();
 
         public static bool IsLoaded => Group.IsLoaded;
-
-        public static global::Internal.Sound GameMusic {
-            get { Group.EnsureLoaded(); return _gameMusic; }
-        }
 
         public static global::System.Collections.Generic.IReadOnlyList<global::Internal.Sound> UIButtonClick {
             get { Group.EnsureLoaded(); return _uIButtonClick; }
@@ -31,9 +26,8 @@ namespace Internal {
             public override string Name => nameof(GlobalAudio);
 
             protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+                await LoadAsset(AssetGuid);
                 await Asset.Decode();
-                _gameMusic = Asset.Get("GameMusic");
                 _uIButtonClick = new[] {
                     Asset.Get("UIButtonClick3"),
                 };
@@ -43,7 +37,6 @@ namespace Internal {
             }
 
             protected override void UnloadGroup() {
-                _gameMusic = null;
                 _uIButtonClick = null;
                 _uIElementHover = null;
                 Asset.ReleaseDecoded();

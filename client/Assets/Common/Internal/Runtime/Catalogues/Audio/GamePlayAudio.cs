@@ -5,7 +5,7 @@ using Unity.Scripting.LifecycleManagement;
 namespace Internal {
     [NoAutoStaticsCleanup]
     public static class GamePlayAudio {
-        private const string Address = "1cdb377d3013ba9d5b0c1837f34f33a2";
+        private const string AssetGuid = "1cdb377d3013ba9d5b0c1837f34f33a2";
 
         private static global::Internal.Sound _gameCardStash;
         private static global::Internal.Sound _gameRoundOpponent;
@@ -66,7 +66,7 @@ namespace Internal {
             public override string Name => nameof(GamePlayAudio);
 
             protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+                await LoadAsset(AssetGuid);
                 await Asset.Decode();
                 _gameCardStash = Asset.Get("GameCardStash");
                 _gameRoundOpponent = Asset.Get("GameRoundOpponent");

@@ -18,6 +18,6 @@ AudioImporter:
   loadInBackground: 1
   ambisonic: 0
   3D: 1
-  userData: "{\n  \"audioCatalog\": {\n    \"included\": true,\n    \"group\": \"Global\",\n    \"volume\": 0.031\n  }\n}"
+  userData: "{\n  \"audioCatalog\": {\n    \"included\": true,\n    \"group\": \"Music\",\n    \"volume\": 0.031\n  }\n}"
   assetBundleName: 
   assetBundleVariant: 

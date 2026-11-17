@@ -22,8 +22,6 @@ namespace Flow.Startup
             // а сюда управление уже не возвращается (см. MenuLoader).
             GameProfiler.Begin("Startup");
 
-            BundleUrlVersioning.Setup();
-
             // Корень строится тем же загрузчиком, что и остальные скоупы; дальше его берут уже из контейнера.
             var serviceLoader = new ServiceScopeLoader();
             var internalScope = await serviceLoader.LoadInternal();

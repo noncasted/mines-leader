@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class MenuPlaySprites : SpriteGroup {
-        private const string Address = "1b37e564ad267ffebbbe5957e0144b9a";
+        private const string AssetGuid = "1b37e564ad267ffebbbe5957e0144b9a";
 
         private Sprite _cancel;
         private Sprite _modeLastManStanding;
@@ -38,7 +38,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _cancel = Asset.GetSheet("Cancel");
             _modeLastManStanding = Asset.GetSheet("ModeLastManStanding");
             _modeTimeLimited = Asset.GetSheet("ModeTimeLimited");

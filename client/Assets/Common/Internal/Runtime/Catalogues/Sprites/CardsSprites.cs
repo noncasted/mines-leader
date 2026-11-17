@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class CardsSprites : SpriteGroup {
-        private const string Address = "74fe2a982e3439414a912d2874879b7a";
+        private const string AssetGuid = "74fe2a982e3439414a912d2874879b7a";
 
         private Sprite _cardPlatesFront;
         private Sprite _cardPlatesOpponentBack;
@@ -28,7 +28,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _cardPlatesFront = Asset.GetSheet("CardPlatesFront");
             _cardPlatesOpponentBack = Asset.GetSheet("CardPlatesOpponentBack");
             _cardPlatesOutline = Asset.GetSheet("CardPlatesOutline");

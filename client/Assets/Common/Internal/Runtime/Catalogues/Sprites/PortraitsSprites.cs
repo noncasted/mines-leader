@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Internal {
     public sealed class PortraitsSprites : SpriteGroup {
-        private const string Address = "c0e37a769f4e9f0ffb7b024fd9003c63";
+        private const string AssetGuid = "c0e37a769f4e9f0ffb7b024fd9003c63";
 
         private Sprite _defaultOpponent;
         private Sprite _defaultOwn;
@@ -18,7 +18,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _defaultOpponent = Asset.GetSheet("DefaultOpponent");
             _defaultOwn = Asset.GetSheet("DefaultOwn");
         }

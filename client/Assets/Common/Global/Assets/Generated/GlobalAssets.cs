@@ -5,7 +5,7 @@ using Unity.Scripting.LifecycleManagement;
 namespace Global {
     [NoAutoStaticsCleanup]
     public static class GlobalAssets {
-        private const string Address = "ef9a649a0260457e8bd2f6232157cb01";
+        private const string AssetGuid = "ef9a649a0260457e8bd2f6232157cb01";
 
         private static global::Global.Publisher.GlobalPublisherOptions _globalPublisherOptions;
         private static global::Global.Inputs.InputOptions _inputOptions;
@@ -30,8 +30,15 @@ namespace Global {
         private sealed class Loader : global::Internal.EnvAssetGroup {
             public override string Name => nameof(GlobalAssets);
 
-            protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+            public override bool IsPreloaded => true;
+
+            protected override UniTask LoadGroup() {
+                LoadImmediately();
+                return UniTask.CompletedTask;
+            }
+
+            protected override void LoadImmediately() {
+                LoadPreloadedAsset(AssetGuid);
                 _globalPublisherOptions = Asset.Get<global::Global.Publisher.GlobalPublisherOptions>("GlobalPublisherOptions");
                 _inputOptions = Asset.Get<global::Global.Inputs.InputOptions>("InputOptions");
                 _settingsOptions = Asset.Get<global::Global.Settings.SettingsOptions>("SettingsOptions");

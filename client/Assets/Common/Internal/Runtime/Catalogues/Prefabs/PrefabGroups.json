@@ -4,5 +4,7 @@
     "Global",
     "Menu"
   ],
-  "nonAddressable": []
+  "preloaded": [
+    "Global"
+  ]
 }

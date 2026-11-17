@@ -5,7 +5,7 @@ using Unity.Scripting.LifecycleManagement;
 namespace GamePlay {
     [NoAutoStaticsCleanup]
     public static class GamePlayAssets {
-        private const string Address = "7c9794ca0afd4bf997868d096be2f090";
+        private const string AssetGuid = "7c9794ca0afd4bf997868d096be2f090";
 
         private static global::GamePlay.Boards.BoardsRevealOptions _boardsRevealOptions;
         private static global::GamePlay.Cards.CardDragOptions _cardDragOptions;
@@ -76,7 +76,7 @@ namespace GamePlay {
             public override string Name => nameof(GamePlayAssets);
 
             protected override async UniTask LoadGroup() {
-                await LoadAsset(Address);
+                await LoadAsset(AssetGuid);
                 _boardsRevealOptions = Asset.Get<global::GamePlay.Boards.BoardsRevealOptions>("BoardsRevealOptions");
                 _cardDragOptions = Asset.Get<global::GamePlay.Cards.CardDragOptions>("CardDragOptions");
                 _cardDroppedOptions = Asset.Get<global::GamePlay.Cards.CardDroppedOptions>("CardDroppedOptions");

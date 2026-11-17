@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Internal {
     public sealed class GameCellsSprites : SpriteGroup {
-        private const string Address = "8923516856373a901bb8b3dc5f4d04b6";
+        private const string AssetGuid = "8923516856373a901bb8b3dc5f4d04b6";
 
         private ISpriteAnimationData _gameCellsExplosionElectric;
         private ISpriteAnimationData _gameCellsExplosionNormal;
@@ -42,7 +42,7 @@ namespace Internal {
         }
 
         protected override async UniTask LoadGroup() {
-            await LoadAsset(Address);
+            await LoadAsset(AssetGuid);
             _gameCellsExplosionElectric = Asset.GetAnimation("GameCellsExplosionElectric");
             _gameCellsExplosionNormal = Asset.GetAnimation("GameCellsExplosionNormal");
             _gameCellsFlagHide = Asset.GetAnimation("GameCellsFlagHide");

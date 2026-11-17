@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Global
   m_EditorClassIdentifier: Internal::Internal.EnvAssetGroupAsset
   _entries:
-  - Name: GlobalPublisherOptions
-    Asset: {fileID: 11400000, guid: 9cfaf8122a7ac3049903b7f01f42b865, type: 2}
-  - Name: InputOptions
-    Asset: {fileID: 11400000, guid: 11912b1c1a66460eb4e2d6af398288b8, type: 2}
-  - Name: SettingsOptions
-    Asset: {fileID: 11400000, guid: 6774d67d00d415e4fa66651aa04c62e9, type: 2}
+  - _name: GlobalPublisherOptions
+    _asset: {fileID: 11400000, guid: 9cfaf8122a7ac3049903b7f01f42b865, type: 2}
+  - _name: InputOptions
+    _asset: {fileID: 11400000, guid: 11912b1c1a66460eb4e2d6af398288b8, type: 2}
+  - _name: SettingsOptions
+    _asset: {fileID: 11400000, guid: 6774d67d00d415e4fa66651aa04c62e9, type: 2}
