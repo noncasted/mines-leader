@@ -17,6 +17,8 @@
     </Folder>
     <Folder Name="/Framework/">
         <Project Path="../tools/framework/shared/framework.shared.csproj" />
+        <Project Path="../tools/framework/common/framework.common.csproj" />
+        <Project Path="../tools/framework/shared/SessionCore/framework.session.core.csproj" />
         <Project Path="../tools/framework/backend/Cluster/Cluster.csproj" />
         <Project Path="../tools/framework/backend/Common/Common.csproj" />
         <Project Path="../tools/framework/backend/Console/Console.csproj" />

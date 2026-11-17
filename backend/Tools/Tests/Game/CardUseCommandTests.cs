@@ -1,5 +1,5 @@
 using Cluster.Configs;
-using Common.Reactive;
+using Internal;
 using FluentAssertions;
 using Game.GamePlay;
 using Game.GamePlay.Snapshots;

@@ -1,5 +1,5 @@
 using Common.Network;
-using Common.Reactive;
+using Internal;
 using Game.Session;
 
 namespace Game.GamePlay.CardPreviews;
@@ -50,7 +50,6 @@ internal sealed class PreviewPlayer : IPlayer
         public bool IsBot => false;
         public ISessionSeat Seat => throw new NotSupportedException("PreviewUser has no seat");
         public ILifetime Lifetime { get; }
-        public IConnection Connection => throw new NotSupportedException("PreviewUser has no connection");
-        public ICommandDispatcher Dispatcher => throw new NotSupportedException("PreviewUser has no dispatcher");
+        public IUserConnection Connection => throw new NotSupportedException("PreviewUser has no connection");
     }
 }

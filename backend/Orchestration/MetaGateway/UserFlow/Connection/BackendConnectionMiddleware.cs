@@ -2,7 +2,7 @@ using System.Net.WebSockets;
 using Cluster.State;
 using Common.Extensions;
 using Common.Network;
-using Common.Reactive;
+using Internal;
 using Infrastructure;
 using Infrastructure.Startup;
 using Shared;

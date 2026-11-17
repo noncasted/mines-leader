@@ -3,7 +3,7 @@ using Cluster.Configs;
 using Cluster.Deploy;
 using Cluster.Monitoring;
 using Common.Network;
-using Common.Reactive;
+using Internal;
 using FluentAssertions;
 using Game.GamePlay.CardPreviews;
 using Infrastructure;

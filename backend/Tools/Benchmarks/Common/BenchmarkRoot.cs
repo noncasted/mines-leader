@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using Cluster.Discovery;
 using Common.Extensions;
-using Common.Reactive;
+using Internal;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 

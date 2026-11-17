@@ -1,5 +1,5 @@
 using Cluster.Configs;
-using Common.Reactive;
+using Internal;
 using Game.GamePlay.Profiles;
 using Game.Session;
 

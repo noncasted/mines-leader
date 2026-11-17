@@ -3,7 +3,7 @@ using Cluster.Discovery;
 using Cluster.State;
 using Common;
 using Common.Extensions;
-using Common.Reactive;
+using Internal;
 using Infrastructure;
 using Infrastructure.Execution;
 using Infrastructure.Startup;
@@ -103,14 +103,6 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 services.AddSingleton<IEventStateFactory, EventStateFactory>();
                 services.AddSingleton<IAttributeToFactoryMapper<EventStateAttribute>, EventStateAttributeMapper>();
 
-                // Migration steps (V0→V1 chain targeting MigrationTestState_1)
-                services.AddSingleton<IStateMigrationStep, MigrationTestStep_V0>();
-                services.AddSingleton<IStateMigrationStep, MigrationTestStep_V1>();
-
-                // Migration steps (V0→V1→V2 chain targeting MigrationTestState_2)
-                services.AddSingleton<IStateMigrationStep, MigrationV2TestStep_V0>();
-                services.AddSingleton<IStateMigrationStep, MigrationV2TestStep_V1>();
-                services.AddSingleton<IStateMigrationStep, MigrationTestStep_V2>();
 
                 // StateCollection utilities for tests
                 services.AddSingleton(typeof(StateCollectionUtils<,>));
@@ -128,7 +120,6 @@ public class OrleansTestClusterFixture : IAsyncLifetime
                 // Service environment
                 services.AddSingleton<IServiceEnvironment>(new ServiceEnvironment
                 {
-                    IsDevelopment = true,
                     Tag = GameRoles.Silo
                 });
 
@@ -187,10 +178,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         RegisterConfig<ISideEffectsConfig, SideEffectsOptions>(services, "config.sideEffects");
 
         RegisterConfig<ITransactionConfig, TransactionOptions>(services, "config.transaction",
-            o => {
-                o.LockWaitSeconds = 2f;
-                o.StuckGraceSeconds = 5f;
-            });
+            o => o with { LockWaitSeconds = 2f, StuckGraceSeconds = 5f });
         RegisterConfig<IDurableQueueConfig, DurableQueueOptions>(services, "config.durableQueue");
         RegisterConfig<ITaskBalancerConfig, TaskBalancerOptions>(services, "config.taskBalancer");
 
@@ -207,7 +195,10 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         RegisterConfig<IUserDeckConfig, UserDeckConfigOptions>(services, "config.userDeck");
         RegisterConfig<IPlayerConfig, PlayerConfigOptions>(services, "config.player");
         RegisterConfig<IInGameAchievementConfig, InGameAchievementOptions>(services, "config.achievements",
-            value => value.Groups = InGameAchievementOptions.CreateDefault().Groups);
+            value => {
+                value.Groups = InGameAchievementOptions.CreateDefault().Groups;
+                return value;
+            });
 
         // Cluster features
         var features = new TestAddressableState<ClusterFeaturesState>();
@@ -222,12 +213,12 @@ public class OrleansTestClusterFixture : IAsyncLifetime
     private static void RegisterConfig<TInterface, TOptions>(
         IServiceCollection services,
         string? jsonName = null,
-        Action<TOptions>? configure = null)
+        Func<TOptions, TOptions>? configure = null)
         where TInterface : class, IAddressableState<TOptions>
         where TOptions : class, new()
     {
-        var value = jsonName != null ? ConfigLoader.Load<TOptions>(jsonName) : new TOptions();
-        configure?.Invoke(value);
+        var loaded = jsonName != null ? ConfigLoader.Load<TOptions>(jsonName) : new TOptions();
+        var value = configure != null ? configure(loaded) : loaded;
         var state = new TestAddressableState<TOptions>(value);
         services.AddSingleton<TInterface>(CreateConfigMock<TInterface, TOptions>(state));
     }

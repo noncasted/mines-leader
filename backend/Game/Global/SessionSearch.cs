@@ -28,7 +28,7 @@ public class SessionSearch : ISessionSearch
                 continue;
 
             // Closed in between: the next one.
-            if (session.TryReserve(userId) == false)
+            if (session.Reserve(userId) != SessionReservation.Reserved)
                 continue;
 
             return id;
@@ -39,7 +39,7 @@ public class SessionSearch : ISessionSearch
         if (_collection.TryGet(lobbyId, out var created) == false)
             throw new InvalidOperationException($"Created lobby {lobbyId} is not in the collection");
 
-        if (created.TryReserve(userId) == false)
+        if (created.Reserve(userId) != SessionReservation.Reserved)
             throw new InvalidOperationException($"A place in the created lobby {lobbyId} is refused");
 
         return lobbyId;
