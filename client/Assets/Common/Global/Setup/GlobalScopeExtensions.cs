@@ -18,7 +18,7 @@ namespace Global.Setup
             var options = new ScopeLoadOptions(parent, Construct)
                 .WithRuntimeScene("Global_Services");
 
-            using var stage = GameProfiler.Scope("Global");
+            using var stage = GameProfiler.Stage("Global");
 
             var scope = await loader.Load(options);
 

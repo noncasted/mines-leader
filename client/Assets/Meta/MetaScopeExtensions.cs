@@ -11,7 +11,7 @@ namespace Meta
         {
             var options = new ScopeLoadOptions(parent, Construct);
 
-            using var stage = GameProfiler.Scope("Meta");
+            using var stage = GameProfiler.Stage("Meta");
 
             var scope = await loader.Load(options);
 

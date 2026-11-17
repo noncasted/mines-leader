@@ -27,7 +27,7 @@ namespace Flow.Loop
 
             ILoadedScope scope;
 
-            using (GameProfiler.Branch("Menu load"))
+            using (GameProfiler.Stage("Menu load"))
                 scope = await _scopeLoader.Load(MenuScopeExtensions.LoadMenu);
 
             // Трасса закрывается в MenuLoop: меню ещё дожидается данных меты, которые грузятся

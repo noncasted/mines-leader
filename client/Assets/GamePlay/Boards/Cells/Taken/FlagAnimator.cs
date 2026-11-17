@@ -35,7 +35,7 @@ namespace GamePlay.Boards
         {
             var animationLifetime = lifetime.Child();
             _show.OnSetup(animationLifetime);
-            await _show.PlayAsync(animationLifetime);
+            await _show.PlayAwaited(animationLifetime);
             animationLifetime.Terminate();
         }
 
@@ -43,7 +43,7 @@ namespace GamePlay.Boards
         {
             var animationLifetime = lifetime.Child();
             _hide.OnSetup(animationLifetime);
-            await _hide.PlayAsync(animationLifetime);
+            await _hide.PlayAwaited(animationLifetime);
             animationLifetime.Terminate();
         }
 

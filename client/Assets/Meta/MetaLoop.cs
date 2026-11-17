@@ -54,7 +54,7 @@ namespace Meta
         private Guid _userId;
         private UniTaskCompletionSource _reconnect;
 
-        public UniTask OnBaseSetupAsync(IReadOnlyLifetime lifetime)
+        public UniTask OnBaseSetup(IReadOnlyLifetime lifetime)
         {
             _scopeLifetime = lifetime;
 

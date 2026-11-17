@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: NetworkOptions
   m_EditorClassIdentifier: 
   _propertiesSyncRate: 60
+  _latencyOverlayFont: {fileID: 11400000, guid: f20a0a776c428a09a8148113398cae3e, type: 2}

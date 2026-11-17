@@ -37,7 +37,7 @@ namespace GamePlay.Boards
             try
             {
                 _selection.OnSetup(animationLifetime);
-                await _selection.PlayAsync(animationLifetime);
+                await _selection.PlayAwaited(animationLifetime);
             }
             finally
             {
@@ -56,7 +56,7 @@ namespace GamePlay.Boards
             try
             {
                 _cellAction.OnSetup(animationLifetime);
-                await _cellAction.PlayAsync(animationLifetime);
+                await _cellAction.PlayAwaited(animationLifetime);
             }
             finally
             {

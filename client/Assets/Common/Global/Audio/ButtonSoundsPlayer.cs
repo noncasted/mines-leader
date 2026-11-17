@@ -16,23 +16,18 @@ namespace Global.Audio
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             // The shared sounds are downloaded in parallel with the startup: the buttons are silent until they are.
-            ButtonSounds.Clicked = () =>
-            {
-                if (GlobalAudio.IsLoaded == true)
-                    _player.PlayRandomFromGroup(GlobalAudio.UIButtonClick);
-            };
-
-            ButtonSounds.Hovered = () =>
-            {
-                if (GlobalAudio.IsLoaded == true)
-                    _player.PlayRandomFromGroup(GlobalAudio.UIElementHover);
-            };
-
-            lifetime.Listen(() =>
-            {
-                ButtonSounds.Clicked = null;
-                ButtonSounds.Hovered = null;
-            });
+            ButtonSounds.Bind(
+                lifetime,
+                () =>
+                {
+                    if (GlobalAudio.IsLoaded == true)
+                        _player.PlayRandomFromGroup(GlobalAudio.UIButtonClick);
+                },
+                () =>
+                {
+                    if (GlobalAudio.IsLoaded == true)
+                        _player.PlayRandomFromGroup(GlobalAudio.UIElementHover);
+                });
         }
     }
 }

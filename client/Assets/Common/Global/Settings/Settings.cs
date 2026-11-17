@@ -38,7 +38,7 @@ namespace Global.Settings
         public IViewableProperty<float> ShakeIntensity => _shakeIntensity;
         public IViewableProperty<bool> VSync => _vSync;
 
-        public UniTask OnSetupAsync(IReadOnlyLifetime lifetime)
+        public UniTask OnSetup(IReadOnlyLifetime lifetime)
         {
             var options = GlobalAssets.SettingsOptions;
 
