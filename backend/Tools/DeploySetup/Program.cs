@@ -1,7 +1,7 @@
 using DeploySetup;
 using Microsoft.Extensions.Configuration;
 
-Console.WriteLine("[DeploySetup] Starting idempotent database migrations");
+System.Console.WriteLine("[DeploySetup] Starting idempotent database migrations");
 
 var configuration = new ConfigurationManager();
 
@@ -25,9 +25,9 @@ try
 catch (Exception e)
 {
     // A failed migration must stop the deploy: compose starts the silo only after a zero exit code.
-    Console.Error.WriteLine($"[DeploySetup] Failed: {e}");
+    System.Console.Error.WriteLine($"[DeploySetup] Failed: {e}");
     return 1;
 }
 
-Console.WriteLine("[DeploySetup] Done");
+System.Console.WriteLine("[DeploySetup] Done");
 return 0;

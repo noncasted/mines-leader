@@ -4,6 +4,7 @@ using Cluster.Coordination;
 using Cluster.Deploy;
 using Cluster.Discovery;
 using Cluster.Monitoring;
+using Cluster.Monitoring.Online;
 using Cluster.State;
 using Common;
 using Common.Extensions;
@@ -37,6 +38,9 @@ public static class ProjectsSetupExtensions
             // Cluster services
             builder
                 .AddBase(ServiceTag.Coordinator);
+
+            // Online statistics of the deploy (from ConnectedUsersLiveData): one tracker, on the coordinator only.
+            builder.AddOnlineTracker();
 
             // Coordinator-specific readiness: deploy identity assigned by DeployIdentity BackgroundService
             builder.Services.AddHealthChecks()

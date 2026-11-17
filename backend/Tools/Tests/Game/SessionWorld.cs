@@ -1,5 +1,7 @@
-using Common.Reactive;
+using Internal;
 using Game.Session;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shared;
 
@@ -29,44 +31,21 @@ internal sealed class SessionWorld
             Time = time ?? TimeProvider.System
         };
 
-        var sessionData = new SessionData
-        {
-            Type = type,
-            Id = Data.Id,
-            ExpectedUsers = expectedUsers,
-            Lifetime = Data.Lifetime
-        };
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+        services.AddSessionServices(Data, options);
+        var provider = services.BuildServiceProvider();
+        Data.Lifetime.Listen(provider.Dispose);
 
-        var queue = new ExecutionQueue(NullLogger<ExecutionQueue>.Instance);
-        var users = new SessionUsers();
-        _queue = queue;
-        _users = users;
-        var seats = new SessionSeats(users, sessionData);
-        var commands = new CommandsCollection([], []);
-
-        var userFactory = new UserFactory(users,
-            seats,
-            queue,
-            commands,
-            NullLogger<UserFactory>.Instance,
-            NullLogger<CommandDispatcher>.Instance);
-
-        Session = new global::Game.Session.Session(Data,
-            options,
-            userFactory,
-            users,
-            seats,
-            new SessionEntities(),
-            queue,
-            new SessionAdmission(options),
-            options.Time,
-            NullLogger<global::Game.Session.Session>.Instance);
+        _queue = provider.GetRequiredService<IExecutionQueue>();
+        _users = provider.GetRequiredService<ISessionUsers>();
+        Session = provider.GetRequiredService<ISession>();
     }
 
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
 
-    private readonly ExecutionQueue _queue;
-    private readonly SessionUsers _users;
+    private readonly IExecutionQueue _queue;
+    private readonly ISessionUsers _users;
 
     public SessionContainerData Data { get; }
     public ISession Session { get; }

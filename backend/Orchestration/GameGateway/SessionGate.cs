@@ -57,7 +57,8 @@ public class SessionGate
     // After Ok: the auth response goes out first and only then the user is created in the session queue. The created
     // user starts sending on the same socket at once (Connection.Run, LocalUpdate) and a WebSocket allows a single
     // sender at a time; the client also expects the auth response as the first frame. A failed send releases the
-    // accepted place. The returned task completes when the user leaves the session (its lifetime ends).
+    // accepted place. The returned task completes when the user leaves the session (its lifetime ends) and its socket
+    // is closed.
     public static async Task Join(ISession session, Guid userId, Func<Task> sendAccepted, Func<IUser> createUser)
     {
         try
@@ -70,13 +71,13 @@ public class SessionGate
             throw;
         }
 
-        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var completion = new TaskCompletionSource<IHostedUser>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         session.ExecutionQueue.Enqueue(() => {
             try
             {
-                var user = createUser();
-                user.Lifetime.Listen(() => completion.TrySetResult());
+                var user = (IHostedUser)createUser();
+                user.Lifetime.Listen(() => completion.TrySetResult(user));
             }
             catch (Exception e)
             {
@@ -88,7 +89,11 @@ public class SessionGate
             }
         });
 
-        await completion.Task;
+        var left = await completion.Task;
+
+        // The lifetime of the user ends before the close frame is out: the handler of the socket returns only after
+        // the socket is closed, otherwise the close frame is lost with it (the client sees 1006).
+        await left.Socket.Closed;
     }
 }
 

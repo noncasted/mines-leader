@@ -1,6 +1,6 @@
 ﻿using Cluster.Coordination;
 using Cluster.Discovery;
-using Common.Reactive;
+using Internal;
 using Game.Session;
 using Infrastructure;
 using Meta.Matches;

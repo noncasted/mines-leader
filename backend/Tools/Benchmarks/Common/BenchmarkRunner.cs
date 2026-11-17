@@ -1,6 +1,6 @@
 using System.Threading.Channels;
 using Common.Extensions;
-using Common.Reactive;
+using Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Benchmarks;

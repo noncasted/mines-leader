@@ -75,13 +75,9 @@ public static class ServiceDefaultsExtensions
                        metrics.AddAspNetCoreInstrumentation()
                               .AddHttpClientInstrumentation()
                               .AddRuntimeInstrumentation()
-                              .AddMeter("Microsoft.Orleans")
-                              .AddMeter("Backend");
+                              .AddMeter("Microsoft.Orleans");
                    })
                    .WithTracing(tracing => {
-                       foreach (var source in TraceExtensions.AllSources)
-                           tracing.AddSource(source.Name);
-
                        tracing.AddSource(builder.Environment.ApplicationName)
                               .AddAspNetCoreInstrumentation(options => options.Filter = context =>
                                   !context.Request.Path.StartsWithSegments(HealthEndpointPath) &&

@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using Cluster.State;
 using Common.Network;
-using Common.Reactive;
+using Internal;
 using FluentAssertions;
 using Infrastructure.Startup;
 using MemoryPack;

@@ -1,6 +1,6 @@
 using Cluster.Discovery;
 using Common.Extensions;
-using Common.Reactive;
+using Internal;
 
 namespace Benchmarks;
 
