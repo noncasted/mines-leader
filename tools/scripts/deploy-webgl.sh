@@ -111,17 +111,6 @@ if [[ ! -f "$BUILD_DIR/index.html" ]]; then
     exit 1
 fi
 
-# Addressables builds its content for the editor's ACTIVE build target. A WebGL
-# player built while the editor sat on Linux ships a catalog that points at
-# StandaloneLinux64/*.bundle, which the build does not contain; nginx answers
-# those with index.html and the client dies on "Failed to decompress data".
-catalog="$BUILD_DIR/StreamingAssets/aa/catalog.bin"
-if [[ -f "$catalog" ]] && grep -aq "StandaloneLinux64\|StandaloneWindows\|StandaloneOSX" "$catalog"; then
-    echo "$catalog references Standalone bundles — Addressables were built for the wrong target." >&2
-    echo "Activate the web_dev build profile (editor on WebGL) and rebuild." >&2
-    exit 1
-fi
-
 # Unity's incremental build (Bee) deletes the outputs of the previous build when
 # the next one writes to another folder, which leaves an index.html without its
 # wasm (hit in peace-data on 2026-10-17: the site was down until a rollback).

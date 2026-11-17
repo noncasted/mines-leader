@@ -60,8 +60,6 @@ both do — pass `BUILD_DIR` then.
 
 Checks before anything is uploaded:
 
-- **Wrong Addressables target.** A `catalog.bin` that references Standalone bundles
-  means the editor was not on WebGL during the build.
 - **Missing payloads.** Every `Build/*` file `index.html` loads must exist and be
   non-empty. Unity's incremental build deletes the outputs of the previous build when the
   next one writes to another folder.
@@ -72,7 +70,8 @@ Set `PUBLIC_URL` in `deploy.env` and the script prints the link after a deploy.
 
 The upload goes into a fresh release directory and only then flips `current`, so
 players never see a half-uploaded build. Unchanged payloads are hardlinked against
-the previous release, so a redeploy transfers only what actually changed.
+the previous release (the content bundles of `StreamingAssets/Content` are named by
+their hash), so a redeploy transfers only what actually changed.
 
 Coolify redeploy is needed **only** when `docker-compose.yaml` changes, or to restart
 nginx after `nginx.conf` changed (the script says so when it does) — never for a new
