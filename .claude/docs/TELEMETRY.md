@@ -94,6 +94,15 @@ Reading: skill `client-telemetry` (`.claude/skills/client-telemetry/SKILL.md`).
   `BackendTraceId` of the record is the trace of the root span `Meta connect` of that socket (MetaGateway, source
   `MetaGateway.Connection`, `UserFlow/Connection/MetaConnectTrace.cs`: read request, auth, send response, projections): find it
   by the id in the Aspire dashboard -> Traces.
+- Backend trace in the console: the page of a startup record shows its `BackendTraceId` trace read from the telemetry HTTP
+  API of the Aspire dashboard (`GET <Url>/api/telemetry/traces/{id}`, header `x-api-key`), configuration section
+  `AspireDashboard` (`Url`, `ApiKey`; env `AspireDashboard__Url`, `AspireDashboard__ApiKey`), plugged in by the
+  `AddConsoleBackendTraces(builder.Configuration.GetSection("AspireDashboard"))` in `ConsoleGateway/Program.cs`. Prod: `http://aspire-dashboard:18888` and the
+  secret `ASPIRE_API_KEY` (the same value is `DASHBOARD__API__PRIMARYAPIKEY` of the dashboard, `docker-compose.yaml`).
+  Locally the AppHost passes both (`SetupDashboardApi` in `Aspire/Program.cs`): the URL is its `ASPNETCORE_URLS`
+  (`http://localhost:7100`), the key is `AppHost:DashboardApiKey` that Aspire generates once into the user secrets of the
+  AppHost and gives the dashboard itself. The dashboard keeps telemetry only in memory: after its restart or past its
+  limits the trace is gone, while the startup record lives 7 days.
 - Frame: `enableFrameTimingStats` is on in `ProjectSettings.asset` and in the build profile `web_dev - Desktop - Development`
   (a profile keeps its own copy of the value).
 - In the editor the telemetry is off by default (`ClientTelemetryOptions`): a local check needs a WebGL build or the option
