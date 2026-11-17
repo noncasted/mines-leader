@@ -2,6 +2,8 @@
     "name": "Flow",
     "rootNamespace": "",
     "references": [
+        "GUID:f633eeac40e2491984f08e394079da0a",
+        "GUID:802942ed80b040b1af69d20046688f31",
         "GUID:0111c49bb9c84f9ca0b14bd86d9e0630",
         "GUID:01f60cffe1f34ab2a431167c2fa3d728",
         "GUID:624d26a5d0fa4f36855b9d24655c5823",

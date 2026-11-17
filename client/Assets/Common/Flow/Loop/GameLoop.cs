@@ -1,9 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Global.Cameras;
+using Global.Telemetry;
 using Global.UI;
 using Internal;
 using Menu.Common;
+using Meta;
 using Shared;
 
 namespace Flow.Loop
@@ -14,18 +16,29 @@ namespace Flow.Loop
             IMenuLoader menuLoader,
             IGamePlayLoader gamePlayLoader,
             ILoadingScreen loadingScreen,
-            IGlobalCamera globalCamera)
+            IGlobalCamera globalCamera,
+            IMetaState metaState,
+            IClientTelemetry telemetry)
         {
             _menuLoader = menuLoader;
             _gamePlayLoader = gamePlayLoader;
             _loadingScreen = loadingScreen;
             _globalCamera = globalCamera;
+            _metaState = metaState;
+            _telemetry = telemetry;
         }
 
         private readonly IMenuLoader _menuLoader;
         private readonly IGamePlayLoader _gamePlayLoader;
         private readonly ILoadingScreen _loadingScreen;
         private readonly IGlobalCamera _globalCamera;
+        private readonly IMetaState _metaState;
+        private readonly IClientTelemetry _telemetry;
+
+        // The telemetry writes every part of the loop into its own session, opened before the scope of the part is loaded:
+        // a load that fails or kills the page belongs to the part. A rematch is a new match: a new session.
+        private const string MenuTelemetryTag = "menu";
+        private const string MatchTelemetryTag = "match";
 
         public void OnLoaded(IReadOnlyLifetime lifetime)
         {
@@ -40,6 +53,8 @@ namespace Flow.Loop
 
             async UniTask Menu()
             {
+                StartMenuSession(lifetime).Forget();
+
                 var menuResult = await _menuLoader.Load();
 
                 Game(menuResult).Forget();
@@ -47,6 +62,8 @@ namespace Flow.Loop
 
             async UniTask Game(GameLoadData loadData)
             {
+                _telemetry.StartSession(lifetime, MatchTelemetryTag);
+
                 var transition = await _gamePlayLoader.Load(loadData);
 
                 switch (transition)
@@ -77,6 +94,15 @@ namespace Flow.Loop
                     }
                 }
             }
+        }
+
+        // The first menu loads while the meta socket connects, and a session goes over that socket only after its
+        // authorization (ITelemetrySocket): the first session opens on it, every later one at once. The menu waits for the
+        // ready meta itself, so its result never comes before this session.
+        private async UniTaskVoid StartMenuSession(IReadOnlyLifetime lifetime)
+        {
+            await _metaState.IsAuthorized.WaitTrue(lifetime);
+            _telemetry.StartSession(lifetime, MenuTelemetryTag);
         }
     }
 }

@@ -10,6 +10,7 @@
     <title>{{{ PRODUCT_NAME }}}</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <!-- Startup trace: window.startupTrace is put first into <head> by the build (client telemetry). -->
 </head>
 
 <body>
@@ -120,12 +121,19 @@
         let direction = 1;
         let lastTime = null;
         let frameRequest = null;
+        // The startup trace has a span from each showing of the cover to its fade-out.
+        let isTraced = false;
 
         const apply = () => {
             loadingCover.style.opacity = alpha;
 
             if (alpha <= 0) {
                 loadingCover.style.display = "none";
+
+                if (isTraced === true) {
+                    isTraced = false;
+                    startupTrace.end("Loading wheel");
+                }
                 // The progress bar is only meaningful while the build downloads.
                 progressBarEmpty.style.display = "none";
             } else {
@@ -150,6 +158,14 @@
             frameRequest = requestAnimationFrame(step);
         };
 
+        const trace = () => {
+            if (isTraced === true)
+                return;
+
+            isTraced = true;
+            startupTrace.begin("Loading wheel");
+        };
+
         const run = () => {
             if (frameRequest === null)
                 frameRequest = requestAnimationFrame(step);
@@ -165,10 +181,12 @@
 
         return {
             show() {
+                trace();
                 direction = 1;
                 run();
             },
             showInstantly() {
+                trace();
                 direction = 1;
 
                 if (alpha >= 1)
@@ -192,14 +210,28 @@
 
     const script = document.createElement("script");
     script.src = loaderUrl;
+    startupTrace.begin("Unity loader");
     document.body.appendChild(script);
 
+    // Each quarter of the progress once, as a mark of the startup trace.
+    const progressMarks = ["Progress quarter", "Progress half", "Progress three quarters", "Progress done"];
+    let progressMarked = 0;
+
     script.onload = () => {
+        startupTrace.end("Unity loader");
+        startupTrace.begin("Unity instance");
         createUnityInstance(canvas, config, (progress) => {
             progressBarFull.style.width = `${100 * progress}%`;
+
+            while (progressMarked < progressMarks.length && progress >= (progressMarked + 1) / progressMarks.length) {
+                startupTrace.mark(progressMarks[progressMarked]);
+                progressMarked++;
+            }
         }).then((unityInstance) => {
+            startupTrace.end("Unity instance");
             progressBarFull.style.width = "100%";
         }).catch((message) => {
+            startupTrace.mark("Unity instance failed");
             alert(message);
         });
     };

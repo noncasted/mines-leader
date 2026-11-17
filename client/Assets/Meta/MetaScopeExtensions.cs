@@ -1,5 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
+using Global.MatchMetrics;
 using Global.Setup;
+using Global.Telemetry;
 using Internal;
 using Shared;
 
@@ -36,7 +38,9 @@ namespace Meta
 
             builder.Register<MetaBackend>()
                    .WithScopeLifetime()
-                   .As<IMetaBackend>();
+                   .As<IMetaBackend>()
+                   .As<ITelemetrySocket>()
+                   .As<IMatchMetricsSocket>();
 
             builder.Register<Matchmaking>()
                    .As<IMatchmaking>();
@@ -107,6 +111,12 @@ namespace Meta
             builder.Register<Profile>()
                    .As<IProfile>()
                    .As<IScopeSetup>();
+
+            // The telemetry and the match metrics go over the meta socket: the scopes below (GameLoop, the match) open
+            // the sessions and the streams. The framerate and resolution modules are not in this game: no collectors of theirs.
+            builder.AddSocketClientTelemetry(new ClientTelemetryOptions());
+            builder.AddStandardTelemetryCollectors();
+            builder.AddSocketMatchMetrics();
 
             return UniTask.CompletedTask;
         }

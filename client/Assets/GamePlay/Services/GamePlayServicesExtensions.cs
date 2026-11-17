@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 
 namespace GamePlay.Services
 {
@@ -15,6 +15,7 @@ namespace GamePlay.Services
 
             builder.RegisterCommand<SnapshotReceiver>()
                    .As<ISnapshotReceiver>()
+                   .As<IReceivedSnapshots>()
                    .As<IScopeSetup>();
 
             builder.RegisterCommand<AgentObservationHandler>();

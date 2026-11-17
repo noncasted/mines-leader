@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Internal;
@@ -12,12 +12,15 @@ namespace GamePlay.Services
         void Add(Type type, Func<IMoveSnapshotRecord, UniTask> handler);
     }
 
-    public class SnapshotReceiver : OneWayCommand<SharedMoveSnapshot>, ISnapshotReceiver, IScopeSetup
+    public class SnapshotReceiver : OneWayCommand<SharedMoveSnapshot>, ISnapshotReceiver, IReceivedSnapshots, IScopeSetup
     {
         private readonly Dictionary<Type, Func<IMoveSnapshotRecord, UniTask>> _handlers = new();
+        private readonly EventSource<SharedMoveSnapshot> _received = new();
         private readonly Queue<IMoveSnapshotRecord> _queue = new();
 
         private Guid _roundPlayerId;
+
+        public IEventSource<SharedMoveSnapshot> Received => _received;
 
         public void Add(Type type, Func<IMoveSnapshotRecord, UniTask> handler)
         {
@@ -31,6 +34,8 @@ namespace GamePlay.Services
 
         protected override void Execute(IReadOnlyLifetime lifetime, SharedMoveSnapshot context)
         {
+            _received.Invoke(context);
+
             foreach (var record in context.Records)
             {
                 if (record is SharedBoardSnapshot boardSnapshot)
