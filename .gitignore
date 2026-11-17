@@ -71,6 +71,10 @@ backend/.telemetry/
 /client/[Dd]ebugPublic/
 /client/[Rr]elease/
 /client/[Rr]eleases/
+# The catalog of the content bundles, written there for the time of a player build (ContentBuild).
+/client/Assets/FrameworkContentStamp/
+/client/Assets/FrameworkContentStamp.meta
+
 /client/Tools~/**/[Bb]in/
 /client/Tools~/**/[Oo]bj/
 

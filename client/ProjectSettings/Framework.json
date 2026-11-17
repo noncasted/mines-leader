@@ -7,16 +7,5 @@
   "SoundsFolder": "Assets/Art/Audio/Sounds",
   "MusicFolder": "Assets/Art/Audio/Music",
   "FavoriteScenes": [ "Startup", "Menu", "Game_Field" ],
-  "SharedCommonPaths": [ "Packages/", "Assets/Plugins/", "Assets/Art/Fonts/" ],
-  "GroupPhases": {
-    "Scenes_Menu": "Menu",
-    "Prefabs_Menu": "Menu",
-    "Sprites_MenuNavigation": "Menu",
-    "Sprites_MenuUnlocks": "Menu",
-    "Scenes_GamePlay": "GamePlay",
-    "Assets_GamePlay": "GamePlay",
-    "Sprites_Cards": "GamePlay",
-    "Sprites_GameUIPlate": "GamePlay"
-  },
   "StrippedPlayerAssemblies": [ "Unity.2D.Tilemap.Runtime" ]
 }
