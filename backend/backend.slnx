@@ -1,0 +1,34 @@
+<Solution>
+    <Folder Name="/Orchestration/">
+        <Project Path="Orchestration/Aspire/Aspire.csproj" />
+        <Project Path="Orchestration/ConsoleGateway/ConsoleGateway.csproj" />
+        <Project Path="Orchestration/Coordinator/Coordinator.csproj" />
+        <Project Path="Orchestration/Extensions/Extensions.csproj" />
+        <Project Path="Orchestration/GameGateway/GameGateway.csproj" />
+        <Project Path="Orchestration/MetaGateway/MetaGateway.csproj" />
+        <Project Path="Orchestration/Silo/Silo.csproj" />
+    </Folder>
+    <Folder Name="/Tools/">
+        <Project Path="../shared/shared.csproj" />
+        <Project Path="Tools/Benchmarks/Benchmarks.csproj" />
+        <Project Path="Tools/DeploySetup/DeploySetup.csproj" />
+        <Project Path="Tools/Generators/Generators.csproj" />
+        <Project Path="Tools/Tests/Tests.csproj" />
+    </Folder>
+    <Folder Name="/Framework/">
+        <Project Path="../tools/framework/shared/framework.shared.csproj" />
+        <Project Path="../tools/framework/common/framework.common.csproj" />
+        <Project Path="../tools/framework/shared/SessionCore/framework.session.core.csproj" />
+        <Project Path="../tools/framework/backend/Cluster/Cluster.csproj" />
+        <Project Path="../tools/framework/backend/Common/Common.csproj" />
+        <Project Path="../tools/framework/backend/Console/Console.csproj" />
+        <Project Path="../tools/framework/backend/Infrastructure/Infrastructure.csproj" />
+        <Project Path="../tools/framework/backend/Session/Session.csproj" />
+        <Project Path="../tools/framework/backend/ClientTelemetry/ClientTelemetry.csproj" />
+        <Project Path="../tools/framework/backend/MatchMetrics/MatchMetrics.csproj" />
+    </Folder>
+    <Project Path="Cluster.Game/Cluster.Game.csproj" />
+    <Project Path="Console/Console.csproj" />
+    <Project Path="Game/Game.csproj" />
+    <Project Path="Meta/Meta.csproj" />
+</Solution>

@@ -1,0 +1,36 @@
+@using Game.ClientTelemetry
+
+<div class="rounded-lg border">
+    <table class="w-full text-sm">
+        <thead>
+        <tr class="border-b bg-muted/50">
+            <th class="h-10 px-4 text-left font-medium text-muted-foreground">Status</th>
+            <th class="h-10 px-4 text-left font-medium text-muted-foreground">Started</th>
+            <th class="h-10 px-4 text-left font-medium text-muted-foreground">Tags</th>
+            <th class="h-10 px-4 text-left font-medium text-muted-foreground">Device</th>
+            <th class="h-10 px-4 text-left font-medium text-muted-foreground">Build</th>
+            <th class="h-10 px-4 text-right font-medium text-muted-foreground">Duration</th>
+            <th class="h-10 px-4 text-right font-medium text-muted-foreground">Avg FPS</th>
+            <th class="h-10 px-4 text-right font-medium text-muted-foreground">Errors</th>
+            <th class="h-10 px-4 text-right font-medium text-muted-foreground">Dropped</th>
+            <th class="h-10 px-4 text-right font-medium text-muted-foreground">Rejected</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var session in Rows)
+        {
+            <TelemetrySessionRow @key="session.Id" Session="session"/>
+        }
+        @if (Rows.Count == 0)
+        {
+            <tr>
+                <td colspan="10" class="px-4 py-8 text-center text-muted-foreground">No sessions</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required IReadOnlyList<TelemetrySessionInfo> Rows { get; set; }
+}

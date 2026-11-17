@@ -1,0 +1,96 @@
+@page "/client-telemetry/errors/{Fingerprint}"
+@using Game.ClientTelemetry
+@inherits TelemetryLivePage
+
+<PageTitle>Client Error</PageTitle>
+<PageHeader Title="Client Error" BackHref="@ConsoleConstants.Pages.ClientTelemetryErrors"/>
+
+@if (_group == null)
+{
+    <div class="container mx-auto px-4 py-4">
+        <TelemetryRefreshError Message="@RefreshError"/>
+        @if (_isLoaded && RefreshError == null)
+        {
+            <BbAlert Variant="AlertVariant.Danger">
+                <ChildContent>
+                    <BbAlertTitle>Not Found</BbAlertTitle>
+                    <BbAlertDescription>No closed session has the error @Fingerprint: a live session comes into the groups when it closes</BbAlertDescription>
+                </ChildContent>
+            </BbAlert>
+        }
+        @if (_isLoaded == false)
+        {
+            <TelemetrySpinner/>
+        }
+    </div>
+    return;
+}
+
+<div class="container mx-auto px-4 py-4 flex flex-col gap-6">
+    <TelemetryRefreshError Message="@RefreshError"/>
+
+    <div class="flex items-center justify-between gap-4" style="@TelemetryLayoutStyle.Wrap">
+        <div class="flex items-center gap-3">
+            <span class="bg-destructive/10 text-destructive px-2 py-0.5 rounded text-xs font-medium">@_group.Level</span>
+            <span class="text-xs text-muted-foreground">@_group.Fingerprint</span>
+        </div>
+        <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetryErrors">All errors</a>
+    </div>
+
+    <div style="@TelemetryLayoutStyle.Stats">
+        <TelemetryStat Label="Count" Value="@_group.Count.ToString()" Hint="With the repeats"/>
+        <TelemetryStat Label="Sessions" Value="@_group.Sessions.ToString()"/>
+        <TelemetryStat Label="First seen" Value="@TelemetryValueFormat.Timestamp(_group.FirstSeenAt)"/>
+        <TelemetryStat Label="Last seen" Value="@TelemetryValueFormat.Timestamp(_group.LastSeenAt)"/>
+    </div>
+
+    <div class="rounded-lg border bg-card p-4 flex flex-col gap-2">
+        <span class="text-sm font-medium break-all">@_group.Message</span>
+        @if (_example != null)
+        {
+            <pre class="text-xs text-muted-foreground whitespace-pre-wrap break-all">@(_example.Error.Stack.Length == 0 ? "No stack" : _example.Error.Stack)</pre>
+        }
+        else
+        {
+            <span class="text-xs text-muted-foreground">No stored row: the sessions below have dropped the rows of this error from their memory</span>
+        }
+    </div>
+
+    <div class="rounded-lg border">
+        <div class="border-b bg-muted/50 px-4 py-2 text-sm font-medium text-muted-foreground">
+            Sessions, the freshest @_group.SessionIds.Count of @_group.Sessions
+        </div>
+        @foreach (var session in _group.SessionIds)
+        {
+            <div class="border-b last:border-b-0 px-4 py-2 text-xs" @key="session">
+                <a class="underline" href="@ConsoleConstants.Pages.ClientTelemetrySession(session)">@session</a>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Fingerprint { get; set; } = "";
+
+    [Inject] private IClientTelemetryReader Reader { get; set; } = null!;
+
+    private const int MaxGroups = 5000;
+
+    private TelemetryGlobalErrorGroup? _group;
+    private TelemetryErrorExample? _example;
+    private bool _isLoaded;
+
+    // The groups change only when sessions close: this card reads them once.
+    protected override bool KeepsRefreshing => false;
+
+    protected override async Task Refresh()
+    {
+        var groups = await Reader.GetErrorGroups(MaxGroups);
+        _group = groups.Groups.FirstOrDefault(group => group.Fingerprint == Fingerprint);
+
+        if (_group != null)
+            _example = await TelemetryErrorExample.Find(Reader, _group);
+
+        _isLoaded = true;
+    }
+}

@@ -1,0 +1,26 @@
+@using global::Infrastructure
+<div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+    <div class="flex items-center gap-2">
+        <div class="rounded-md bg-orange-500/15 p-1.5">
+            <LucideIcon Name="zap" Size="14" class="text-orange-400" />
+        </div>
+        <h2 class="text-sm font-semibold">Side Effects</h2>
+    </div>
+    <div class="flex flex-col">
+        <OptionNumberRow Icon="timer" Label="Scan Delay (ms)" Value="Value.ScanDelay"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { ScanDelay = v })"/>
+        <OptionNumberRow Icon="timer" Label="Empty Scan Delay (ms)" Value="Value.EmptyScanDelay"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { EmptyScanDelay = v })"/>
+        <OptionNumberRow Icon="layers" Label="Concurrent Executions" Value="Value.ConcurrentExecutions"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { ConcurrentExecutions = v })"/>
+        <OptionNumberRow Icon="refresh-cw" Label="Max Retry Count" Value="Value.MaxRetryCount"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { MaxRetryCount = v })"/>
+        <OptionNumberRow Icon="clock" Label="Incremental Retry Delay (sec × retry)" Value="Value.IncrementalRetryDelay"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { IncrementalRetryDelay = v })" Step="0.5"/>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SideEffectsOptions Value { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<SideEffectsOptions> ValueChanged { get; set; }
+}

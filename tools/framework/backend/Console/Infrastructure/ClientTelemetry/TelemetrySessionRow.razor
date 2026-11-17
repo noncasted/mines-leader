@@ -1,0 +1,30 @@
+@using Game.ClientTelemetry
+
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2.5 text-xs"><TelemetryStatusBadge Status="Session.Status"/></td>
+    <td class="px-4 py-2.5 text-xs whitespace-nowrap">
+        <a class="underline" href="@ConsoleConstants.Pages.ClientTelemetrySession(Session.Id)">@TelemetryValueFormat.Timestamp(Session.StartedAt)</a>
+    </td>
+    <td class="px-4 py-2.5 text-xs"><TelemetryTagList Tags="Session.Tags"/></td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@TelemetrySessionFacts.Device(Session.Device)</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@(Session.Device.BuildVersion ?? TelemetryValueFormat.Unknown)</td>
+    <td class="px-4 py-2.5 text-xs text-right">@TelemetryValueFormat.Duration(TelemetrySessionFacts.Duration(Session))</td>
+    <td class="px-4 py-2.5 text-xs text-right">@TelemetryValueFormat.Optional(TelemetrySessionFacts.AverageFps(Session), null)</td>
+    <td class="px-4 py-2.5 text-xs text-right">@Counter(digest => digest.ErrorCount)</td>
+    <td class="px-4 py-2.5 text-xs text-right" title="Dropped samples / errors / marks: out of the memory of the session">@Dropped</td>
+    <td class="px-4 py-2.5 text-xs text-right" title="Batches and items the backend has not taken">@Counter(digest => digest.RejectedRequests)</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetrySessionInfo Session { get; set; }
+
+    // The counters come with the digest, at the close of a session.
+    private string Dropped => Session.Digest is { } digest
+        ? $"{digest.DroppedSamples} / {digest.DroppedErrors} / {digest.DroppedMarks}"
+        : TelemetryValueFormat.Unknown;
+
+    private string Counter(Func<TelemetrySessionDigest, long> value)
+    {
+        return Session.Digest is { } digest ? value(digest).ToString() : TelemetryValueFormat.Unknown;
+    }
+}

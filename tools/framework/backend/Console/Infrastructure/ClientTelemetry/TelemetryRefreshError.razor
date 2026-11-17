@@ -1,0 +1,13 @@
+@if (Message != null)
+{
+    <BbAlert Variant="AlertVariant.Danger">
+        <ChildContent>
+            <BbAlertTitle>The telemetry cannot be read</BbAlertTitle>
+            <BbAlertDescription>@Message</BbAlertDescription>
+        </ChildContent>
+    </BbAlert>
+}
+
+@code {
+    [Parameter, EditorRequired] public required string? Message { get; set; }
+}

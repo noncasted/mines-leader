@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <AssemblyName>MetaGateway</AssemblyName>
+        <RootNamespace>MetaGateway</RootNamespace>
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+        <PackageReference Include="Aspire.Npgsql"/>
+        <PackageReference Include="Npgsql"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\shared\shared.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\common\framework.common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\ClientTelemetry\ClientTelemetry.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\MatchMetrics\MatchMetrics.csproj"/>
+        <ProjectReference Include="..\..\Game\Game.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Session\Session.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\shared\SessionCore\framework.session.core.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\Meta\Meta.csproj"/>
+        <ProjectReference Include="..\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\Tools\Generators\Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+</Project>

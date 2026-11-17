@@ -1,0 +1,27 @@
+@using Game.ClientTelemetry
+
+<details class="border-b last:border-b-0 px-4 py-2">
+    <summary class="text-xs cursor-pointer break-all">
+        <span class="text-muted-foreground">@TelemetryValueFormat.Time(Error.Time)</span>
+        <span class="bg-destructive/10 text-destructive px-2 py-0.5 rounded font-medium" style="margin: 0 0.5rem">@Error.Level</span>
+        @if (Error.Repeat > 1)
+        {
+            <span class="text-muted-foreground" style="margin-right: 0.5rem">x@(Error.Repeat)</span>
+        }
+        <span>@Error.Message</span>
+    </summary>
+    <div class="flex flex-col gap-2 pt-2">
+        <pre class="text-xs text-muted-foreground whitespace-pre-wrap break-all">@(Error.Stack.Length == 0 ? "No stack" : Error.Stack)</pre>
+        @if (LinksToGroup)
+        {
+            <a class="text-xs underline" href="@ConsoleConstants.Pages.ClientTelemetryErrorGroup(Error.Fingerprint)">All sessions with this error</a>
+        }
+    </div>
+</details>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetryStoredError Error { get; set; }
+
+    // The groups cover the closed sessions only.
+    [Parameter, EditorRequired] public required bool LinksToGroup { get; set; }
+}

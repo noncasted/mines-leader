@@ -1,0 +1,91 @@
+@page "/client-telemetry/errors"
+@using Game.ClientTelemetry
+@inherits TelemetryLivePage
+
+<PageTitle>Client Errors</PageTitle>
+<PageHeader Title="Client Errors" BackHref="@ConsoleConstants.Pages.ClientTelemetry"/>
+
+@if (_groups == null)
+{
+    <TelemetryRefreshError Message="@RefreshError"/>
+    <TelemetrySpinner/>
+    return;
+}
+
+<div class="container mx-auto px-4 py-4 flex flex-col gap-6">
+    <TelemetryRefreshError Message="@RefreshError"/>
+
+    <div class="flex items-center justify-between gap-4" style="@TelemetryLayoutStyle.Wrap">
+        <TelemetryFilter Label="Order" Options="_orderOptions" Selected="@_order.ToString()" OnSelect="SelectOrder"/>
+        <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetry">All sessions</a>
+    </div>
+
+    <div style="@TelemetryLayoutStyle.Stats">
+        <TelemetryStat Label="Kinds of errors" Value="@_groups.TotalGroups.ToString()"/>
+        <TelemetryStat Label="Sessions counted" Value="@_groups.CountedSessions.ToString()"/>
+        <TelemetryStat Label="Sessions without digest" Value="@_groups.SessionsWithoutDigest.ToString()" Hint="Live ones and ones lost in a crash of a silo"/>
+        <TelemetryStat
+            Label="Dropped errors"
+            Value="@_groups.DroppedErrors.ToString()"
+            Hint="Rows out of the memory of a session"/>
+    </div>
+
+    <p class="text-xs text-muted-foreground">
+        A session comes into the groups when it closes: its digest holds its kinds of errors. The @_groups.SessionsWithoutDigest
+        sessions without a digest (live ones and ones lost in a crash of a silo) are not counted here; their errors are on their own cards.
+        @if (_groups.OmittedGroups > 0)
+        {
+            <span>Over the limit of a digest: @_groups.OmittedGroups kinds, @_groups.OmittedCount errors.</span>
+        }
+    </p>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Level</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Message</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Count</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Sessions</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">First seen</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Last seen</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var group in TelemetryErrorOrdering.Apply(_groups.Groups, _order))
+            {
+                <TelemetryErrorGroupRow @key="group.Fingerprint" Group="group"/>
+            }
+            @if (_groups.Groups.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">No errors in the closed sessions</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [Inject] private IClientTelemetryReader Reader { get; set; } = null!;
+
+    // Every kind goes to the page: the order is chosen here.
+    private const int MaxGroups = 5000;
+
+    private static readonly IReadOnlyList<TelemetryFilterOption> _orderOptions =
+        Enum.GetValues<TelemetryErrorOrder>().Select(order => new TelemetryFilterOption(order.ToString(), order.ToString())).ToArray();
+
+    private TelemetryGlobalErrorGroups? _groups;
+    private TelemetryErrorOrder _order = TelemetryErrorOrder.Frequency;
+
+    protected override async Task Refresh()
+    {
+        _groups = await Reader.GetErrorGroups(MaxGroups);
+    }
+
+    private void SelectOrder(string? order)
+    {
+        _order = Enum.Parse<TelemetryErrorOrder>(order!);
+    }
+}

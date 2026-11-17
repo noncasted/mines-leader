@@ -1,0 +1,23 @@
+@using Game.ClientTelemetry
+@* The infrastructure cards a game keeps on its home page; the rest are on the infrastructure dashboard. *@
+<HomeSection Title="Cluster">
+    <HomeNavCard
+        Icon="toggle-right"
+        Title="Features"
+        Description="Toggle cluster features: connections, side effects"
+        Target="@ConsoleConstants.Pages.Features" />
+
+    @if (TelemetryReaders.Any())
+    {
+        <HomeNavCard
+            Icon="gauge"
+            Title="Client Telemetry"
+            Description="Sessions of the game clients: FPS, memory, errors over time"
+            Target="@ConsoleConstants.Pages.ClientTelemetry" />
+    }
+</HomeSection>
+
+@code {
+    // Empty on the console of a game without the telemetry (AddClientTelemetryReader registers it).
+    [Inject] private IEnumerable<IClientTelemetryReader> TelemetryReaders { get; set; } = null!;
+}

@@ -1,0 +1,17 @@
+@using Game.ClientTelemetry
+
+<span class="@($"px-2 py-0.5 rounded text-xs font-medium {Colors}")" title="@Hint">@Status</span>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetrySessionStatus Status { get; set; }
+
+    private string? Hint => Status == TelemetrySessionStatus.Lost ? TelemetrySessionFacts.LostMeaning : null;
+
+    private string Colors => Status switch
+    {
+        TelemetrySessionStatus.Live => "bg-primary/10 text-foreground",
+        TelemetrySessionStatus.Ended => "bg-muted text-muted-foreground",
+        TelemetrySessionStatus.Lost => "bg-destructive/10 text-destructive",
+        _ => throw new ArgumentOutOfRangeException(nameof(Status), Status, null)
+    };
+}

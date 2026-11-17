@@ -1,0 +1,337 @@
+using Cluster.Configs;
+using Internal;
+using Game.GamePlay.Snapshots;
+using Game.Session;
+using Microsoft.Extensions.Logging;
+using Shared;
+
+namespace Game.GamePlay;
+
+public class LastManStandingRound : Service, IGameRound
+{
+    public LastManStandingRound(
+        IGameContext gameContext,
+        IGameReadyAwaiter readyAwaiter,
+        IPlayersReadyAwaiter playersReadyAwaiter,
+        ISnapshotSender snapshotSender,
+        ISnapshotDiffGuard diffGuard,
+        IRoundActionService roundActionService,
+        RoundPlayers players,
+        IGameModeConfig modeOptions,
+        IPlayerConfig playerConfig,
+        ILogger<TimeLimitedRound> logger,
+        ISessionLogger sessionLogger) : base("game-round")
+    {
+        _gameContext = gameContext;
+        _readyAwaiter = readyAwaiter;
+        _playersReadyAwaiter = playersReadyAwaiter;
+        _snapshotSender = snapshotSender;
+        _diffGuard = diffGuard;
+        _roundActionService = roundActionService;
+        _players = players;
+        _modeOptions = modeOptions;
+        _playerConfig = playerConfig;
+        _logger = logger;
+        _sessionLogger = sessionLogger;
+    }
+
+    private Guid _currentPlayerId;
+    private int _currentRound;
+    private int _secondsLeft;
+
+    private readonly RoundPlayers _players;
+    private readonly IGameContext _gameContext;
+    private readonly IGameReadyAwaiter _readyAwaiter;
+    private readonly IPlayersReadyAwaiter _playersReadyAwaiter;
+    private readonly ISnapshotSender _snapshotSender;
+    private readonly ISnapshotDiffGuard _diffGuard;
+    private readonly IRoundActionService _roundActionService;
+    private readonly IGameModeConfig _modeOptions;
+    private readonly IPlayerConfig _playerConfig;
+    private readonly ILogger<TimeLimitedRound> _logger;
+    private readonly ISessionLogger _sessionLogger;
+
+    private readonly ViewableProperty<IPlayer> _currentPlayer = new(null!);
+
+    private ILifetime? _roundForcedLifetime;
+
+    private LastManStandingModeOptions ModeOptions => _modeOptions.Value.LastManStanding;
+
+    public IViewableProperty<IPlayer> CurrentPlayer => _currentPlayer!;
+
+    public async Task<Guid> Process(IReadOnlyLifetime lifetime)
+    {
+        foreach (var player in _gameContext.Players)
+        {
+            player.Hand.SetSize(_playerConfig.Value.HandSize);
+            player.Deck.Init(_playerConfig.Value.DeckSize);
+        }
+
+        ListenPlayersEvents(lifetime);
+
+        await _readyAwaiter.Await(lifetime);
+
+        var players = _gameContext.Players;
+
+        var snapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
+
+        var initPreState = _diffGuard.IsEnabled == true
+            ? GameStateCapture.Capture(_gameContext)
+            : null;
+
+        foreach (var player in _gameContext.Players)
+        {
+            PlayerBaseBuffs.Grant(
+                player,
+                snapshot,
+                health: ModeOptions.PlayerHealth,
+                moves: ModeOptions.PlayerMoves,
+                mana: ModeOptions.PlayerStartMana);
+        }
+
+        foreach (var player in players)
+            _players.RestoreCards(player, snapshot);
+
+        snapshot.RecordGameStarted(ModeOptions.CardMovesCost);
+        snapshot.RecordLastManStandingRound(_currentPlayerId, _currentRound, _secondsLeft);
+
+        if (initPreState != null)
+        {
+            var postState = GameStateCapture.Capture(_gameContext);
+            _diffGuard.Validate(initPreState, snapshot.Collect(), postState, "round:init");
+        }
+
+        _snapshotSender.Send(snapshot);
+
+        var playersReadyLifetime = lifetime.Child();
+
+        foreach (var player in players)
+            player.User.Lifetime.Listen(() => playersReadyLifetime.Terminate());
+
+        await _playersReadyAwaiter.Await(playersReadyLifetime);
+
+        var botPlayer = players.FirstOrDefault(p => p.User.IsBot);
+
+        if (botPlayer != null)
+            _currentPlayer.Set(botPlayer);
+
+        var roundsCount = 0;
+
+        while (IsGameOver() == false)
+        {
+            var nextPlayer = players.First(t => t != _currentPlayer.Value);
+            roundsCount++;
+            _sessionLogger.LogRoundStart(nextPlayer.User.Id, roundsCount);
+            await ProcessRound(lifetime, nextPlayer);
+            _currentRound++;
+            EmitRoundSnapshot();
+            _sessionLogger.LogRoundEnd(nextPlayer.User.Id, roundsCount);
+        }
+
+        var winner = GetWinner();
+        _sessionLogger.LogGameOver(winner, GetWinReason());
+
+        return winner;
+
+        bool IsGameOver()
+        {
+            if (lifetime.IsTerminated == true)
+                return true;
+
+            if (players.Any(p => p.Health.Current == 0))
+                return true;
+
+            if (players.Any(p => p.User.Lifetime.IsTerminated == true))
+                return true;
+
+            if (roundsCount >= 2)
+            {
+                var flagWinner = _players.GetFlagWinner();
+
+                if (flagWinner != Guid.Empty)
+                    return true;
+            }
+
+            return false;
+        }
+
+        Guid GetWinner()
+        {
+            foreach (var player in players)
+            {
+                if (player.Health.Current <= 0)
+                    return _gameContext.GetOpponent(player).User.Id;
+            }
+
+            foreach (var (user, player) in _gameContext.UserToPlayer)
+            {
+                if (user.Lifetime.IsTerminated == true)
+                    return _gameContext.GetOpponent(player).User.Id;
+            }
+
+            var flagWinner = _players.GetFlagWinner();
+
+            if (flagWinner != Guid.Empty)
+                return flagWinner;
+
+            return Guid.Empty;
+        }
+
+        string GetWinReason()
+        {
+            foreach (var player in players)
+            {
+                if (player.Health.Current <= 0)
+                    return $"Player {player.User.Id} health reached 0";
+            }
+
+            foreach (var (user, _) in _gameContext.UserToPlayer)
+            {
+                if (user.Lifetime.IsTerminated == true)
+                    return $"Player {user.Id} disconnected";
+            }
+
+            var flagWinner = _players.GetFlagWinner();
+
+            if (flagWinner != Guid.Empty)
+                return $"Player {flagWinner} flagged every mine on own board";
+
+            if (lifetime.IsTerminated == true)
+                return "Match lifetime terminated";
+
+            return "Unknown";
+        }
+    }
+
+    public void SkipTurn()
+    {
+        _sessionLogger.LogTurnSkipped(_currentPlayer.Value?.User.Id ?? Guid.Empty);
+        _roundForcedLifetime!.Terminate();
+    }
+
+    private async Task ProcessRound(IReadOnlyLifetime lifetime, IPlayer player)
+    {
+        _roundForcedLifetime = lifetime.Child();
+        var roundForcedLifetime = _roundForcedLifetime;
+
+        _currentPlayerId = player.User.Id;
+
+        {
+            var startSnapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
+
+            var startPreState = _diffGuard.IsEnabled == true
+                ? GameStateCapture.Capture(_gameContext)
+                : null;
+
+            player.Moves.Restore(startSnapshot);
+            startSnapshot.RecordLastManStandingRound(_currentPlayerId, _currentRound, _secondsLeft);
+
+            if (startPreState != null)
+            {
+                var postState = GameStateCapture.Capture(_gameContext);
+                _diffGuard.Validate(startPreState, startSnapshot.Collect(), postState, "round:start");
+            }
+
+            _snapshotSender.Send(startSnapshot);
+        }
+
+        _currentPlayer.Set(player);
+
+        try
+        {
+            await Task.WhenAny(TimerCountdown(), TurnsCountdown());
+        }
+        catch (TaskCanceledException)
+        {
+            // Ignore
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in round timer");
+        }
+
+        var endSnapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
+
+        var endPreState = _diffGuard.IsEnabled == true
+            ? GameStateCapture.Capture(_gameContext)
+            : null;
+
+        PlayerBaseBuffs.GrowMana(player, endSnapshot, ModeOptions.MaxManaCap);
+
+        player.Mana.Restore(endSnapshot);
+        _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.ResultMax);
+
+        // Отыгранные карты лежат на столе до конца хода — здесь сервер отправляет их в стеш.
+        endSnapshot.RecordCardsStashed(player);
+
+        _players.RestoreCards(player, endSnapshot);
+
+        _roundActionService.Tick(endSnapshot, player.User.Id);
+        player.Moves.Lock(endSnapshot);
+
+        if (endPreState != null)
+        {
+            var postState = GameStateCapture.Capture(_gameContext);
+            _diffGuard.Validate(endPreState, endSnapshot.Collect(), postState, "round:end");
+        }
+
+        _snapshotSender.Send(endSnapshot);
+
+        roundForcedLifetime.Terminate();
+
+        return;
+
+        async Task TimerCountdown()
+        {
+            var timer = ModeOptions.RoundTime;
+            var timeSpan = TimeSpan.FromSeconds(1);
+
+            while (timer > 0 && _roundForcedLifetime.IsTerminated == false)
+            {
+                timer--;
+
+                _secondsLeft = timer;
+                EmitRoundSnapshot();
+
+                await Task.Delay(timeSpan, _roundForcedLifetime.Token);
+            }
+        }
+
+        async Task TurnsCountdown()
+        {
+            var timeSpan = TimeSpan.FromSeconds(0.2);
+
+            while (player.Moves.Left > 0 && _roundForcedLifetime.IsTerminated == false)
+                await Task.Delay(timeSpan, _roundForcedLifetime.Token);
+        }
+    }
+
+    private void EmitRoundSnapshot()
+    {
+        var snapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
+        snapshot.RecordLastManStandingRound(_currentPlayerId, _currentRound, _secondsLeft);
+        _snapshotSender.Send(snapshot);
+    }
+
+    private void ListenPlayersEvents(IReadOnlyLifetime lifetime)
+    {
+        foreach (var player in _gameContext.Players)
+        {
+            player.Health.Updated.Advise(lifetime, () => {
+                if (player.Health.Current > 0)
+                    return;
+
+                _roundForcedLifetime?.Terminate();
+            });
+
+            player.User.Lifetime.Listen(() => {
+                SkipTurn();
+
+                if (lifetime.IsTerminated == true || _roundForcedLifetime == null)
+                    return;
+
+                _roundForcedLifetime.Terminate();
+            });
+        }
+    }
+}

@@ -1,0 +1,37 @@
+@using Cluster.Monitoring.Online
+
+<BbAreaChart Data="@_rows" Height="@Height">
+    <BbXAxis DataKey="key"/>
+    <BbYAxis ShowGrid="false"/>
+    <BbChartTooltip/>
+    <BbChartLegend/>
+    <BbArea DataKey="peak" Name="Peak online" Color="var(--chart-2)" Curve="CurveType.Smooth"/>
+    <BbArea DataKey="unique" Name="Unique users" Color="var(--chart-1)" Curve="CurveType.Smooth"/>
+</BbAreaChart>
+
+@code {
+    [Parameter, EditorRequired] public required IReadOnlyList<OnlinePeriod> Periods { get; set; }
+    [Parameter, EditorRequired] public required OnlineScale Scale { get; set; }
+    [Parameter, EditorRequired] public required string Height { get; set; }
+    [Parameter, EditorRequired] public required BrowserTimeZone Zone { get; set; }
+
+    private List<ChartRow> _rows = [];
+
+    // The names of the properties are the data keys of the chart.
+    private class ChartRow
+    {
+        public required string key { get; init; }
+        public required int peak { get; init; }
+        public required int unique { get; init; }
+    }
+
+    protected override void OnParametersSet()
+    {
+        _rows = Periods.Select(period => new ChartRow
+        {
+            key = OnlinePeriodFormat.Label(period, Scale, Zone),
+            peak = period.Peak,
+            unique = period.UniqueUsers
+        }).ToList();
+    }
+}

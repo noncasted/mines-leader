@@ -1,0 +1,9 @@
+<div class="rounded-md border bg-muted/30 p-2.5">
+    <div class="text-xs text-muted-foreground">@Label</div>
+    <div class="mt-1 text-lg font-semibold">@Value</div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required string Label { get; set; }
+    [Parameter, EditorRequired] public required int Value { get; set; }
+}

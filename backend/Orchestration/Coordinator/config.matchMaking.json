@@ -1,0 +1,10 @@
+{
+  "$type": "Shared.MatchMakingOptions, Shared",
+  "Available": {
+    "$type": "System.Collections.Generic.List`1[[Shared.GameMatchType, Shared]], System.Private.CoreLib",
+    "$values": [
+      20,
+      30
+    ]
+  }
+}

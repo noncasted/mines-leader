@@ -1,0 +1,178 @@
+@using Shared
+<div class="flex flex-col gap-3">
+    <div class="flex items-center gap-2">
+        <div class="rounded-md bg-amber-500/15 p-1.5">
+            <LucideIcon Name="trophy" Size="14" class="text-amber-400" />
+        </div>
+        <h2 class="text-sm font-semibold">In-Game Achievements</h2>
+        <span class="text-xs text-muted-foreground">@Value.Groups.Count groups, @Value.Groups.Sum(g => g.Tiers.Count) tiers</span>
+    </div>
+
+    @foreach (var group in Value.Groups)
+    {
+        var current = group;
+
+        <div class="rounded-lg border bg-card p-3 flex flex-col gap-2" @key="current">
+            <div class="flex items-center gap-2 flex-wrap">
+                <select @bind="current.Type"
+                        class="h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm">
+                    @foreach (var type in _achievementTypes)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+
+                <input type="text" @bind="current.Name" placeholder="Display name"
+                       class="h-8 w-48 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+
+                <div class="flex-1"></div>
+
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                          @onclick="() => Value.Groups.Remove(current)">
+                    <LucideIcon Name="trash-2" Size="12" />
+                </BbButton>
+            </div>
+
+            @foreach (var tier in current.Tiers.OrderBy(t => t.Tier).ToList())
+            {
+                var currentTier = tier;
+
+                <div class="flex items-start gap-2 flex-wrap py-1.5 border-t border-border/60" @key="currentTier">
+                    <div class="flex items-center gap-1">
+                        <span class="text-xs text-muted-foreground">Tier</span>
+                        <input type="number" @bind="currentTier.Tier"
+                               class="w-14 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                    </div>
+
+                    <input type="text" @bind="currentTier.Description" placeholder="Description"
+                           class="h-8 w-64 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+
+                    @switch (currentTier.Condition)
+                    {
+                        case StatThresholdCondition stat:
+                            <select @bind="stat.Stat"
+                                    class="h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm">
+                                @foreach (var statType in _statTypes)
+                                {
+                                    <option value="@statType">@statType</option>
+                                }
+                            </select>
+                            <input type="number" @bind="stat.Required"
+                                   class="w-28 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                            break;
+
+                        case CardGroupPlayedCondition cardGroup:
+                            <select @bind="cardGroup.Group"
+                                    class="h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm">
+                                @foreach (var cardGroupType in _cardGroups)
+                                {
+                                    <option value="@cardGroupType">@cardGroupType</option>
+                                }
+                            </select>
+                            <input type="number" @bind="cardGroup.Required"
+                                   class="w-28 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                            break;
+
+                        default:
+                            <span class="text-xs text-red-400">No condition</span>
+                            break;
+                    }
+
+                    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small"
+                              @onclick="() => ToggleCondition(currentTier)">
+                        <LucideIcon Name="repeat" Size="12" class="mr-1" />
+                        Condition
+                    </BbButton>
+
+                    @if (currentTier.Reward is CardUnlockReward reward)
+                    {
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <LucideIcon Name="gift" Size="12" class="text-muted-foreground" />
+                            @foreach (var cardGroupType in _cardGroups)
+                            {
+                                var groupValue = cardGroupType;
+                                var selected = reward.PossibleGroups.Contains(groupValue);
+
+                                <span @onclick="() => ToggleRewardGroup(reward, groupValue)"
+                                      class="cursor-pointer rounded px-1.5 py-0.5 text-xs font-semibold
+                                             @(selected ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")">
+                                    @groupValue
+                                </span>
+                            }
+                            @if (reward.PossibleGroups.Count == 0)
+                            {
+                                <span class="text-xs text-muted-foreground">any group</span>
+                            }
+                        </div>
+                    }
+
+                    <div class="flex-1"></div>
+
+                    <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon"
+                              @onclick="() => current.Tiers.Remove(currentTier)">
+                        <LucideIcon Name="trash-2" Size="12" />
+                    </BbButton>
+                </div>
+            }
+
+            <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small" @onclick="() => AddTier(current)">
+                <LucideIcon Name="plus" Size="12" class="mr-1" />
+                Add Tier
+            </BbButton>
+        </div>
+    }
+
+    <BbButton Variant="ButtonVariant.Outline" Size="ButtonSize.Small" @onclick="AddGroup">
+        <LucideIcon Name="plus" Size="12" class="mr-1" />
+        Add Achievement Group
+    </BbButton>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public InGameAchievementOptions Value { get; set; } = null!;
+
+    private static readonly InGameAchievementType[] _achievementTypes =
+        Enum.GetValues<InGameAchievementType>();
+
+    private static readonly UserStatType[] _statTypes = Enum.GetValues<UserStatType>();
+
+    private static readonly CardGroup[] _cardGroups = Enum.GetValues<CardGroup>();
+
+    private void AddGroup()
+    {
+        Value.Groups.Add(new InGameAchievementGroupConfig
+        {
+            Type = _achievementTypes[0],
+            Name = "New Achievement",
+            Tiers = new List<InGameAchievementTierConfig>()
+        });
+    }
+
+    private void AddTier(InGameAchievementGroupConfig group)
+    {
+        var nextTier = group.Tiers.Count == 0 ? 1 : group.Tiers.Max(t => t.Tier) + 1;
+
+        group.Tiers.Add(new InGameAchievementTierConfig
+        {
+            Tier = nextTier,
+            Description = string.Empty,
+            Condition = new StatThresholdCondition { Stat = _statTypes[0], Required = 1 },
+            Reward = new CardUnlockReward()
+        });
+    }
+
+    private static void ToggleCondition(InGameAchievementTierConfig tier)
+    {
+        tier.Condition = tier.Condition switch
+        {
+            StatThresholdCondition => new CardGroupPlayedCondition { Group = CardGroup.Scout, Required = 1 },
+            _ => new StatThresholdCondition { Stat = UserStatType.FlagsSet, Required = 1 }
+        };
+    }
+
+    private static void ToggleRewardGroup(CardUnlockReward reward, CardGroup group)
+    {
+        if (reward.PossibleGroups.Remove(group) == false)
+            reward.PossibleGroups.Add(group);
+    }
+}

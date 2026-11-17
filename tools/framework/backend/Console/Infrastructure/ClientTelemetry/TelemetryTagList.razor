@@ -1,0 +1,14 @@
+<div class="flex items-center gap-1" style="@TelemetryLayoutStyle.Wrap">
+    @foreach (var tag in Tags)
+    {
+        <span class="px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">@tag</span>
+    }
+    @if (Tags.Count == 0)
+    {
+        <span class="text-xs text-muted-foreground">@TelemetryValueFormat.Unknown</span>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required IReadOnlyList<string> Tags { get; set; }
+}

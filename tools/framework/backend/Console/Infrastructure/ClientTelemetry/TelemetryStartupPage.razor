@@ -1,0 +1,198 @@
+@page "/client-telemetry/startups/{Id:guid}"
+@using Console.Infrastructure.BackendTraces
+@using Game.ClientTelemetry
+@using Microsoft.Extensions.DependencyInjection
+@inherits TelemetryLivePage
+
+<PageTitle>Client Startup</PageTitle>
+<PageHeader Title="Client Startup" BackHref="@ConsoleConstants.Pages.ClientTelemetryStartups"/>
+
+@if (_startup == null || _tree == null)
+{
+    <div class="container mx-auto px-4 py-4">
+        <TelemetryRefreshError Message="@RefreshError"/>
+        @if (_isLoaded && RefreshError == null)
+        {
+            <BbAlert Variant="AlertVariant.Danger">
+                <ChildContent>
+                    <BbAlertTitle>Not Found</BbAlertTitle>
+                    <BbAlertDescription>No startup @Id: a record goes after the retention days</BbAlertDescription>
+                </ChildContent>
+            </BbAlert>
+        }
+        @if (_isLoaded == false)
+        {
+            <TelemetrySpinner/>
+        }
+    </div>
+    return;
+}
+
+<div class="container mx-auto px-4 py-4 flex flex-col gap-6">
+    <TelemetryRefreshError Message="@RefreshError"/>
+
+    <div class="flex items-center justify-between gap-4" style="@TelemetryLayoutStyle.Wrap">
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-medium">@_startup.Name</span>
+            <span class="text-xs text-muted-foreground">@TelemetryStartupFacts.State(_startup)</span>
+            <span class="text-xs text-muted-foreground">@TelemetrySessionFacts.Device(_startup.Device) @_startup.Device.BuildVersion</span>
+            <span class="text-xs text-muted-foreground break-all">@_startup.Id</span>
+        </div>
+        <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetryStartups">All startups</a>
+    </div>
+
+    <div style="@TelemetryLayoutStyle.Stats">
+        <TelemetryStat Label="Start" Value="@TelemetryValueFormat.Timestamp(_startup.ReceivedAt)" Hint="The time of the server at the first message of this trace: a client tells no clock"/>
+        <TelemetryStat Label="Duration" Value="@TelemetryValueFormat.Milliseconds(_startup.DurationMs)" Hint="Waiting for the player is in it: read the own time"/>
+        <TelemetryStat Label="Frames" Value="@_startup.Frames.ToString()"/>
+        <TelemetryStat Label="Spans" Value="@_startup.SpanCount.ToString()" Hint="Unfinished ones are drawn pale"/>
+        <TelemetryStat Label="Depth" Value="@_startup.Depth.ToString()"/>
+        <TelemetryStat
+            Label="Dropped / rejected / cut names"
+            Value="@($"{_startup.DroppedSpans} / {_startup.RejectedSpans} / {_startup.CutNames}")"
+            Hint="Spans cut over the limits / values the backend has not taken / names cut to their limit"/>
+        <TelemetryStat
+            Label="Backend trace"
+            Value="@(_startup.BackendTraceId ?? "-")"
+            Hint="The trace id of the authorization of this socket in the OTLP backend (Aspire dashboard: Traces, search by the id)"/>
+    </div>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground" title="The duration without the time of the children. A long own time over many frames at the frame rate of the game is a wait, not a load">Longest own time</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Own</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Duration</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Frames</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">ms / frame</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var span in _tree.LongestOwn(LongestOwnCount))
+            {
+                <TelemetryOwnTimeRow @key="span.Index" Span="span"/>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small" @onclick="ExpandAll">Expand all</BbButton>
+        <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small" @onclick="CollapseAll">Collapse all</BbButton>
+    </div>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Span</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Own</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Duration</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Frames</th>
+                @if (_tree.HasAllocations)
+                {
+                    <th class="h-10 px-4 text-right font-medium text-muted-foreground">Alloc</th>
+                }
+                <th class="h-10 px-4 font-medium text-muted-foreground">
+                    <div class="flex justify-between text-xs">
+                        @foreach (var part in Enumerable.Range(0, TelemetryStartupStyle.AxisParts + 1))
+                        {
+                            <span>@TelemetryValueFormat.Milliseconds(_tree.ScaleMs * part / TelemetryStartupStyle.AxisParts)</span>
+                        }
+                    </div>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var span in _tree.Visible(_expanded))
+            {
+                <TelemetryStartupRow
+                    @key="span.Index"
+                    Span="span"
+                    ScaleMs="_tree.ScaleMs"
+                    HasChildren="_tree.HasChildren(span.Index)"
+                    IsExpanded="_expanded.Contains(span.Index)"
+                    ShowAllocations="_tree.HasAllocations"
+                    OnToggle="Toggle"/>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (_backendTraces != null && _startup.BackendTraceId != null)
+    {
+        <div class="flex flex-col gap-2">
+            <BackendTraceSection @key="_startup.BackendTraceId" Source="_backendTraces" TraceId="@_startup.BackendTraceId"/>
+        </div>
+    }
+
+    <div class="flex flex-col gap-2">
+        <span class="text-sm font-medium">Sessions of this startup</span>
+        <TelemetrySessionTable Rows="_sessions"/>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    [Inject] private IClientTelemetryReader Reader { get; set; } = null!;
+    [Inject] private IServiceProvider Services { get; set; } = null!;
+
+    private const int LongestOwnCount = 10;
+    private const int MaxSessions = 100;
+
+    private readonly HashSet<int> _expanded = [];
+
+    private TelemetryStartupInfo? _startup;
+    private TelemetryStartupTree? _tree;
+    private IReadOnlyList<TelemetrySessionInfo> _sessions = [];
+    private bool _isLoaded;
+
+    // Registered by AddConsoleBackendTraces only: a console without the dashboard shows the id alone.
+    private IBackendTraceSource? _backendTraces;
+
+    protected override void OnInitialized()
+    {
+        _backendTraces = Services.GetService<IBackendTraceSource>();
+    }
+
+    // The spans are read again only when the record has changed: a snapshot may stay one for good.
+    protected override async Task Refresh()
+    {
+        var startup = await Reader.GetStartup(Id);
+        _isLoaded = true;
+
+        if (startup == null)
+        {
+            _startup = null;
+            return;
+        }
+
+        if (_tree == null || startup.UpdatedAt != _startup?.UpdatedAt)
+        {
+            _tree = new TelemetryStartupTree(TelemetryStartupAnalysis.Of(await Reader.GetStartupSpans(Id)), startup.DurationMs);
+
+            if (_startup == null)
+                _expanded.UnionWith(_tree.Roots);
+        }
+
+        _startup = startup;
+        _sessions = await Reader.GetSessions(new TelemetrySessionFilter { StartupId = Id, Limit = MaxSessions });
+    }
+
+    private void Toggle(int index)
+    {
+        if (!_expanded.Remove(index))
+            _expanded.Add(index);
+    }
+
+    private void ExpandAll()
+    {
+        _expanded.UnionWith(_tree!.All);
+    }
+
+    private void CollapseAll()
+    {
+        _expanded.Clear();
+    }
+}

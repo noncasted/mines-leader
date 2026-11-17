@@ -1,0 +1,11 @@
+<div class="rounded-lg border bg-card p-5 flex flex-col items-center gap-2">
+    <span class="text-sm font-medium text-muted-foreground">@Label</span>
+    <span class="text-3xl font-bold">@Value</span>
+    <span class="text-xs text-muted-foreground">@Hint</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required string Label { get; set; }
+    [Parameter, EditorRequired] public required int Value { get; set; }
+    [Parameter, EditorRequired] public required string Hint { get; set; }
+}

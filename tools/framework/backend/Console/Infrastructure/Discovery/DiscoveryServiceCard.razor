@@ -1,0 +1,54 @@
+@using Cluster.Discovery
+@using Microsoft.Extensions.Options
+
+<div class="rounded-lg border p-4 flex flex-col gap-3">
+    <div class="flex items-center gap-3">
+        <div class="rounded-md @(ServiceHealthRules.Background(_health)) p-2">
+            <LucideIcon Name="@RoleIcons.Value.Icon(Service.Tag)" Size="18" class="@(ServiceHealthRules.Text(_health))"/>
+        </div>
+        <div class="flex flex-col">
+            <span class="text-sm font-semibold">@Service.Tag</span>
+            <span class="font-mono text-xs text-muted-foreground">@(Service.Id.ToString()[..8])&hellip;</span>
+        </div>
+        <div class="ml-auto">
+            <div class="w-2 h-2 rounded-full @(ServiceHealthRules.Dot(_health))"></div>
+        </div>
+    </div>
+    <div class="flex items-center justify-between">
+        <span class="text-xs text-muted-foreground">Last heartbeat @FormatAge(Service.UpdateTime)</span>
+        @if (IsSelf == false)
+        {
+            <BbButton Variant="ButtonVariant.Destructive" Size="ButtonSize.Small" @onclick="OnDisconnect"
+                      Disabled="@(CanDisconnect == false || Disconnecting)">
+                <LucideIcon Name="@(Disconnecting ? "loader-circle" : "unplug")" Size="12" class="@(Disconnecting ? "animate-spin mr-1" : "mr-1")"/>
+                Disconnect
+            </BbButton>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IServiceOverview Service { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnDisconnect { get; set; }
+    [Parameter] public bool IsSelf { get; set; }
+    [Parameter] public bool CanDisconnect { get; set; }
+    [Parameter] public bool Disconnecting { get; set; }
+
+    [Inject] private IOptions<ServiceRoleIcons> RoleIcons { get; set; } = null!;
+
+    private ServiceHealth _health;
+
+    protected override void OnParametersSet()
+    {
+        _health = ServiceHealthRules.Of(Service, DateTime.UtcNow);
+    }
+
+    private static string FormatAge(DateTime updateTime)
+    {
+        var age = DateTime.UtcNow - updateTime;
+        if (age.TotalSeconds < 5) return "just now";
+        if (age.TotalSeconds < 60) return $"{(int)age.TotalSeconds}s ago";
+        if (age.TotalMinutes < 60) return $"{(int)age.TotalMinutes}m ago";
+        return $"{(int)age.TotalHours}h ago";
+    }
+}

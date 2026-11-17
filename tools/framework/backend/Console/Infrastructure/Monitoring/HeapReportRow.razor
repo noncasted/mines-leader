@@ -1,0 +1,17 @@
+@using Console.Monitoring
+
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2.5 text-xs text-muted-foreground whitespace-nowrap">@Report.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+    <td class="px-4 py-2.5 text-xs font-mono">@Report.FileName</td>
+    <td class="px-4 py-2.5 text-xs font-mono">@HeapReportFormatter.FormatBytes(Report.SizeBytes)</td>
+    <td class="px-4 py-2.5 text-xs">
+        <BbButton Size="ButtonSize.Small" Variant="ButtonVariant.Outline" @onclick="OnDownload">
+            Download
+        </BbButton>
+    </td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public HeapReport Report { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnDownload { get; set; }
+}

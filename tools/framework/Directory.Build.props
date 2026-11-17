@@ -1,0 +1,20 @@
+<Project>
+    <!-- Framework projects build with their own settings, independent of the project that includes the submodule.
+         Intermediate and output files go to .build/ at the framework root: shared/ is also a Unity package, and Unity
+         would import obj/ and bin/ inside it. -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+        <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).build/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+        <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+        <BaseOutputPath>$(MSBuildThisFileDirectory).build/bin/$(MSBuildProjectName)/</BaseOutputPath>
+        <!-- The hash of the commit in the version and in Source Link recompiles every project after any commit, nothing reads them. -->
+        <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.csproj.DotSettings"/>
+    </ItemGroup>
+</Project>

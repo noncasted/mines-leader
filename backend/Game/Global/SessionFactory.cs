@@ -1,0 +1,324 @@
+using Cluster.Configs;
+using Cluster.Discovery;
+using Cluster.State;
+using Common;
+using Common.Extensions;
+using Common.Network;
+using Internal;
+using Game.GamePlay;
+using Game.MatchMetrics;
+using Game.Session;
+using Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Shared;
+
+namespace Game.Global;
+
+public interface ISessionFactory
+{
+    Guid CreateLobby(LobbyCreateOptions createOptions);
+
+    // S4: the places of the participants (meta ids of the humans) are reserved before the id is returned: a user
+    // enters the session only with a ticket for it and a live place.
+    Guid CreateMatch(MatchCreateOptions createOptions, IReadOnlyList<Guid> participants);
+    Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions, Guid participant);
+}
+
+public class SessionFactory : ISessionFactory
+{
+    public SessionFactory(
+        IServiceProvider serviceProvider,
+        ISessionsCollection collection,
+        ISessionTicketIssuer tickets,
+        ILogger<SessionFactory> logger)
+    {
+        _serviceProvider = serviceProvider;
+        _collection = collection;
+        _tickets = tickets;
+        _logger = logger;
+    }
+
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ISessionsCollection _collection;
+    private readonly ISessionTicketIssuer _tickets;
+    private readonly ILogger<SessionFactory> _logger;
+
+    public Guid CreateLobby(LobbyCreateOptions createOptions)
+    {
+        _logger.LogInformation("[Matchmaking] Creating lobby");
+
+        var lifetime = new Lifetime();
+
+        var data = new SessionContainerData
+        {
+            Id = Guid.NewGuid(),
+            Lifetime = lifetime,
+            ExpectedUsers = 0,
+        };
+
+        // Every user that searches gets into the first lobby; it closes when nobody holds it.
+        var options = new SessionCreateOptions
+        {
+            Id = data.Id,
+            Type = SessionType.Lobby,
+            ExpectedUsers = 0,
+            MaxUsers = int.MaxValue,
+            IsPrivate = false
+        };
+
+        var services = new ServiceCollection();
+        PassDefaultDependencies(services);
+
+        services.AddSessionServices(data, options);
+        var provider = services.BuildServiceProvider();
+
+        RunSession().NoAwait();
+
+        return data.Id;
+
+        async Task RunSession()
+        {
+            var session = provider.GetRequiredService<ISession>();
+            var serviceFactory = provider.GetRequiredService<IServiceFactory>();
+
+            _collection.Add(session);
+
+            await session.ExecutionQueue.SetupServices(serviceFactory);
+            session.Run().NoAwait();
+            lifetime.Listen(provider.Dispose);
+
+            _logger.LogInformation("[Matchmaking] Lobby {ID} created", session.Id);
+        }
+    }
+
+    public Guid CreateMatch(MatchCreateOptions createOptions, IReadOnlyList<Guid> participants)
+    {
+        if (participants.Count == 0 || participants.Distinct().Count() != participants.Count)
+            throw new ArgumentException($"A match needs distinct participants, got {participants.Count}", nameof(participants));
+
+        _logger.LogInformation("[Matchmaking] Creating match: {Type}", createOptions.Type);
+
+        var lifetime = new Lifetime();
+
+        var data = new SessionContainerData
+        {
+            Id = Guid.NewGuid(),
+            Lifetime = lifetime,
+            ExpectedUsers = 2,
+        };
+
+        // No reconnect: a player whose connection is lost has left the match.
+        var options = new SessionCreateOptions
+        {
+            Id = data.Id,
+            Type = SessionType.Match,
+            ExpectedUsers = 2,
+            MaxUsers = participants.Count,
+            IsPrivate = true
+        };
+
+        var services = new ServiceCollection();
+
+        PassDefaultDependencies(services);
+
+        services.AddSessionServices(data, options);
+        services.AddCardServices();
+        services.AddGameCommands();
+        services.AddGameContext();
+        services.AddPlayerServices();
+
+        services.Add<GameReadyAwaiter>()
+                .As<IGameReadyAwaiter>();
+
+        services.Add<PlayersReadyAwaiter>()
+                .As<IPlayersReadyAwaiter>();
+
+        services.Add<RoundPlayers>();
+
+        switch (createOptions.Type)
+        {
+            case GameMatchType.Single:
+                break;
+            case GameMatchType.TimeLimited:
+                services.Add<TimeLimitedRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
+            case GameMatchType.LastManStanding:
+                services.Add<LastManStandingRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
+            case GameMatchType.LastManStandingTurnBased:
+                services.Add<LastManStandingTurnBasedRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        services.Add<ISessionFactory>(this);
+        services.Add<ISessionTicketIssuer>(_tickets);
+        services.Add<MatchHandle>();
+        services.Add(createOptions);
+
+        var provider = services.BuildServiceProvider();
+        var session = provider.GetRequiredService<ISession>();
+        var serviceFactory = provider.GetRequiredService<IServiceFactory>();
+
+        foreach (var participant in participants)
+        {
+            if (session.Reserve(participant) != SessionReservation.Reserved)
+                throw new InvalidOperationException($"A place of participant {participant} in match {data.Id} is refused");
+        }
+
+        _collection.Add(session, createOptions.Type);
+
+        RunSession().NoAwait();
+
+        return data.Id;
+
+        async Task RunSession()
+        {
+            await session.ExecutionQueue.SetupServices(serviceFactory);
+            session.Run().NoAwait();
+            lifetime.Listen(provider.Dispose);
+
+            await session.AllUsersConnected;
+            var handle = provider.GetRequiredService<MatchHandle>();
+            handle.Process().NoAwait();
+
+            _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
+                session.Id, createOptions);
+        }
+    }
+
+    public Guid CreateMatchWithBot(Guid botId, MatchCreateOptions createOptions, Guid participant)
+    {
+        _logger.LogInformation("[Matchmaking] Creating match: {Type}", createOptions.Type);
+
+        var lifetime = new Lifetime();
+
+        var data = new SessionContainerData
+        {
+            Id = Guid.NewGuid(),
+            Lifetime = lifetime,
+            ExpectedUsers = 2,
+        };
+
+        // The bot and the human are expected; only the human holds a place (a bot never holds a session).
+        var options = new SessionCreateOptions
+        {
+            Id = data.Id,
+            Type = SessionType.Match,
+            ExpectedUsers = 2,
+            MaxUsers = 1,
+            IsPrivate = true
+        };
+
+        var services = new ServiceCollection();
+
+        PassDefaultDependencies(services);
+
+        services.AddSessionServices(data, options);
+        services.AddCardServices();
+        services.AddGameCommands();
+        services.AddGameContext();
+        services.AddPlayerServices();
+        services.AddBotServices();
+
+        services.Add<BotGameReadyAwaiter>()
+                .As<IGameReadyAwaiter>();
+
+        services.Add<BotPlayersReadyAwaiter>()
+                .As<IPlayersReadyAwaiter>();
+
+        services.Add<RoundPlayers>();
+
+        switch (createOptions.Type)
+        {
+            case GameMatchType.Single:
+                break;
+            case GameMatchType.TimeLimited:
+                services.Add<TimeLimitedRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
+            case GameMatchType.LastManStanding:
+                services.Add<LastManStandingRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
+            case GameMatchType.LastManStandingTurnBased:
+                services.Add<LastManStandingTurnBasedRound>()
+                        .As<IService>()
+                        .As<IGameRound>();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        services.Add<ISessionFactory>(this);
+        services.Add<ISessionTicketIssuer>(_tickets);
+        services.Add<MatchHandle>();
+        services.Add(createOptions);
+
+        var provider = services.BuildServiceProvider();
+        var session = provider.GetRequiredService<ISession>();
+        var serviceFactory = provider.GetRequiredService<IServiceFactory>();
+        var userFactory = provider.GetRequiredService<IUserFactory>();
+        var botRunner = provider.GetRequiredService<IBotRunner>();
+
+        // The bot is created in the session itself (no socket, no ticket): only the human has a place to enter.
+        if (session.Reserve(participant) != SessionReservation.Reserved)
+            throw new InvalidOperationException($"A place of participant {participant} in match {data.Id} is refused");
+
+        _collection.Add(session, createOptions.Type);
+
+        RunSession().NoAwait();
+
+        return data.Id;
+
+        async Task RunSession()
+        {
+            await session.ExecutionQueue.SetupServices(serviceFactory);
+            session.Run().NoAwait();
+            lifetime.Listen(provider.Dispose);
+
+            // Users are created in the execution queue only (the seats of the session live there).
+            var botCreated = new TaskCompletionSource<IUser>(TaskCreationOptions.RunContinuationsAsynchronously);
+            session.ExecutionQueue.Enqueue(() => botCreated.SetResult(userFactory.CreateBot(session.Lifetime, botId)));
+            var bot = await botCreated.Task;
+
+            await session.AllUsersConnected;
+            var handle = provider.GetRequiredService<MatchHandle>();
+
+            _ = Task.Run(() => handle.Process());
+            _ = Task.Run(() => botRunner.Run(bot));
+
+            _logger.LogInformation("[Matchmaking] Session {ID} with options {Options} created",
+                session.Id, createOptions);
+        }
+    }
+
+    private void PassDefaultDependencies(ServiceCollection collection)
+    {
+        // The logs of a session go to the providers of the host; the game log of the session is its own.
+        collection.Pass<ILoggerFactory>(_serviceProvider);
+        collection.AddSingleton<IObservationEventBuffer, ObservationEventBuffer>();
+        collection.AddSingleton<ISessionLogger, SessionFileLogger>();
+
+        collection.Pass<IOrleans>(_serviceProvider);
+        collection.Pass<IServiceEnvironment>(_serviceProvider);
+        collection.Pass<IServiceDiscovery>(_serviceProvider);
+        collection.Pass<ICardConfigs>(_serviceProvider);
+        collection.Pass<IBotConfig>(_serviceProvider);
+        collection.Pass<IGameModeConfig>(_serviceProvider);
+        collection.Pass<IClusterFlags>(_serviceProvider);
+        collection.Pass<IGameFlags>(_serviceProvider);
+        collection.Pass<IPlayerConfig>(_serviceProvider);
+        collection.Pass<IMatchMetricsWriter>(_serviceProvider);
+    }
+}

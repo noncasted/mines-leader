@@ -1,0 +1,117 @@
+@page "/client-telemetry"
+@using Game.ClientTelemetry
+@inherits TelemetryLivePage
+
+<PageTitle>Client Telemetry</PageTitle>
+<PageHeader Title="Client Telemetry"/>
+
+@if (_view == null)
+{
+    <TelemetryRefreshError Message="@RefreshError"/>
+    <TelemetrySpinner/>
+    return;
+}
+
+<div class="container mx-auto px-4 py-4 flex flex-col gap-6">
+    <TelemetryRefreshError Message="@RefreshError"/>
+
+    <div class="flex items-center justify-between gap-4" style="@TelemetryLayoutStyle.Wrap">
+        <div class="flex items-center gap-6" style="@TelemetryLayoutStyle.Wrap">
+            <TelemetryFilter Label="Status" Options="_statusOptions" Selected="@_query.Status?.ToString()" OnSelect="SelectStatus"/>
+            <TelemetryFilter Label="Platform" Options="PlatformOptions" Selected="@_query.Platform" OnSelect="SelectPlatform"/>
+            <TelemetryFilter Label="Tag" Options="TagOptions" Selected="@_query.Tag" OnSelect="SelectTag"/>
+        </div>
+        <div class="flex items-center gap-4">
+            <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetryStartups">Startups</a>
+            <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetryErrors">Error groups</a>
+        </div>
+    </div>
+
+    <div style="@TelemetryLayoutStyle.Stats">
+        <TelemetryStat Label="Live / ended / lost" Value="@($"{_view.Totals.Live} / {_view.Totals.Ended} / {_view.Totals.Lost}")" Hint="@($"Lost: {TelemetrySessionFacts.LostMeaning}")"/>
+        <TelemetryStat Label="Errors" Value="@_view.Totals.Errors.ToString()" Hint="With the repeats, over the closed sessions"/>
+        <TelemetryStat
+            Label="Dropped samples / errors / marks"
+            Value="@($"{_view.Totals.DroppedSamples} / {_view.Totals.DroppedErrors} / {_view.Totals.DroppedMarks}")"
+            Hint="Out of the memory of a session, so its summary does not cover them"/>
+        <TelemetryStat Label="Rejected" Value="@_view.Totals.RejectedRequests.ToString()" Hint="Batches and items of the clients the backend has not taken"/>
+    </div>
+
+    <TelemetrySessionTable Rows="_view.Rows"/>
+
+    @if (_view.TotalPages > 1)
+    {
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">Page @(_view.Page + 1) / @_view.TotalPages</span>
+            <div class="flex items-center gap-1">
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" Disabled="@(_view.Page == 0)" @onclick="() => GoTo(_view.Page - 1)">
+                    <LucideIcon Name="chevron-left" Size="14"/>
+                </BbButton>
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" Disabled="@(_view.Page >= _view.TotalPages - 1)" @onclick="() => GoTo(_view.Page + 1)">
+                    <LucideIcon Name="chevron-right" Size="14"/>
+                </BbButton>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject] private IClientTelemetryReader Reader { get; set; } = null!;
+
+    private const int PageSize = 30;
+
+    private static readonly IReadOnlyList<TelemetryFilterOption> _statusOptions =
+    [
+        new("All", null),
+        ..Enum.GetValues<TelemetrySessionStatus>().Select(status => new TelemetryFilterOption(status.ToString(), status.ToString()))
+    ];
+
+    private IReadOnlyList<TelemetrySessionInfo> _sessions = [];
+    private TelemetrySessionQuery _query = new(null, null, null, 0);
+    private TelemetrySessionListPage? _view;
+
+    private IReadOnlyList<TelemetryFilterOption> PlatformOptions =>
+    [
+        new("All", null),
+        .._view!.Platforms.Select(platform => new TelemetryFilterOption(platform, platform))
+    ];
+
+    private IReadOnlyList<TelemetryFilterOption> TagOptions =>
+    [
+        new("All", null),
+        .._view!.Tags.Select(tag => new TelemetryFilterOption(tag, tag))
+    ];
+
+    // Compact states in memory: the filters and the pages go over all of them, the platforms and the tags need them anyway.
+    protected override async Task Refresh()
+    {
+        _sessions = await Reader.GetSessions(new TelemetrySessionFilter { Limit = int.MaxValue });
+        Apply(_query);
+    }
+
+    private void SelectStatus(string? status)
+    {
+        Apply(_query with { Status = status == null ? null : Enum.Parse<TelemetrySessionStatus>(status), Page = 0 });
+    }
+
+    private void SelectPlatform(string? platform)
+    {
+        Apply(_query with { Platform = platform, Page = 0 });
+    }
+
+    private void SelectTag(string? tag)
+    {
+        Apply(_query with { Tag = tag, Page = 0 });
+    }
+
+    private void GoTo(int page)
+    {
+        Apply(_query with { Page = page });
+    }
+
+    private void Apply(TelemetrySessionQuery query)
+    {
+        _view = TelemetrySessionListPage.Of(_sessions, query, PageSize);
+        _query = query with { Page = _view.Page };
+    }
+}

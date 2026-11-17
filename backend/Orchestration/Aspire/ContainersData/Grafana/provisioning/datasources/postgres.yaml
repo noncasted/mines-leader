@@ -1,0 +1,19 @@
+# The local Postgres of the dev cluster: the tables match_metric_* of the match metrics. The values come from the
+# environment of the container, set by GrafanaFactory from the Postgres resource of the AppHost.
+apiVersion: 1
+
+datasources:
+  - name: Postgres
+    uid: match-metrics-pg
+    type: grafana-postgresql-datasource
+    url: ${PG_HOST}:${PG_PORT}
+    user: ${PG_USER}
+    isDefault: true
+    editable: false
+    jsonData:
+      database: ${PG_DATABASE}
+      sslmode: disable
+      postgresVersion: 1700
+      timescaledb: false
+    secureJsonData:
+      password: ${PG_PASSWORD}

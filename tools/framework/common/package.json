@@ -1,0 +1,8 @@
+{
+  "name": "com.noncasted.framework.common",
+  "displayName": "Framework Common",
+  "version": "0.1.0",
+  "unity": "7000.0",
+  "description": "Reactive primitives shared by the Unity client and the backend: lifetimes, event sources, lifetimed values and viewable properties, viewable lists and dictionaries, the modifiable list (namespace Internal). C# 9 and netstandard2.1: the dotnet build refuses what Unity cannot compile.",
+  "dependencies": {}
+}

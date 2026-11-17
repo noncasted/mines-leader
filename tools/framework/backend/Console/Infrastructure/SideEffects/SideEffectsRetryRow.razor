@@ -1,0 +1,26 @@
+@using Cluster.Monitoring
+
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2.5 font-mono text-xs text-muted-foreground">@(Entry.Id.ToString()[..8])&hellip;</td>
+    <td class="px-4 py-2.5 text-xs">@Entry.TypeName</td>
+    <td class="px-4 py-2.5 text-xs">@Entry.RetryCount</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@Entry.RetryAfter.ToString("HH:mm:ss")</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@Entry.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+    <td class="px-4 py-2.5">
+        <div class="flex gap-1 justify-end">
+            <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" @onclick="OnRequeue" Disabled="Disabled" title="Requeue">
+                <LucideIcon Name="rotate-ccw" Size="14"/>
+            </BbButton>
+            <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" @onclick="OnDrop" Disabled="Disabled" title="Drop">
+                <LucideIcon Name="trash-2" Size="14" class="text-destructive"/>
+            </BbButton>
+        </div>
+    </td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public SideEffectsRetryEntry Entry { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnRequeue { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnDrop { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+}

@@ -1,0 +1,67 @@
+@using Cluster.Monitoring
+
+<div class="rounded-lg border bg-card p-5 flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="rounded-md bg-green-500/15 p-1.5">
+                <LucideIcon Name="activity" Size="14" class="text-green-400"/>
+            </div>
+            <span class="text-sm font-medium text-muted-foreground">Throughput (UTC)</span>
+        </div>
+        <div class="flex items-center gap-4 text-xs text-muted-foreground">
+            @if (MissingServices > 0)
+            {
+                <span class="text-destructive" title="The services that did not answer are not in the sum">
+                    partial: @MissingServices service(s) missing
+                </span>
+            }
+            @if (History.Count > 0)
+            {
+                var last = History[^1];
+                <span>
+                    <span class="text-green-400 font-medium">@last.Processed</span>/s processed
+                </span>
+                @if (last.Failed > 0)
+                {
+                    <span>
+                        <span class="text-red-400 font-medium">@last.Failed</span>/s failed
+                    </span>
+                }
+                <span>peak @History.Max(d => d.Processed)/s</span>
+            }
+        </div>
+    </div>
+
+    <BbAreaChart Data="@_chartData" Height="200px">
+        <BbXAxis DataKey="key"/>
+        <BbYAxis ShowGrid="false"/>
+        <BbChartTooltip/>
+        <BbArea DataKey="processed" Name="Processed" Color="var(--chart-2)" Curve="CurveType.Smooth"/>
+        <BbArea DataKey="failed" Name="Failed" Color="var(--chart-5)" Curve="CurveType.Smooth"/>
+    </BbAreaChart>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<SideEffectsThroughputEntry> History { get; set; } = [];
+    [Parameter, EditorRequired] public int MissingServices { get; set; }
+
+    private List<ThroughputRow> _chartData = [];
+
+    // The chart reads the members by these names.
+    private class ThroughputRow
+    {
+        public string key { get; init; } = "";
+        public int processed { get; init; }
+        public int failed { get; init; }
+    }
+
+    protected override void OnParametersSet()
+    {
+        _chartData = History.Select(e => new ThroughputRow
+        {
+            key = e.Timestamp.ToString("HH:mm:ss"),
+            processed = (int)e.Processed,
+            failed = (int)e.Failed
+        }).ToList();
+    }
+}

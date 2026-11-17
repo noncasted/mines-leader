@@ -1,0 +1,59 @@
+@page "/client-telemetry/startups"
+@using Game.ClientTelemetry
+@inherits TelemetryLivePage
+
+<PageTitle>Client Startups</PageTitle>
+<PageHeader Title="Client Startups" BackHref="@ConsoleConstants.Pages.ClientTelemetry"/>
+
+<div class="container mx-auto px-4 py-4 flex flex-col gap-6">
+    <TelemetryRefreshError Message="@RefreshError"/>
+
+    <div class="flex items-center justify-between gap-4" style="@TelemetryLayoutStyle.Wrap">
+        <span class="text-xs text-muted-foreground">The startup traces of the clients, newest first. A snapshot is a trace still open when it was sent; it stays one when the client goes</span>
+        <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetry">All sessions</a>
+    </div>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Received</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Trace</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">State</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Device</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Build</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Duration</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Frames</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Spans</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Depth</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground" title="Spans cut over the limits / values the backend has not taken">Dropped / rejected</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var startup in _startups)
+            {
+                <TelemetryStartupListRow @key="startup.Id" Startup="startup"/>
+            }
+            @if (_startups.Count == 0)
+            {
+                <tr>
+                    <td colspan="10" class="px-4 py-8 text-center text-muted-foreground">No startups</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    [Inject] private IClientTelemetryReader Reader { get; set; } = null!;
+
+    private const int Limit = 100;
+
+    private IReadOnlyList<TelemetryStartupInfo> _startups = [];
+
+    protected override async Task Refresh()
+    {
+        _startups = await Reader.GetStartups(Limit);
+    }
+}

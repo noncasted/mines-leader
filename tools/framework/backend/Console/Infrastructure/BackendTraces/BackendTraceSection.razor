@@ -1,0 +1,51 @@
+@using global::Common.Extensions
+@using Console.Infrastructure.ClientTelemetry
+@using Internal
+@inherits UiComponent
+
+<span class="text-sm font-medium" title="The trace of the authorization of this socket, read from the Aspire dashboard">Backend trace @TraceId</span>
+
+@if (_result == null)
+{
+    <TelemetrySpinner/>
+    return;
+}
+
+@if (_result is BackendTraceResult.NotFound)
+{
+    <span class="text-xs text-muted-foreground">The trace is no longer in the dashboard (it keeps telemetry in memory only)</span>
+    return;
+}
+
+@if (_result is BackendTraceResult.Failed failed)
+{
+    <BbAlert Variant="AlertVariant.Danger">
+        <ChildContent>
+            <BbAlertTitle>The backend trace cannot be read</BbAlertTitle>
+            <BbAlertDescription>@failed.Message</BbAlertDescription>
+        </ChildContent>
+    </BbAlert>
+    return;
+}
+
+<BackendTraceView Trace="((BackendTraceResult.Found)_result).Trace"/>
+
+@code {
+    [Parameter, EditorRequired] public required IBackendTraceSource Source { get; set; }
+    [Parameter, EditorRequired] public required string TraceId { get; set; }
+
+    private BackendTraceResult? _result;
+
+    // Read once: a trace in the dashboard does not change after its spans have ended. A new id takes a new component (@key).
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        Load(lifetime).NoAwait();
+        return Task.CompletedTask;
+    }
+
+    private async Task Load(IReadOnlyLifetime lifetime)
+    {
+        _result = await Source.Read(TraceId, lifetime.Token);
+        await InvokeAsync(StateHasChanged);
+    }
+}

@@ -1,0 +1,16 @@
+@typeparam T
+
+<div class="flex items-center gap-3 py-1.5 border-b border-border/60 last:border-b-0">
+    <LucideIcon Name="@Icon" Size="12" class="text-muted-foreground shrink-0" />
+    <span class="text-sm flex-1">@Label</span>
+    <input type="number" @bind:get="Value" @bind:set="Changed" step="@Step"
+           class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Icon { get; set; } = "";
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter, EditorRequired] public T Value { get; set; } = default!;
+    [Parameter, EditorRequired] public Func<T, Task> Changed { get; set; } = null!;
+    [Parameter] public string Step { get; set; } = "1";
+}

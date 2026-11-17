@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Framework.Tests</AssemblyName>
+        <RootNamespace>Framework.Tests</RootNamespace>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="Newtonsoft.Json"/>
+        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="Testcontainers.PostgreSql"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+        <PackageReference Include="Microsoft.Orleans.TestingHost"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <!-- Collections run in parallel: every cluster fixture has its own database, the tests of the process-wide NoAwait handler are in a collection that runs alone. -->
+    <ItemGroup>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <!-- The contract files are read by these tests and by the tests of the Unity client. -->
+    <ItemGroup>
+        <None Update="ClientTelemetry\Golden\*.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <!-- An answer of the Aspire dashboard 13.5 to GET /api/telemetry/traces/{id}, recorded from a local cluster. -->
+    <ItemGroup>
+        <None Update="Console\BackendTraces\*.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\common\framework.common.csproj"/>
+        <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\Session\Session.csproj"/>
+        <ProjectReference Include="..\..\shared\SessionCore\framework.session.core.csproj"/>
+        <ProjectReference Include="..\Hosting\Hosting.csproj"/>
+        <ProjectReference Include="..\ClientTelemetry\ClientTelemetry.csproj"/>
+        <ProjectReference Include="..\Console\Console.csproj"/>
+        <ProjectReference Include="..\MatchMetrics\MatchMetrics.csproj"/>
+    </ItemGroup>
+
+</Project>

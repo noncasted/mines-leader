@@ -1,0 +1,18 @@
+@using Cluster.Discovery
+@using Microsoft.Extensions.Options
+
+<div class="rounded-lg border p-3 flex flex-col items-center gap-1">
+    <div class="rounded-md @(ServiceHealthRules.Background(Health)) p-1.5">
+        <LucideIcon Name="@RoleIcons.Value.Icon(Tag)" Size="14" class="@(ServiceHealthRules.Text(Health))"/>
+    </div>
+    <span class="text-xs font-medium">@Tag</span>
+    <span class="text-lg font-bold">@Count</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ServiceTag Tag { get; set; }
+    [Parameter, EditorRequired] public ServiceHealth Health { get; set; }
+    [Parameter, EditorRequired] public int Count { get; set; }
+
+    [Inject] private IOptions<ServiceRoleIcons> RoleIcons { get; set; } = null!;
+}

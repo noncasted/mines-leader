@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The core of a real-time session: users and seats, entities, objects, properties, services, commands. One code
+         for the backend (backend/Session hosts it: admission, sockets, the execution queue, DI), a host client of a P2P
+         match and the offline mode. The same sources are compiled by Unity through Framework.Session.Core.asmdef: C# 9,
+         no implicit usings, nullable off, no Unity and no Microsoft.Extensions; the target is the one of
+         framework.shared (net10.0) it references: the API that Unity lacks is found by the Unity compile. Synchronous: the host
+         calls it from one thread at a time (the session queue of the backend, the main thread of a client). -->
+    <PropertyGroup>
+        <LangVersion>9.0</LangVersion>
+        <AssemblyName>Framework.Session.Core</AssemblyName>
+        <RootNamespace>Game.Session</RootNamespace>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.meta"/>
+        <None Remove="**\*.asmdef"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\common\framework.common.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MemoryPack"/>
+    </ItemGroup>
+
+</Project>

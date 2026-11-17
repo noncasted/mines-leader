@@ -1,0 +1,13 @@
+@using Game.ClientTelemetry
+
+<tr class="border-b last:border-b-0">
+    <td class="px-4 py-1 text-xs break-all">@Span.Name</td>
+    <td class="px-4 py-1 text-xs text-right whitespace-nowrap">@TelemetryValueFormat.Milliseconds(Span.OwnMs)</td>
+    <td class="px-4 py-1 text-xs text-right whitespace-nowrap text-muted-foreground">@TelemetryValueFormat.Milliseconds(Span.DurationMs)</td>
+    <td class="px-4 py-1 text-xs text-right text-muted-foreground">@Span.Frames</td>
+    <td class="px-4 py-1 text-xs text-right text-muted-foreground">@(Span.Frames > 0 ? TelemetryValueFormat.Value(Math.Round(Span.DurationMs / Span.Frames, 1), null) : TelemetryValueFormat.Unknown)</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetryStartupSpanFacts Span { get; set; }
+}

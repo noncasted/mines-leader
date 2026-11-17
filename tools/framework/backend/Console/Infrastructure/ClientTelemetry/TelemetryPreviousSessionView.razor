@@ -1,0 +1,39 @@
+@using Game.ClientTelemetry
+
+@* What the client kept of its session before this one that did not close: its last sample and marks may be later than what the server got. *@
+<div class="rounded-lg border px-4 py-2 flex flex-col gap-1 text-xs">
+    <div class="flex items-center gap-2" style="@TelemetryLayoutStyle.Wrap">
+        <span class="font-medium">The previous session of this client did not close:</span>
+        <a class="underline break-all" href="@ConsoleConstants.Pages.ClientTelemetrySession(Previous.SessionId)">@Previous.SessionId</a>
+        <TelemetryTagList Tags="Previous.Tags"/>
+    </div>
+    <div class="flex gap-4 text-muted-foreground" style="@TelemetryLayoutStyle.Wrap">
+        <span>last sample of the client @(Previous.LastSampleTime is { } last ? TelemetryValueFormat.Time(last) : TelemetryValueFormat.Unknown)</span>
+        <span>this session started @(Previous.SinceMs is { } since ? TelemetryValueFormat.Time(since) : TelemetryValueFormat.Unknown) after it</span>
+    </div>
+    <div class="flex gap-4" style="@TelemetryLayoutStyle.Wrap">
+        @foreach (var mark in Previous.Marks)
+        {
+            <span class="flex gap-2">
+                <span class="text-muted-foreground">@TelemetryValueFormat.Time(mark.Time)</span>
+                <span>@mark.Name</span>
+                @if (mark.Detail != null)
+                {
+                    <span class="text-muted-foreground">@mark.Detail</span>
+                }
+                @if (mark.DurationMs is { } duration)
+                {
+                    <span class="text-muted-foreground">@TelemetryValueFormat.Milliseconds(duration)</span>
+                }
+            </span>
+        }
+        @if (Previous.Marks.Count == 0)
+        {
+            <span class="text-muted-foreground">No marks</span>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetryPreviousSession Previous { get; set; }
+}

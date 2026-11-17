@@ -1,0 +1,34 @@
+@using Meta.Matches
+
+<div class="rounded-lg border p-4 flex flex-col gap-3 hover:bg-muted/30 cursor-pointer"
+     @onclick="@(() => Navigation.NavigateTo(string.Format(GameConsoleConstants.Pages.MatchPlayer, MatchId, Card.UserId)))">
+    <div class="flex items-center justify-between">
+        <span class="text-sm font-medium">@Name()</span>
+        <span class="text-xs text-muted-foreground">@Card.Streams streams</span>
+    </div>
+
+    @* No early return here: it would leave the outer div unclosed (Blazor throws on the render). *@
+    @if (Card.Streams == 0)
+    {
+        <span class="text-xs text-muted-foreground">No metrics</span>
+    }
+    else
+    {
+        <MatchAmountList Title="Cells opened" Total="@Card.CellsOpened" Amounts="@Card.CellsBySource"/>
+        <MatchAmountList Title="Counters" Total="@null" Amounts="@Card.Counters"/>
+        <MatchAmountList Title="Cards played" Total="@Card.CardsPlayed" Amounts="@Card.CardsByType"/>
+        <span class="text-xs text-muted-foreground">@Card.Events.Count events</span>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Guid MatchId { get; set; }
+    [Parameter, EditorRequired] public MatchPlayerCard Card { get; set; } = null!;
+
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
+
+    private string Name()
+    {
+        return string.IsNullOrEmpty(Card.Nickname) ? Card.UserId.ToString() : Card.Nickname;
+    }
+}

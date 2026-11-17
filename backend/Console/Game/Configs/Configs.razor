@@ -1,0 +1,530 @@
+@page "/configs"
+@using Cluster.Configs
+@using global::Common.Extensions
+@using Meta.Users
+@using Shared
+
+<PageTitle>Configs</PageTitle>
+<PageHeader Title="Configurations" />
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4">
+    <div class="flex gap-2">
+        <BbButton @onclick="Reload">
+            <LucideIcon Name="refresh-cw" Size="16" class="mr-2" />
+            Reload
+        </BbButton>
+        <BbButton Variant="ButtonVariant.Secondary" @onclick="Save">
+            <LucideIcon Name="save" Size="16" class="mr-2" />
+            Save
+        </BbButton>
+        <BbButton Variant="ButtonVariant.Outline" @onclick="UpdateJson" Disabled="_isUpdatingJson">
+            <LucideIcon Name="file-json" Size="16" class="mr-2" />
+            Write JSON
+        </BbButton>
+        <BbAlertDialog @bind-Open="_isResetDialogOpen">
+            <BbAlertDialogTrigger>
+                <BbButton Variant="ButtonVariant.Destructive" Disabled="_isResetting">
+                    <LucideIcon Name="rotate-ccw" Size="16" class="mr-2" />
+                    Reset to defaults
+                </BbButton>
+            </BbAlertDialogTrigger>
+            <BbAlertDialogContent>
+                <BbAlertDialogHeader>
+                    <BbAlertDialogTitle>Reset configs to defaults?</BbAlertDialogTitle>
+                    <BbAlertDialogDescription>
+                        All configurations (Cards, Bot, Game Mode, Rating, Achievements, Player, User Deck)
+                        will be reloaded from the JSON files and applied to the live cluster.
+                        Current values are lost and this cannot be undone.
+                    </BbAlertDialogDescription>
+                </BbAlertDialogHeader>
+                <BbAlertDialogFooter>
+                    <BbAlertDialogCancel>
+                        <BbButton Variant="ButtonVariant.Outline">Cancel</BbButton>
+                    </BbAlertDialogCancel>
+                    <BbAlertDialogAction>
+                        <BbButton Variant="ButtonVariant.Destructive" @onclick="ResetToDefaults">Reset to defaults</BbButton>
+                    </BbAlertDialogAction>
+                </BbAlertDialogFooter>
+            </BbAlertDialogContent>
+        </BbAlertDialog>
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto pb-1">
+        @foreach (var sec in _sections)
+        {
+            <div @onclick="() => _activeSection = sec.Key"
+                 class="flex-1 min-w-[100px] cursor-pointer rounded-lg border p-3 flex flex-col items-center gap-1.5 transition-colors
+                        @(_activeSection == sec.Key ? "bg-primary/10 border-primary/50" : "bg-card hover:bg-muted/50")">
+                <LucideIcon Name="@sec.Icon" Size="18" class="@(_activeSection == sec.Key ? "text-primary" : "text-muted-foreground")" />
+                <span class="text-xs font-medium text-center @(_activeSection == sec.Key ? "text-primary" : "text-muted-foreground")">@sec.Label</span>
+            </div>
+        }
+    </div>
+
+    @switch (_activeSection)
+    {
+        case ConfigSection.Bot:
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <div class="rounded-md bg-blue-500/15 p-1.5">
+                        <LucideIcon Name="settings" Size="14" class="text-blue-400" />
+                    </div>
+                    <h2 class="text-sm font-semibold">Bot Global Settings</h2>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-3 py-1.5">
+                        <LucideIcon Name="users" Size="12" class="text-muted-foreground shrink-0" />
+                        <span class="text-sm flex-1">Matchmaking Threshold (sec)</span>
+                        <input type="number" @bind="_botValue.MatchmakingApplyThreshold" step="0.1"
+                               class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                    </div>
+                </div>
+            </div>
+            <BotConfigEditor Value="_botValue" OnProfileChanged="Save" />
+            break;
+
+        case ConfigSection.GameMode:
+            <GameModeConfigEditor Value="_gameModeValue" />
+            break;
+
+        case ConfigSection.Rating:
+            <RatingConfigEditor Value="_ratingValue" />
+            break;
+
+        case ConfigSection.Achievements:
+            <InGameAchievementConfigEditor Value="_achievementValue" />
+            break;
+
+        case ConfigSection.Player:
+            <PlayerConfigEditor Value="_playerConfigValue" />
+            break;
+
+        case ConfigSection.UserDeck:
+            <div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <div class="rounded-md bg-amber-500/15 p-1.5">
+                        <LucideIcon Name="library" Size="14" class="text-amber-400" />
+                    </div>
+                    <h2 class="text-sm font-semibold">User Base Deck</h2>
+                </div>
+                <UserDeckConfigEditor Value="_userDeckValue.BaseDeck" DeckSize="@DeckOptions.DeckSize" />
+            </div>
+            break;
+
+        case ConfigSection.Cards:
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <div class="rounded-md bg-violet-500/15 p-1.5">
+                        <LucideIcon Name="layers" Size="14" class="text-violet-400" />
+                    </div>
+                    <h2 class="text-sm font-semibold">Card Configurations</h2>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <LucideIcon Name="search" Size="14" class="text-muted-foreground shrink-0" />
+                    <input type="text"
+                           @bind="_searchQuery"
+                           @bind:event="oninput"
+                           placeholder="Search cards..."
+                           class="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
+                </div>
+
+                @* Scout *@
+                @{
+                    var scoutFiltered = FilterCards(_scoutCards);
+                }
+                @if (scoutFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-green-500/15 text-green-400">Scout</span>
+                            <span class="text-xs text-muted-foreground">board reveal and mine detection</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in scoutFiltered)
+                            {
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
+                                {
+                                    <CardGridItem @key="type" Value="config" Type="type" />
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Cross-Board *@
+                @{
+                    var crossFiltered = FilterCards(_crossBoardCards);
+                }
+                @if (crossFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-red-500/15 text-red-400">Cross-Board</span>
+                            <span class="text-xs text-muted-foreground">affects opponent's board</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in crossFiltered)
+                            {
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
+                                {
+                                    <CardGridItem @key="type" Value="config" Type="type" />
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Improve *@
+                @{
+                    var improveFiltered = FilterCards(_improveCards);
+                }
+                @if (improveFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-purple-500/15 text-purple-400">Improve</span>
+                            <span class="text-xs text-muted-foreground">moves, shield, mana discount</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in improveFiltered)
+                            {
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
+                                {
+                                    <CardGridItem @key="type" Value="config" Type="type" />
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Resources *@
+                @{
+                    var resourceFiltered = FilterCards(_resourceCards);
+                }
+                @if (resourceFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-blue-500/15 text-blue-400">Resources</span>
+                            <span class="text-xs text-muted-foreground">mana, HP, and resource manipulation</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in resourceFiltered)
+                            {
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
+                                {
+                                    <CardGridItem @key="type" Value="config" Type="type" />
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Hand *@
+                @{
+                    var handFiltered = FilterCards(_handCards);
+                }
+                @if (handFiltered.Count > 0)
+                {
+                    <div class="rounded-lg border bg-card p-2 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="rounded px-1.5 py-0.5 text-xs font-semibold bg-orange-500/15 text-orange-400">Hand</span>
+                            <span class="text-xs text-muted-foreground">deck and hand manipulation</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            @foreach (var type in handFiltered)
+                            {
+                                @if (_cardsValue.All.TryGetValue(type, out var config))
+                                {
+                                    <CardGridItem @key="type" Value="config" Type="type" />
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            break;
+    }
+</div>
+
+@code {
+    [Inject] public ICardConfigs CardConfigs { get; set; } = null!;
+    [Inject] public IBotConfig BotConfig { get; set; } = null!;
+    [Inject] public IGameModeConfig GameModeConfig { get; set; } = null!;
+    [Inject] public IRatingConfig RatingConfig { get; set; } = null!;
+    [Inject] public IInGameAchievementConfig AchievementConfig { get; set; } = null!;
+    [Inject] public IUserDeckConfig UserDeckConfig { get; set; } = null!;
+    [Inject] public IPlayerConfig PlayerConfig { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
+    [Inject] public IAuditLogStorage AuditLog { get; set; } = null!;
+
+    private CardConfigOptions _cardsValue = new();
+    private BotConfigOptions _botValue = new();
+    private GameModeOptions _gameModeValue = new();
+    private RatingOptions _ratingValue = new();
+    private InGameAchievementOptions _achievementValue = new();
+    private UserDeckConfigOptions _userDeckValue = new();
+    private PlayerConfigOptions _playerConfigValue = new();
+    private bool _isUpdatingJson;
+    private bool _isResetting;
+    private bool _isResetDialogOpen;
+    private ConfigSection _activeSection = ConfigSection.Bot;
+    private string _searchQuery = "";
+
+    private static readonly (ConfigSection Key, string Icon, string Label)[] _sections = [
+        (ConfigSection.Bot,       "bot",      "Bot"),
+        (ConfigSection.GameMode,  "sword",    "Game Mode"),
+        (ConfigSection.Rating,    "star",     "Rating"),
+        (ConfigSection.Achievements, "trophy", "Achievements"),
+        (ConfigSection.Player,    "user",     "Player"),
+        (ConfigSection.UserDeck,  "library",  "User Deck"),
+        (ConfigSection.Cards,     "zap",      "Cards"),
+    ];
+
+    private static readonly CardType[] _scoutCards = [
+        CardType.Bloodhound, CardType.Bloodhound_Max,
+        CardType.ErosionDozer, CardType.ErosionDozer_Max,
+        CardType.ZipZap, CardType.ZipZap_Max,
+        CardType.MinefieldScout, CardType.MinefieldScout_Max,
+        CardType.Sonar,
+        CardType.Excavator, CardType.Excavator_Max,
+        CardType.ThermalVision, CardType.ThermalVision_Max,
+        CardType.ChaosDiamond,
+        CardType.ChaosScout,
+        CardType.FortuneCookie,
+    ];
+
+    private static readonly CardType[] _crossBoardCards = [
+        CardType.Trebuchet, CardType.Trebuchet_Max,
+        CardType.OpponentBomb,
+        CardType.OpponentFlagErase, CardType.OpponentFlagErase_Max,
+        CardType.OpponentFlagReshuffle, CardType.OpponentFlagReshuffle_Max,
+        CardType.Smoke, CardType.Smoke_Max,
+        CardType.FogOfWar, CardType.FogOfWar_Max,
+        CardType.ChainReaction,
+        CardType.MineCluster, CardType.MineCluster_Max,
+        CardType.CarpetBomb, CardType.CarpetBomb_Max,
+        CardType.FortuneBlast,
+        CardType.ChaosFog,
+        CardType.Frost, CardType.Frost_Max,
+        CardType.Blackout, CardType.Blackout_Max,
+        CardType.DimensionRift,
+    ];
+
+    private static readonly CardType[] _improveCards = [
+        CardType.TrebuchetAimer, CardType.TrebuchetAimer_Max,
+        CardType.Overclock,
+        CardType.Medic,
+        CardType.Purge,
+        CardType.Adrenaline,
+        CardType.CoinToss,
+        CardType.Focus,
+        CardType.Shield,
+        CardType.PowerSurge,
+    ];
+
+    private static readonly CardType[] _resourceCards = [
+        CardType.Siphon,
+        CardType.Lockdown,
+        CardType.BloodPact,
+        CardType.ManaSurge,
+        CardType.DoubleOrNothing,
+        CardType.Embargo,
+        CardType.GamblersRuin,
+        CardType.ManaFountain,
+        CardType.SoulLink,
+    ];
+
+    private static readonly CardType[] _handCards = [
+        CardType.Gravedigger,
+        CardType.Scavenger,
+        CardType.HandScramble,
+        CardType.MirrorMatch,
+        CardType.MysticDraw,
+        CardType.Recycler,
+        CardType.SabotageDeck,
+        CardType.Salvage,
+        CardType.CardThief,
+        CardType.Dud,
+    ];
+
+    private IReadOnlyList<CardType> FilterCards(CardType[] cards)
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+            return cards;
+
+        var query = _searchQuery.Trim();
+        var filtered = new List<CardType>();
+        foreach (var type in cards)
+        {
+            if (type.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
+                filtered.Add(type);
+        }
+        return filtered;
+    }
+
+    protected override void OnInitialized()
+    {
+        Reload();
+    }
+
+    private void Reload()
+    {
+        ReloadField(CardConfigs.Value, ref _cardsValue);
+        ReloadField(BotConfig.Value, ref _botValue);
+        ReloadField(GameModeConfig.Value, ref _gameModeValue);
+        ReloadField(RatingConfig.Value, ref _ratingValue);
+        ReloadField(AchievementConfig.Value, ref _achievementValue);
+        ReloadField(UserDeckConfig.Value, ref _userDeckValue);
+        ReloadField(PlayerConfig.Value, ref _playerConfigValue);
+        InvokeAsync(StateHasChanged);
+
+        return;
+
+        void ReloadField<T>(T current, ref T field)
+        {
+            var raw = JsonUtils.Serialize(current!);
+            field = JsonUtils.Deserialize<T>(raw);
+        }
+    }
+
+    private async Task Save()
+    {
+        await CardConfigs.SetValue(_cardsValue);
+        await BotConfig.SetValue(_botValue);
+        await GameModeConfig.SetValue(_gameModeValue);
+        await RatingConfig.SetValue(_ratingValue);
+        await AchievementConfig.SetValue(_achievementValue);
+        await UserDeckConfig.SetValue(_userDeckValue);
+        await PlayerConfig.SetValue(_playerConfigValue);
+        await AuditLog.Report(ToastService, "ConfigSaved", "All configs updated (Cards, Bot, GameMode, Rating, Achievements, Player, UserDeck)", "Configs saved");
+    }
+
+    private async Task ResetToDefaults()
+    {
+        _isResetting = true;
+
+        try
+        {
+            var restored = new List<string>();
+
+            await RestoreConfig("config.cards", CardConfigs, v => _cardsValue = v);
+            await RestoreConfig("config.bot", BotConfig, v => _botValue = v);
+            await RestoreConfig("config.gameMode", GameModeConfig, v => _gameModeValue = v);
+            await RestoreConfig("config.rating", RatingConfig, v => _ratingValue = v);
+            await RestoreConfig("config.achievements", AchievementConfig, v => _achievementValue = v);
+            await RestoreConfig("config.userDeck", UserDeckConfig, v => _userDeckValue = v);
+            await RestoreConfig("config.player", PlayerConfig, v => _playerConfigValue = v);
+
+            if (restored.Count == 0)
+            {
+                ToastService.Error("[Configs] No JSON config files found", "Error");
+                return;
+            }
+
+            await AuditLog.Report(ToastService, "ConfigReset", $"Configs reset to JSON defaults ({string.Join(", ", restored)})",
+                $"Reset {restored.Count} configs to JSON defaults");
+
+            return;
+
+            async Task RestoreConfig<T>(string jsonPath, IAddressableState<T> storage, Action<T> assign)
+                where T : class, new()
+            {
+                var configPath = ResolveConfigPath(jsonPath);
+                if (configPath == null)
+                    return;
+
+                var json = await File.ReadAllTextAsync(configPath);
+                var value = JsonUtils.Deserialize<T>(json);
+                if (value == null)
+                    return;
+
+                assign(value);
+                await storage.SetValue(value);
+                restored.Add(jsonPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[Configs] Failed to reset configs: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isResetting = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// JSON configs live next to the Coordinator project during local runs and are copied
+    /// next to the running binary in deployed builds — probe both.
+    /// </summary>
+    private static string? ResolveConfigPath(string jsonPath)
+    {
+        var candidates = new[]
+        {
+            Path.GetFullPath(Path.Combine(CoordinatorFolder, $"{jsonPath}.json")),
+            Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, $"{jsonPath}.json")),
+        };
+
+        foreach (var candidate in candidates)
+        {
+            if (File.Exists(candidate))
+                return candidate;
+        }
+
+        return null;
+    }
+
+    private static string CoordinatorFolder =>
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Coordinator");
+
+    private async Task UpdateJson()
+    {
+        _isUpdatingJson = true;
+
+        var coordinatorFolder = CoordinatorFolder;
+
+        try
+        {
+            await SaveConfig("config.cards", _cardsValue);
+            await SaveConfig("config.bot", _botValue);
+            await SaveConfig("config.gameMode", _gameModeValue);
+            await SaveConfig("config.rating", _ratingValue);
+            await SaveConfig("config.achievements", _achievementValue);
+            await SaveConfig("config.userDeck", _userDeckValue);
+            await SaveConfig("config.player", _playerConfigValue);
+            ToastService.Success("Configs saved to JSON", "Saved");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[Configs] Failed to write JSON: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isUpdatingJson = false;
+        }
+
+        return;
+
+        async Task SaveConfig<T>(string jsonPath, T value)
+        {
+            var configPath = Path.Combine(coordinatorFolder, $"{jsonPath}.json");
+            var fullPath = Path.GetFullPath(configPath);
+            var json = JsonUtils.Serialize(value!)!;
+            await File.WriteAllTextAsync(fullPath, json);
+        }
+    }
+
+    private enum ConfigSection
+    {
+        Bot,
+        GameMode,
+        Rating,
+        Achievements,
+        Player,
+        UserDeck,
+        Cards,
+    }
+}

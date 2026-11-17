@@ -1,0 +1,50 @@
+# Build artefacts
+**/bin/
+**/obj/
+**/out/
+**/.vs/
+**/.vscode/
+**/.idea/
+
+# Keep root ./publish/ — it is populated by tools/publish-local.sh and used by Dockerfile.prebuilt.
+# Nested publish folders (under projects) are already excluded by **/bin/.
+
+# Aspire publish artefacts
+**/aspire-output/
+
+# Unity client is not needed for backend images
+client/
+# ...nor the Unity part of the framework submodule (forked packages are hundreds of MB)
+tools/framework/client/
+tools/framework/.build/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+
+# Docs / tasks
+docs/
+# ...except card icons — ConsoleGateway copies them into its publish output
+# and serves them at /card-icons.
+!docs/obsidian/game/cards/icons/
+**/*.md
+
+# Editor state
+**/.DS_Store
+**/*.user
+**/*.userprefs
+**/*.swp
+**/*.swo
+
+# Tests (not referenced by production services)
+backend/Tools/Tests/
+
+# Local config
+**/appsettings.local.json
+**/launchSettings.json
+
+# Telemetry / logs
+backend/.telemetry/
+**/*.log

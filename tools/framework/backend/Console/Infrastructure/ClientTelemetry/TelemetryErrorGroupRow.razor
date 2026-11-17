@@ -1,0 +1,18 @@
+@using Game.ClientTelemetry
+
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2.5 text-xs">
+        <span class="bg-destructive/10 text-destructive px-2 py-0.5 rounded font-medium">@Group.Level</span>
+    </td>
+    <td class="px-4 py-2.5 text-xs break-all">
+        <a class="underline" href="@ConsoleConstants.Pages.ClientTelemetryErrorGroup(Group.Fingerprint)">@Group.Message</a>
+    </td>
+    <td class="px-4 py-2.5 text-xs text-right">@Group.Count</td>
+    <td class="px-4 py-2.5 text-xs text-right">@Group.Sessions</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground whitespace-nowrap">@TelemetryValueFormat.Timestamp(Group.FirstSeenAt)</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground whitespace-nowrap">@TelemetryValueFormat.Timestamp(Group.LastSeenAt)</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetryGlobalErrorGroup Group { get; set; }
+}

@@ -1,0 +1,50 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.4">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <IsAspireHost>true</IsAspireHost>
+        <UserSecretsId>2acdf813-97a1-4c19-92fd-618b39668cb5</UserSecretsId>
+
+        <AssemblyName>Aspire.AppHost</AssemblyName>
+        <RootNamespace>Aspire</RootNamespace>
+
+        <!-- DCP + dashboard come from NuGet instead of the Aspire CLI bundle -->
+        <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+        <PackageReference Include="Aspire.Hosting.Docker" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\shared\shared.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\..\..\tools\framework\shared\framework.shared.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\..\..\tools\framework\common\framework.common.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj" IsAspireProjectResource="false" />
+        <ProjectReference Include="..\Extensions\Extensions.csproj" IsAspireProjectResource="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ConsoleGateway\ConsoleGateway.csproj" />
+        <ProjectReference Include="..\Coordinator\Coordinator.csproj" />
+        <ProjectReference Include="..\GameGateway\GameGateway.csproj" />
+        <ProjectReference Include="..\MetaGateway\MetaGateway.csproj" />
+        <ProjectReference Include="..\Silo\Silo.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Tools\DeploySetup\DeploySetup.csproj" IsAspireProjectResource="false" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <Content Include="appsettings.local.json" Condition="Exists('appsettings.local.json')">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Link>appsettings.local.json</Link>
+        </Content>
+    </ItemGroup>
+</Project>

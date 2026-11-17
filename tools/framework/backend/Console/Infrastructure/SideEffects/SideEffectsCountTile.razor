@@ -1,0 +1,32 @@
+<div class="rounded-lg border bg-card p-5 flex flex-col items-center gap-2">
+    <div class="flex items-center gap-2">
+        <div class="rounded-md p-1.5 @IconBackground">
+            <LucideIcon Name="@Icon" Size="14" class="@IconColor"/>
+        </div>
+        <span class="text-sm font-medium text-muted-foreground">@Title</span>
+    </div>
+    @if (Known)
+    {
+        <span class="text-3xl font-bold @(Alarming && Value > 0 ? "text-destructive" : "")">@Value</span>
+    }
+    else
+    {
+        <span class="text-3xl font-bold text-muted-foreground" title="No service answered">?</span>
+    }
+    <span class="text-xs text-muted-foreground">@Caption</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Icon { get; set; } = "";
+    [Parameter, EditorRequired] public string IconBackground { get; set; } = "";
+    [Parameter, EditorRequired] public string IconColor { get; set; } = "";
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter, EditorRequired] public string Caption { get; set; } = "";
+    [Parameter, EditorRequired] public int Value { get; set; }
+
+    // False when no service answered: the value is unknown, not zero.
+    [Parameter, EditorRequired] public bool Known { get; set; }
+
+    // A non-zero value is a problem (dead letters): shown in the destructive colour.
+    [Parameter] public bool Alarming { get; set; }
+}

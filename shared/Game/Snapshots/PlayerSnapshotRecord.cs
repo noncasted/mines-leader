@@ -1,0 +1,107 @@
+using System;
+using MemoryPack;
+
+namespace Shared
+{
+    public partial class PlayerSnapshotRecord
+    {
+        [MemoryPackable]
+        public partial class CardUse : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public ICardActionData Data { get; set; }
+            public Guid CardId { get; set; }
+            public bool HasDropPosition { get; set; }
+            public float DropX { get; set; }
+            public float DropY { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class CardAdd : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public CardType Type { get; set; }
+            public Guid CardId { get; set; }
+            public bool IsStash { get; set; }
+        }
+
+        /// <summary>
+        /// Карта уходит из руки. IsStash означает, что карта не просто исчезает,
+        /// а улетает в стеш за край экрана (сброс из руки, а не разыгрывание).
+        /// </summary>
+        [MemoryPackable]
+        public partial class CardRemove : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public Guid CardId { get; set; }
+            public bool IsStash { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ManaUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Current { get; set; }
+            public int BaseMax { get; set; }
+            public int ResultMax { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class HealthUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Current { get; set; }
+            public int BaseMax { get; set; }
+            public int ResultMax { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class MovesUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Left { get; set; }
+            public int BaseMax { get; set; }
+            public int ResultMax { get; set; }
+            public bool IsAvailable { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class ModifierUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public DurationalModifierOverview Overview { get; set; } = new();
+        }
+
+        [MemoryPackable]
+        public partial class DeckUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Count { get; set; }
+        }
+
+        /// <summary>
+        /// Карты, отыгранные игроком и лежащие на столе, уезжают в стеш.
+        /// Момент определяет сервер, клиент до него держит карты в dropped-состоянии.
+        /// </summary>
+        [MemoryPackable]
+        public partial class CardsStashed : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class StashUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Count { get; set; }
+        }
+
+        [MemoryPackable]
+        public partial class BoardStateUpdate : IMoveSnapshotRecord
+        {
+            public Guid PlayerId { get; set; }
+            public int Mines { get; set; }
+            public int Flags { get; set; }
+        }
+    }
+}

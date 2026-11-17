@@ -1,0 +1,11 @@
+{
+  "name": "com.noncasted.framework.shared",
+  "displayName": "Framework Shared",
+  "version": "0.1.0",
+  "unity": "7000.0",
+  "description": "Wire protocol types shared by the Unity client and the backend (namespace Shared) and the core of a real-time session (SessionCore: assembly Framework.Session.Core, namespace Game.Session).",
+  "dependencies": {
+    "com.cysharp.memorypack": "1.21.4",
+    "com.noncasted.framework.common": "0.1.0"
+  }
+}

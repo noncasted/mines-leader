@@ -1,0 +1,171 @@
+@page "/match/{Id}"
+@using global::Infrastructure
+@using global::Game.MatchMetrics
+@using Meta.Matches
+@using Meta.Users
+@using Shared
+
+<PageTitle>Match</PageTitle>
+<PageHeader Title="Match"/>
+
+@if (_isLoading)
+{
+    <div class="flex items-center justify-center py-16">
+        <LucideIcon Name="loader-circle" Size="32" class="animate-spin text-primary"/>
+    </div>
+    return;
+}
+
+@if (_matchState == null)
+{
+    <div class="container mx-auto max-w-5xl px-4 py-4">
+        <BbAlert Variant="AlertVariant.Danger">
+            <ChildContent>
+                <BbAlertTitle>Not Found</BbAlertTitle>
+                <BbAlertDescription>Match @Id not found</BbAlertDescription>
+            </ChildContent>
+        </BbAlert>
+    </div>
+    return;
+}
+
+<div class="container mx-auto max-w-5xl px-4 py-4">
+    <div class="flex flex-col gap-6">
+
+        <div class="rounded-lg border p-6">
+            <div class="flex flex-col gap-3">
+                <p class="text-xs text-muted-foreground font-mono">@_matchId</p>
+                <div class="flex items-center gap-8">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground uppercase tracking-wide">Started</span>
+                        <span class="text-sm font-medium">@_matchState.StartDate.ToString("yyyy-MM-dd HH:mm") UTC</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground uppercase tracking-wide">Duration</span>
+                        <span class="text-sm font-medium">@_matchState.Time.ToString(@"mm\:ss")</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground uppercase tracking-wide">Status</span>
+                        <span class="text-sm font-medium">@Status()</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs text-muted-foreground uppercase tracking-wide">Type</span>
+                        <span class="text-sm font-medium">@_matchState.Type</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            @foreach (var participant in _participants)
+            {
+                <MatchParticipant
+                    Name="@participant.Name"
+                    CurrentRating="@participant.CurrentRating"
+                    RatingChange="@participant.RatingChange"
+                    Deck="@participant.Deck"
+                    IsWinner="@participant.IsWinner"/>
+            }
+        </div>
+
+        <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Game metrics</h3>
+        <div class="grid grid-cols-2 gap-4">
+            @foreach (var card in _cards)
+            {
+                <MatchPlayerMetricsCard MatchId="@_matchId" Card="@card"/>
+            }
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    [Inject] public IOrleans Orleans { get; set; } = null!;
+    [Inject] public IMatchMetricsReader MetricsReader { get; set; } = null!;
+    [Inject] public ToastService ToastService { get; set; } = null!;
+
+    private Guid _matchId;
+    private MatchState? _matchState;
+    private List<ParticipantData> _participants = new();
+    private IReadOnlyList<MatchPlayerCard> _cards = [];
+    private bool _isLoading = true;
+
+    private record ParticipantData(
+        string Name,
+        int CurrentRating,
+        int RatingChange,
+        IReadOnlyList<CardType> Deck,
+        bool IsWinner);
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+
+        if (!Guid.TryParse(Id, out _matchId))
+        {
+            _isLoading = false;
+            return;
+        }
+
+        try
+        {
+            await LoadMatchData();
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[Match] Error loading match: {ex.Message}", "Error");
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task LoadMatchData()
+    {
+        var names = new Dictionary<Guid, string>();
+        var ratings = new Dictionary<Guid, int>();
+
+        await Orleans.InTransaction(async () =>
+            {
+                var match = Orleans.GetGrain<IMatch>(_matchId);
+                _matchState = await match.GetState();
+
+                foreach (var userId in _matchState.Participants)
+                {
+                    var handle = Orleans.CreateUserHandle(userId);
+                    var userState = await handle.Entity.GetState();
+                    names[userId] = string.IsNullOrEmpty(userState.Name) ? userId.ToString() : userState.Name;
+                    ratings[userId] = await handle.Rating.GetTotal();
+                }
+            }
+        );
+
+        if (_matchState == null || _matchState.Participants.Count == 0)
+            return;
+
+        foreach (var userId in _matchState.Participants)
+        {
+            _matchState.RatingChanges.TryGetValue(userId, out var ratingChange);
+            _matchState.ParticipantDecks.TryGetValue(userId, out var deck);
+
+            _participants.Add(new ParticipantData(
+                Name: names.GetValueOrDefault(userId, userId.ToString()),
+                CurrentRating: ratings.GetValueOrDefault(userId),
+                RatingChange: ratingChange,
+                Deck: deck ?? Array.Empty<CardType>(),
+                IsWinner: _matchState.Winner == userId
+            ));
+        }
+
+        _cards = await new MatchPlayerCards(MetricsReader).Get(_matchId, _matchState);
+    }
+
+    private string Status()
+    {
+        if (_matchState!.IsClosed == false)
+            return "Running";
+
+        return _matchState.HasWinner == true ? "Closed" : "Closed without a winner";
+    }
+}
