@@ -1,0 +1,128 @@
+name: Sync deploy branch
+
+# Mirrors the backend-only subset of `main` (with the backend part of the framework submodule) into the orphan
+# `deploy` branch that Coolify builds from. See backend/Tools/deploy/COOLIFY.md — the tip of `main` carries the Unity client
+# and art, the mirror is ~11 MB, and Coolify clones the branch before every build.
+#
+# Pushing here is what triggers the Coolify deploy webhook, so a client-only commit no longer
+# redeploys the backend at all.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'shared/**'
+      - 'docs/obsidian/game/cards/icons/**'
+      - 'tools/framework'
+      - '.dockerignore'
+      - '.editorconfig'
+      - '.github/workflows/sync-deploy-branch.yml'
+  workflow_dispatch:
+
+concurrency:
+  # Never let two syncs race for the branch; queue instead of cancelling, so the last commit
+  # on main always ends up mirrored.
+  group: sync-deploy-branch
+  cancel-in-progress: false
+
+env:
+  DEPLOY_BRANCH: deploy
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout backend subset of main
+        uses: actions/checkout@v4
+        with:
+          path: src
+          fetch-depth: 1
+          # Blobless + sparse: the runner downloads the backend sources instead of the whole
+          # tree. Cone mode always materialises root files, so .dockerignore and .editorconfig
+          # come along without being listed.
+          filter: blob:none
+          sparse-checkout: |
+            backend
+            shared
+            docs/obsidian/game/cards/icons
+
+      # The backend part of the framework submodule at the commit main pins, as plain files: the deploy branch has no
+      # submodules, so Coolify needs no access to the framework repository. The framework is private:
+      # FRAMEWORK_TOKEN is a token with read access to noncasted/framework.
+      - name: Checkout the backend part of the framework
+        env:
+          FRAMEWORK_TOKEN: ${{ secrets.FRAMEWORK_TOKEN }}
+        run: |
+          set -euo pipefail
+          sha=$(git -C src rev-parse HEAD:tools/framework)
+          git init -q framework
+          cd framework
+          git sparse-checkout set --no-cone /backend/ /shared/ /common/ /Directory.Build.props /Directory.Packages.props /global.json
+          # The token goes in a header, not in the URL: a secret saved with a trailing newline makes the URL malformed.
+          token="$(printf '%s' "$FRAMEWORK_TOKEN" | tr -d '[:space:]')"
+          auth="$(printf 'x-access-token:%s' "$token" | base64 -w0)"
+          echo "::add-mask::$auth"
+          # In the config of the repository, not -c of the fetch: the checkout fetches the blobs (blob:none) lazily.
+          git config http.extraHeader "Authorization: Basic $auth"
+          git fetch -q --depth 1 --filter=blob:none \
+            "https://github.com/noncasted/framework.git" "$sha"
+          git checkout -q FETCH_HEAD
+
+      - name: Assemble mirror tree
+        run: |
+          set -euo pipefail
+          mkdir out
+          # docs/obsidian/game/cards/icons: ConsoleGateway.csproj ships the card icons (served at /card-icons).
+          for path in backend shared docs/obsidian/game/cards/icons .dockerignore .editorconfig; do
+            if [ ! -e "src/$path" ]; then
+              echo "::error::$path missing in ${GITHUB_SHA} — refusing to publish a tree that cannot build"
+              exit 1
+            fi
+            (cd src && cp -r --parents "$path" ../out/)
+          done
+
+          mkdir -p out/tools/framework
+          for path in backend shared common Directory.Build.props Directory.Packages.props global.json; do
+            if [ ! -e "framework/$path" ]; then
+              echo "::error::tools/framework/$path missing in the framework — refusing to publish a tree that cannot build"
+              exit 1
+            fi
+            cp -r "framework/$path" out/tools/framework/
+          done
+
+          # LFS files (none today) would be checked out as pointers. Replace them with their
+          # content, so the mirror builds with LFS off in Coolify; .gitattributes is not mirrored.
+          lfs_count=0
+          while IFS= read -r -d '' file; do
+            rel=${file#out/}
+            git -C src lfs smudge -- "$rel" < "$file" > "$file.lfs"
+            mv "$file.lfs" "$file"
+            lfs_count=$((lfs_count + 1))
+          done < <(find out -type f -size -1024c -exec grep -lZ --max-count=1 '^version https://git-lfs.github.com/spec/v1$' {} +)
+
+          echo "Mirror: $(find out -type f | wc -l) files, $(du -sh out | cut -f1), ${lfs_count} LFS files materialised" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Push to ${{ env.DEPLOY_BRANCH }}
+        working-directory: out
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # A fresh repo, force-pushed: the branch is generated output, never a place to commit
+          # by hand, so there is no history worth preserving.
+          git init -q -b "$DEPLOY_BRANCH"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -q \
+            -m "Deploy mirror of main @ ${GITHUB_SHA:0:7}" \
+            -m "Generated by .github/workflows/sync-deploy-branch.yml — do not commit here.
+
+          Source-commit: ${GITHUB_SHA}"
+          git push --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "HEAD:refs/heads/${DEPLOY_BRANCH}"

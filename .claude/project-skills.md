@@ -19,8 +19,9 @@ The web build is served at `https://minesleader.xyz/` by an nginx container on t
 application `web`); `nginx.conf changed` in the output of the deploy script means that application needs a restart in
 Coolify. The link is printed as `URL: ...` when `PUBLIC_URL` is set in `deploy.env`.
 
-The backend is not deployed by this skill: the Coolify application `backend` builds `backend/Tools/deploy/docker-compose.yaml`
-by webhook on every push to `main` of GitHub. A client with a new protocol goes out only after that push.
+The backend is not deployed by this skill: the Coolify application `backend` builds the orphan branch `deploy` by webhook;
+`.github/workflows/sync-deploy-branch.yml` mirrors the backend part of `main` into it on a push that touches the backend
+(`backend/Tools/deploy/COOLIFY.md`, "Deploy branch"). A client with a new protocol goes out only after that push.
 
 Hooks of `.claude/deploy-client.json`:
 - `beforeUpload` (`tools/scripts/deploy-client-backend-gate.sh`): waits (`BACKEND_WAIT`, 900 s) until the live meta
