@@ -8,6 +8,7 @@ namespace Internal {
         private const string AssetGuid = "23c2e657d5a5408da1e6b632107c6c8e";
 
         private static global::Internal.NetworkOptions _networkOptions;
+        private static global::Internal.NetworkOverlayOptions _networkOverlayOptions;
         private static global::Internal.OptionsContainer _optionsContainer;
 
         public static global::Internal.EnvAssetGroup Group { get; } = new Loader();
@@ -16,6 +17,10 @@ namespace Internal {
 
         public static global::Internal.NetworkOptions NetworkOptions {
             get { Group.EnsureLoaded(); return _networkOptions; }
+        }
+
+        public static global::Internal.NetworkOverlayOptions NetworkOverlayOptions {
+            get { Group.EnsureLoaded(); return _networkOverlayOptions; }
         }
 
         public static global::Internal.OptionsContainer OptionsContainer {
@@ -35,11 +40,13 @@ namespace Internal {
             protected override void LoadImmediately() {
                 LoadPreloadedAsset(AssetGuid);
                 _networkOptions = Asset.Get<global::Internal.NetworkOptions>("NetworkOptions");
+                _networkOverlayOptions = Asset.Get<global::Internal.NetworkOverlayOptions>("NetworkOverlayOptions");
                 _optionsContainer = Asset.Get<global::Internal.OptionsContainer>("OptionsContainer");
             }
 
             protected override void UnloadGroup() {
                 _networkOptions = null;
+                _networkOverlayOptions = null;
                 _optionsContainer = null;
                 UnloadAsset();
             }

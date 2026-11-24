@@ -360,7 +360,7 @@ type Shared.SharedSessionPlayer+RemoteDisconnect Index:System.Int32
 type Shared.SharedSessionPlayer+RemoteUpdate Index:System.Int32,Id:System.Guid
 type Shared.SharedSessionRequests+CreateSolo
 type Shared.SharedSessionRequests+Result ServerUrl:System.String,SessionId:System.Guid,Code:System.String,Status:Shared.SharedSessionRequests+EntryStatus,Ticket:System.String,IsLobby:System.Boolean
-type Shared.SharedSessionRequests+Search
+type Shared.SharedSessionRequests+Search Queue:System.Int32
 type Shared.SharedSessionRequests+TicketRequest SessionId:System.Guid
 type Shared.SharedSessionRequests+TicketResponse Ticket:System.String
 type Shared.SharedSessionService+GetRequest Key:System.String,PropertiesIds:System.Collections.Generic.IReadOnlyList<System.Int32>

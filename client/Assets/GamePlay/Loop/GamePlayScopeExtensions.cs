@@ -64,6 +64,7 @@ namespace GamePlay.Loop
                 .AddBoardServices()
                 .AddCardServices()
                 .AddSessionServices()
+                .AddNetworkLatencyOverlay(InternalAssets.NetworkOverlayOptions)
                 .AddSnapshotSync();
 
             builder.Register<GameContext>()

@@ -15,5 +15,7 @@ MonoBehaviour:
   _entries:
   - Name: NetworkOptions
     Asset: {fileID: 11400000, guid: 0af9cc7a147847e1bea3a1d72908c33b, type: 2}
+  - Name: NetworkOverlayOptions
+    Asset: {fileID: 11400000, guid: c3c20c46eb9e4f0ab7a2ba8dff518cdb, type: 2}
   - Name: OptionsContainer
     Asset: {fileID: 11400000, guid: 40d7ccf49c754180b9c36c76f925ab1f, type: 2}
