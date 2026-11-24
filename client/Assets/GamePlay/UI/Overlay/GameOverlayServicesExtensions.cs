@@ -8,11 +8,10 @@ namespace GamePlay.UI
         public static IScopeBuilder AddGameOverlayServices(this IScopeBuilder builder)
         {
             builder.Register<GameOverlay>()
-                   .As<IScopeBaseSetup>()
+                   .As<IScopeSetup>()
                    .As<IGameOverlay>();
 
             builder.Register<GameInfoOverlay>()
-                   .As<IScopeBaseSetup>()
                    .As<IGameInfoOverlay>();
 
             builder.Register<RoundSkipButton>()

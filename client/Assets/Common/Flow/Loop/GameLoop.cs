@@ -10,7 +10,7 @@ using Shared;
 
 namespace Flow.Loop
 {
-    public class GameLoop : IScopeLoaded
+    public class GameLoop
     {
         public GameLoop(
             IMenuLoader menuLoader,
@@ -40,7 +40,7 @@ namespace Flow.Loop
         private const string MenuTelemetryTag = "menu";
         private const string MatchTelemetryTag = "match";
 
-        public void OnLoaded(IReadOnlyLifetime lifetime)
+        public void Start(IReadOnlyLifetime lifetime)
         {
             Loop(lifetime).Forget();
         }

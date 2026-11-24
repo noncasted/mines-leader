@@ -15,12 +15,7 @@ namespace Meta
 
             using var stage = GameProfiler.Stage("Meta");
 
-            var scope = await loader.Load(options);
-
-            using (GameProfiler.Scope("Loaded"))
-                await scope.Initialize();
-
-            return scope;
+            return await loader.Load(options);
         }
 
         [ContainerScopeParent(typeof(GlobalScopeExtensions), nameof(GlobalScopeExtensions.Construct))]
@@ -29,7 +24,7 @@ namespace Meta
             // Спрайты меты (CardsIcons, CardBuffs, MenuPlay, Portraits) живут всё время приложения
             // и качаются со старта в StartupAssetsPreload.
             builder.Register<MetaLoop>()
-                   .As<IScopeBaseSetupAsync>()
+                   .As<IScopeSetup>()
                    .As<IMetaConnection>();
 
             builder.Register<Decks>()

@@ -9,7 +9,7 @@ namespace GamePlay.UI
         void Show();
     }
 
-    public class GameOverlay : IScopeBaseSetup, IGameOverlay
+    public class GameOverlay : IScopeSetup, IGameOverlay
     {
         public GameOverlay(
             IGameCamera camera,
@@ -17,15 +17,16 @@ namespace GamePlay.UI
             PlayersOverlayUIBindings playersOverlay,
             RoundOverlayUIBindings roundOverlay)
         {
-            _camera = camera;
             _pause = pause;
             _playersOverlay = playersOverlay;
             _roundOverlay = roundOverlay;
 
             _pauseButton = _roundOverlay.PauseButton.Button;
+
+            _playersOverlay.Canvas.worldCamera = camera.Camera;
+            _roundOverlay.Canvas.worldCamera = camera.Camera;
         }
 
-        private readonly IGameCamera _camera;
         private readonly IGamePause _pause;
         
         private readonly Button _pauseButton;
@@ -33,10 +34,8 @@ namespace GamePlay.UI
         private readonly PlayersOverlayUIBindings _playersOverlay;
         private readonly RoundOverlayUIBindings _roundOverlay;
 
-        public void OnBaseSetup(IReadOnlyLifetime lifetime)
+        public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _playersOverlay.Canvas.worldCamera = _camera.Camera;
-            _roundOverlay.Canvas.worldCamera = _camera.Camera;
             _pauseButton.ListenClick(lifetime, () => _pause.Open());
         }
 

@@ -9,8 +9,7 @@ namespace Global.Settings
         {
             builder.Register<Settings>()
                    .As<ISettings>()
-                   .As<IAudioVolume>()
-                   .As<IScopeSetupAsync>();
+                   .As<IAudioVolume>();
 
             return builder;
         }

@@ -24,12 +24,7 @@ namespace Menu.Common
 
             using var stage = GameProfiler.Stage("Menu");
 
-            var scope = await loader.Load(options);
-
-            using (GameProfiler.Scope("Loaded"))
-                await scope.Initialize();
-
-            return scope;
+            return await loader.Load(options);
         }
 
         public static async UniTask<ILoadedScope> LoadMenuMock(
@@ -42,12 +37,7 @@ namespace Menu.Common
 
             using var stage = GameProfiler.Stage("Menu mock");
 
-            var scope = await loader.Load(options);
-
-            using (GameProfiler.Scope("Loaded"))
-                await scope.Initialize();
-
-            return scope;
+            return await loader.Load(options);
         }
 
         [ContainerScopeParent(typeof(MetaScopeExtensions), nameof(MetaScopeExtensions.Construct))]

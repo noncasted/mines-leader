@@ -14,8 +14,7 @@ namespace Flow.Loop
 
             var scope = await loader.Load(options);
 
-            using (GameProfiler.Scope("Loaded"))
-                await scope.Initialize();
+            scope.Resolve<GameLoop>().Start(scope.Lifetime);
 
             return scope;
         }
@@ -23,8 +22,7 @@ namespace Flow.Loop
         [ContainerScopeParent(typeof(MetaScopeExtensions), nameof(MetaScopeExtensions.Construct))]
         public static UniTask Construct(IScopeBuilder builder, ILoadedScope parent)
         {
-            builder.Register<GameLoop>()
-                   .As<IScopeLoaded>();
+            builder.Register<GameLoop>();
 
             builder.Register<GameLoopScopeLoader>()
                    .WithParameter(parent)

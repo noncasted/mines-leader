@@ -22,10 +22,7 @@ namespace GamePlay.Loop
             var options = ScopeLoadOptions.Create(parent, Construct, sessionData)
                 .WithRuntimeScene("Game_Services");
 
-            var scope = await loader.Load(options);
-            await scope.Initialize();
-
-            return scope;
+            return await loader.Load(options);
         }
 
         public static async UniTask<ILoadedScope> LoadPvPMock(
@@ -37,10 +34,7 @@ namespace GamePlay.Loop
                 .WithRuntimeScene("Game_Services")
                 .AsMock();
 
-            var scope = await loader.Load(options);
-            await scope.Initialize();
-
-            return scope;
+            return await loader.Load(options);
         }
 
         [ContainerScopeParent(typeof(MetaScopeExtensions), nameof(MetaScopeExtensions.Construct))]

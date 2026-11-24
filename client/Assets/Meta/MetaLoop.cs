@@ -16,7 +16,7 @@ namespace Meta
         UniTask EnsureConnected(IReadOnlyLifetime lifetime);
     }
 
-    public class MetaLoop : IScopeBaseSetupAsync, IMetaConnection
+    public class MetaLoop : IScopeSetup, IMetaConnection
     {
         public MetaLoop(
             IAuthentication authentication,
@@ -58,7 +58,7 @@ namespace Meta
         private Guid _userId;
         private UniTaskCompletionSource _reconnect;
 
-        public UniTask OnBaseSetup(IReadOnlyLifetime lifetime)
+        public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _scopeLifetime = lifetime;
 
@@ -66,8 +66,6 @@ namespace Meta
             // а готовности меты дожидается само (см. MenuLoop).
             Connect(lifetime).Forget();
             LoadRegistries(lifetime).Forget();
-
-            return UniTask.CompletedTask;
         }
 
         public async UniTask EnsureConnected(IReadOnlyLifetime lifetime)

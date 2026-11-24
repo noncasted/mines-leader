@@ -118,9 +118,9 @@ Internal.Construct
 2. `ConstructCallback` — регистрации в `ContainerBuilder`.
 3. `BeforeBuild` — Retain каталожных групп.
 4. `ScopeContainer.Create(rootId, builder)` — **только** сгенерированный класс.
-5. `RunConstruct` — колбэки setup.
-6. Позже `Initialize()` — `IScopeLoaded*`.
-7. Dispose: dispose-колбэки → terminate lifetime → unload сцен → dispose контейнера.
+5. `RunSetup` — `IScopeSetup.OnSetup` каждого слушателя, один раз, синхронно.
+6. Дальше — явные вызовы владельца после `Load` (`scope.Resolve<GameLoop>().Start(scope.Lifetime)`).
+7. Dispose: дочерние скоупы → terminate lifetime (слушатели `lifetime.Listen` из `OnSetup`) → unload сцен → dispose контейнера → освобождение asset groups.
 
 Корень скоупа — **группа методов**, не лямбда. `GeneratedScopes.RootId(method)` выбирает сгенерированный класс.
 
@@ -134,17 +134,14 @@ void Create(IScopeBuilder builder);
 
 `SceneServicesFactory` на сцене держит сериализованный массив `MonoBehaviour[]`. В рантайме фабрика зовёт `Create` у каждого. Список обновляет редакторный `Assets/Scan services` (`Ctrl+E`), а не автопоиск при загрузке.
 
-Setup — отдельные интерфейсы, резолвятся из контейнера после сборки (`EventLoop.RunConstruct`):
+Фаза одна — `IScopeSetup.OnSetup(lifetime)`, резолвится из контейнера после сборки (`EventLoop.RunSetup`). Слушатели идут по
+очереди (каждый — отдельный отрезок профайлера), их порядок ничего не значит. Вместо стадий три правила (`COMMON_CONTAINER.md` § Setup
+фреймворка):
 
-| Этап | Синхронный | Асинхронный |
-|------|------------|-------------|
-| До setup | `IScopeBaseSetup` | `IScopeBaseSetupAsync` |
-| Setup | `IScopeSetup` | `IScopeSetupAsync` |
-| После setup | `IScopeSetupCompletion` | `IScopeSetupCompletionAsync` |
-| После `Initialize()` | `IScopeLoaded` | `IScopeLoadedAsync` |
-| Dispose | `IScopeDispose` | `IScopeDisposeAsync` |
-
-Синхронные слушатели идут по очереди (каждый — отдельный отрезок профайлера). Асинхронные стартуют пачкой через `WhenAll` и кладутся как `GameProfiler.Concurrent`.
+- готовность сервиса — в конструкторе (`Settings` читает уже загруженные сохранения: `await builder.AddPublisher()` ->
+  `AddItchSaves` -> `ISaves.Load()` в `Construct` глобального скоупа);
+- `OnSetup` только запускает поведение (подписки, updater) и не читает то, что готовит чужой `OnSetup`;
+- любой другой порядок — явный вызов владельца скоупа после `Load` (`GameLoop.Start`, `GamePlayLoop`).
 
 ---
 

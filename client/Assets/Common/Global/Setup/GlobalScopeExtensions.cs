@@ -20,12 +20,7 @@ namespace Global.Setup
 
             using var stage = GameProfiler.Stage("Global");
 
-            var scope = await loader.Load(options);
-
-            using (GameProfiler.Scope("Loaded"))
-                await scope.Initialize();
-
-            return scope;
+            return await loader.Load(options);
         }
 
         [ContainerScopeParent(typeof(InternalScopeExtensions), nameof(InternalScopeExtensions.Construct))]
@@ -45,7 +40,7 @@ namespace Global.Setup
             builder.AddInput(GlobalAssets.InputOptions, GlobalPrefabs.GlobalEvents.GetComponent<EventSystem>());
             builder.AddBackend();
             builder.AddSettings();
-            builder.AddPublisher();
+            await builder.AddPublisher();
             builder.AddGlobalUI();
         }
     }

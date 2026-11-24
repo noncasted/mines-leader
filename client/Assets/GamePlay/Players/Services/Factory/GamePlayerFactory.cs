@@ -52,7 +52,6 @@ namespace GamePlay.Players
 
             loadResult.FillProperties(data);
 
-            await loadResult.Get<IEventLoop>().RunLoaded(loadResult.Lifetime);
             _gameContext.AddPlayer(player);
 
             return loadResult.Get<INetworkEntity>();

@@ -32,7 +32,7 @@ namespace Flow.Tests
         {
             var meta = new FakeMetaState();
 
-            CreateLoop(meta, new FakeMenuLoader(_events, playFirst: false)).OnLoaded(new Lifetime());
+            CreateLoop(meta, new FakeMenuLoader(_events, playFirst: false)).Start(new Lifetime());
 
             Assert.That(_events, Is.EqualTo(new[] { "load menu" }));
 
@@ -47,7 +47,7 @@ namespace Flow.Tests
             var meta = new FakeMetaState();
             meta.SetAuthorized();
 
-            CreateLoop(meta, new FakeMenuLoader(_events, playFirst: true)).OnLoaded(new Lifetime());
+            CreateLoop(meta, new FakeMenuLoader(_events, playFirst: true)).Start(new Lifetime());
 
             Assert.That(_events, Is.EqualTo(new[]
             {

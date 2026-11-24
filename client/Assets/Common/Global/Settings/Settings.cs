@@ -15,11 +15,20 @@ namespace Global.Settings
         UniTask Apply(SettingsSave save);
     }
 
-    public class Settings : ISettings, IScopeSetupAsync
+    public class Settings : ISettings
     {
+        // The saves are loaded by AddSaves before the container: the values are ready from the constructor, so the
+        // audio and the other readers never see the defaults first.
         public Settings(ISaves saves)
         {
             _saves = saves;
+
+            _save = _saves.Get<SettingsSave>();
+
+            if (_save.WasChanged == false)
+                _save.CopyFrom(GlobalAssets.SettingsOptions.DefaultValues);
+
+            Push(_save);
         }
 
         private readonly ISaves _saves;
@@ -37,20 +46,6 @@ namespace Global.Settings
         public IViewableProperty<float> MusicVolume => _musicVolume;
         public IViewableProperty<float> ShakeIntensity => _shakeIntensity;
         public IViewableProperty<bool> VSync => _vSync;
-
-        public UniTask OnSetup(IReadOnlyLifetime lifetime)
-        {
-            var options = GlobalAssets.SettingsOptions;
-
-            _save = _saves.Get<SettingsSave>();
-
-            if (_save.WasChanged == false)
-                _save.CopyFrom(options.DefaultValues);
-
-            Push(_save);
-
-            return UniTask.CompletedTask;
-        }
 
         public SettingsSave Copy()
         {

@@ -1,5 +1,4 @@
 using GamePlay.Services;
-using Internal;
 using UnityEngine;
 
 namespace GamePlay.UI
@@ -11,21 +10,16 @@ namespace GamePlay.UI
 
     // Тултипы живут на отдельном канвасе поверх карт: карты в руке сортируются на слое UI
     // с order до CardSorting.SelectedOrder, и канвас игроков оказывается под ними.
-    public class GameInfoOverlay : IScopeBaseSetup, IGameInfoOverlay
+    public class GameInfoOverlay : IGameInfoOverlay
     {
         public GameInfoOverlay(IGameCamera camera, InfoOverlayUIBindings bindings)
         {
-            _camera = camera;
             _bindings = bindings;
+
+            _bindings.Canvas.worldCamera = camera.Camera;
         }
 
-        private readonly IGameCamera _camera;
         private readonly InfoOverlayUIBindings _bindings;
-
-        public void OnBaseSetup(IReadOnlyLifetime lifetime)
-        {
-            _bindings.Canvas.worldCamera = _camera.Camera;
-        }
 
         public T Spawn<T>(T prefab) where T : Component
         {
