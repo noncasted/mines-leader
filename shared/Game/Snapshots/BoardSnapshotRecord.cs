@@ -6,8 +6,8 @@ namespace Shared
     public partial class BoardSnapshotRecord
     {
         /// <summary>
-        /// Доска противника сгенерирована — до этого момента она пустая, и карты по ней
-        /// играть нельзя. Клиент держит по этой записи флаг доступности таких карт.
+        /// The opponent board is generated - until then it is empty and cards cannot be played
+        /// on it. The client keeps a flag of availability of such cards by this record.
         /// </summary>
         [MemoryPackable]
         public partial class Generated : IBoardSnapshotRecord

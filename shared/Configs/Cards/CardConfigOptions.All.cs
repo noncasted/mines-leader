@@ -8,10 +8,10 @@ namespace Shared
 {
     public partial class CardConfigOptions
     {
-        // Словарь строится при первом обращении и дальше переиспользуется: раньше каждое обращение
-        // создавало новый (68 записей, ~4.7 КБ), а зовут его на каждую карту клиента и в командах бэкенда.
-        // Конфиг, заменённый сеттером после первого обращения, All не увидит.
-        // Гонка первого обращения безопасна: оба словаря одинаковые, присваивание ссылки атомарно.
+        // The dictionary is built on first access and reused afterwards: it used to be created anew
+        // on every access (68 entries, ~4.7 KB), and it is called for every client card and in backend commands.
+        // A config replaced through the setter after the first access is not seen by All.
+        // The first-access race is safe: both dictionaries are identical, a reference assignment is atomic.
 #if !UNITY_5_3_OR_NEWER
         [JsonIgnore]
 #endif

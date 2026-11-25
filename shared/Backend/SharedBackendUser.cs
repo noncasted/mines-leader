@@ -50,7 +50,7 @@ namespace Shared
                 public int Tier { get; set; }
                 public DateTime Date { get; set; }
 
-                /// <summary>Награда уже выбрана игроком, ачивку больше нельзя открыть.</summary>
+                /// <summary>The player has already picked the reward, the achievement can no longer be opened.</summary>
                 public bool Claimed { get; set; }
 
                 public CardType? RewardCard { get; set; }
@@ -110,7 +110,7 @@ namespace Shared
             public TimeSpan Time { get; set; }
             public GameMatchType Type { get; set; }
 
-            /// <summary>Заполняется под запрашивающего игрока: имя второго участника матча.</summary>
+            /// <summary>Filled for the requesting player: the name of the other match participant.</summary>
             public string OpponentName { get; set; } = string.Empty;
         }
 

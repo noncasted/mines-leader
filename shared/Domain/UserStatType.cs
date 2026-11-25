@@ -5,7 +5,7 @@ using System.Linq;
 namespace Shared
 {
     /// <summary>
-    /// Счётчики, которые копятся во время матча и суммируются в грейне игрока после его завершения.
+    /// Counters accumulated during a match and summed up in the player grain after it ends.
     /// </summary>
     public enum UserStatType
     {

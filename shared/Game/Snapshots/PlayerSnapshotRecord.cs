@@ -26,8 +26,8 @@ namespace Shared
         }
 
         /// <summary>
-        /// Карта уходит из руки. IsStash означает, что карта не просто исчезает,
-        /// а улетает в стеш за край экрана (сброс из руки, а не разыгрывание).
+        /// The card leaves the hand. IsStash means the card does not just vanish,
+        /// but flies to the stash beyond the screen edge (a discard from the hand, not a play).
         /// </summary>
         [MemoryPackable]
         public partial class CardRemove : IMoveSnapshotRecord
@@ -80,8 +80,8 @@ namespace Shared
         }
 
         /// <summary>
-        /// Карты, отыгранные игроком и лежащие на столе, уезжают в стеш.
-        /// Момент определяет сервер, клиент до него держит карты в dropped-состоянии.
+        /// Cards the player has played and which lie on the table move to the stash.
+        /// The server decides the moment, until then the client keeps the cards in the dropped state.
         /// </summary>
         [MemoryPackable]
         public partial class CardsStashed : IMoveSnapshotRecord

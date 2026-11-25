@@ -3,8 +3,8 @@ using System.Collections.Generic;
 namespace Shared
 {
     /// <summary>
-    /// Какие клетки внутри паттерна делают позицию легальной для карты.
-    /// Повторяет фильтр, который карта применяет в Use: SelectTaken / SelectFree / SelectAll.
+    /// Which cells inside the pattern make a position legal for the card.
+    /// Repeats the filter the card applies in Use: SelectTaken / SelectFree / SelectAll.
     /// </summary>
     public enum AgentCardCells
     {
@@ -28,9 +28,9 @@ namespace Shared
     }
 
     /// <summary>
-    /// Описание карт для агента: форма паттерна и одна строка про эффект.
-    /// Единственный источник правды для observation и legal plays. Размер паттерна
-    /// берётся из конфига через <see cref="ResolveSize"/>.
+    /// Card descriptions for the agent: pattern shape and one line about the effect.
+    /// The single source of truth for observation and legal plays. The pattern size
+    /// is taken from the config through <see cref="ResolveSize"/>.
     /// </summary>
 #if UNITY_5_3_OR_NEWER
     [Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
@@ -68,8 +68,8 @@ namespace Shared
         }
 
         /// <summary>
-        /// Размер паттерна из конфига. 0 когда у карты нет формы или конфиг не передан.
-        /// Для случайных размеров отдаём максимум.
+        /// Pattern size from the config. 0 when the card has no shape or the config is not passed.
+        /// For random sizes the maximum is returned.
         /// </summary>
         public static int ResolveSize(CardType type, ICardConfig config)
         {

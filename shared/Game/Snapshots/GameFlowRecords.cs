@@ -9,15 +9,15 @@ namespace Shared
     {
         public Guid Winner { get; set; }
 
-        /// <summary>Длительность матча — от старта сессии до победы.</summary>
+        /// <summary>Match duration - from the session start to the victory.</summary>
         public TimeSpan Duration { get; set; }
 
-        /// <summary>Итоги каждого участника: рейтинг и внутриигровая статистика за матч.</summary>
+        /// <summary>Results of every participant: rating and in-game statistics of the match.</summary>
         public List<MatchPlayerResult> Players { get; set; } = new();
 
         /// <summary>
-        /// Полные состояния обоих полей на момент конца матча, включая мины. Клиент
-        /// синхронизирует по ним доски и подрывает мины проигравшего перед экраном результатов.
+        /// Full states of both boards at the end of the match, mines included. The client
+        /// syncs the boards by them and blows up the loser's mines before the results screen.
         /// </summary>
         public List<BoardRevealState> Boards { get; set; } = new();
     }
@@ -39,22 +39,22 @@ namespace Shared
         public bool HasMine { get; set; }
     }
 
-    /// <summary>Итоги одного игрока за матч. Собираются на сессии, уезжают на клиент в момент завершения.</summary>
+    /// <summary>Results of one player for the match. Collected on the session, sent to the client at the finish.</summary>
     [MemoryPackable]
     public partial class MatchPlayerResult
     {
         public Guid PlayerId { get; set; }
 
-        /// <summary>Изменение рейтинга за этот матч, со знаком.</summary>
+        /// <summary>Rating change for this match, signed.</summary>
         public int RatingChange { get; set; }
 
-        /// <summary>Рейтинг игрока уже с учётом <see cref="RatingChange"/>.</summary>
+        /// <summary>Player rating already including <see cref="RatingChange"/>.</summary>
         public int Rating { get; set; }
 
         public MatchPlayerStats Stats { get; set; } = new();
     }
 
-    /// <summary>Срез статистики одного игрока за матч.</summary>
+    /// <summary>Statistics slice of one player for the match.</summary>
     [MemoryPackable]
     public partial class MatchPlayerStats : IUserStatsState
     {

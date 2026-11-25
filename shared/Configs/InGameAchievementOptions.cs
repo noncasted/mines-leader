@@ -4,8 +4,8 @@ using MemoryPack;
 namespace Shared
 {
     /// <summary>
-    /// Условие ачивки. Считается по статам игрока, поэтому одинаково работает
-    /// и на сервере (состояние грейна), и на клиенте (проекция статов).
+    /// Achievement condition. Evaluated on the player stats, so it works the same
+    /// on the server (grain state) and on the client (stats projection).
     /// </summary>
     [MemoryPackable]
     [MemoryPackUnion(0, typeof(StatThresholdCondition))]
@@ -52,7 +52,7 @@ namespace Shared
     }
 
     /// <summary>
-    /// Награда за ачивку. Новые типы наград добавляются новой реализацией и union-тегом.
+    /// Achievement reward. New reward types are added as a new implementation and a union tag.
     /// </summary>
     [MemoryPackable]
     [MemoryPackUnion(0, typeof(CardUnlockReward))]
@@ -64,8 +64,8 @@ namespace Shared
     }
 
     /// <summary>
-    /// Открывает игроку новую карту. Если <see cref="PossibleGroups"/> не пуст,
-    /// карта выдаётся только из перечисленных групп.
+    /// Unlocks a new card for the player. If <see cref="PossibleGroups"/> is not empty,
+    /// the card is granted only from the listed groups.
     /// </summary>
     [MemoryPackable]
     public partial class CardUnlockReward : IInGameAchievementReward

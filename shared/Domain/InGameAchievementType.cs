@@ -1,8 +1,8 @@
 namespace Shared
 {
     /// <summary>
-    /// Группа ачивок. Внутри одного типа ачивки различаются только тиром
-    /// (например, <see cref="FlagsSet"/> — 10 / 100 / 1000 / 10000 / 100000 флагов).
+    /// Achievement group. Achievements of one type differ only by tier
+    /// (for example, <see cref="FlagsSet"/> - 10 / 100 / 1000 / 10000 / 100000 flags).
     /// </summary>
     public enum InGameAchievementType
     {

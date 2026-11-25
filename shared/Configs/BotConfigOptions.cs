@@ -86,8 +86,8 @@ namespace Shared
                 MaxRoundTime = 10f,
                 Decks = new List<BotDeck>
                 {
-                    // Куратор: разведка кормит солвер, давление держит противника.
-                    // Случайный выбор из десятка колод раньше решал за нас, будет ли бот вообще опасен.
+                    // Curator: scouting feeds the solver, pressure keeps the opponent busy.
+                    // A random pick from ten decks used to decide whether the bot is dangerous at all.
                     new()
                     {
                         Name = "Scout Pressure",

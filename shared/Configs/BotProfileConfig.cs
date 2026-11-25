@@ -10,13 +10,13 @@ namespace Shared
         public int FlagsPerRound { get; set; } = 3;
 
         /// <summary>
-        /// Пауза между разыгрыванием карт, чтобы игрок успел разглядеть, что бот выложил.
+        /// Pause between card plays, so the player can see what the bot has put down.
         /// </summary>
         public float CardPlayDelay { get; set; } = 4f;
 
         /// <summary>
-        /// Пауза после всех действий бота перед завершением хода.
-        /// Если раунд заканчивается раньше — ожидание обрывается вместе с раундом.
+        /// Pause after all bot actions before ending the turn.
+        /// If the round ends earlier, the wait is cut off together with the round.
         /// </summary>
         public float EndTurnDelay { get; set; } = 4f;
 
