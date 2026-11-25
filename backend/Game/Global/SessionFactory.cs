@@ -125,6 +125,7 @@ public class SessionFactory : ISessionFactory
         services.AddSessionServices(data, options);
         services.AddCardServices();
         services.AddGameCommands();
+        services.AddCheatCommands();
         services.AddGameContext();
         services.AddPlayerServices();
 
@@ -225,6 +226,7 @@ public class SessionFactory : ISessionFactory
         services.AddSessionServices(data, options);
         services.AddCardServices();
         services.AddGameCommands();
+        services.AddCheatCommands();
         services.AddGameContext();
         services.AddPlayerServices();
         services.AddBotServices();
@@ -318,6 +320,7 @@ public class SessionFactory : ISessionFactory
         collection.Pass<IGameModeConfig>(_serviceProvider);
         collection.Pass<IClusterFlags>(_serviceProvider);
         collection.Pass<IGameFlags>(_serviceProvider);
+        collection.Pass<ICheatsAccess>(_serviceProvider);
         collection.Pass<IPlayerConfig>(_serviceProvider);
         collection.Pass<IMatchMetricsWriter>(_serviceProvider);
     }

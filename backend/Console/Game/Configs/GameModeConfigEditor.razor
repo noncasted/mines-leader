@@ -120,17 +120,11 @@
                 <input type="number" @bind="Value.LastManStandingTurnBased.MaxManaCap"
                        class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
             </div>
-            <div class="flex items-center gap-3 py-1.5 border-b border-border/60">
+            <div class="flex items-center gap-3 py-1.5">
                 <LucideIcon Name="layers" Size="12" class="text-muted-foreground shrink-0" />
                 <span class="text-sm flex-1">Card Moves Cost</span>
                 <input type="number" min="0" @bind="Value.LastManStandingTurnBased.CardMovesCost"
                        class="w-24 h-8 rounded-md border border-input bg-transparent px-2 text-sm shadow-sm" />
-            </div>
-            <div class="flex items-center gap-3 py-1.5">
-                <LucideIcon Name="eye" Size="12" class="text-muted-foreground shrink-0" />
-                <span class="text-sm flex-1">Include Oracle</span>
-                <input type="checkbox" @bind="Value.LastManStandingTurnBased.IncludeOracle"
-                       class="h-4 w-4 rounded border border-input" />
             </div>
         </div>
     </div>

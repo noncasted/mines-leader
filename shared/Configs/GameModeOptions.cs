@@ -47,6 +47,5 @@ namespace Shared
         public int PlayerStartMana { get; set; } = 1;
         public int MaxManaCap { get; set; } = 10;
         public int CardMovesCost { get; set; } = 0;
-        public bool IncludeOracle { get; set; } = false;
     }
 }

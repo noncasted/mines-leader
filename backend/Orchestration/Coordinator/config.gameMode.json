@@ -25,7 +25,6 @@
     "PlayerMoves": 5,
     "PlayerStartMana": 4,
     "MaxManaCap": 10,
-    "CardMovesCost": 0,
-    "IncludeOracle": false
+    "CardMovesCost": 0
   }
 }

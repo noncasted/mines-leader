@@ -22,6 +22,12 @@ public static class GameCommandsExtensions
 
         services.AddSingleton<GameCommandUtils>();
 
+        return services;
+    }
+
+    // Registered in every match: a refused cheat is answered with Forbidden and logged (CheatCommand), not unknown.
+    public static IServiceCollection AddCheatCommands(this IServiceCollection services)
+    {
         services.AddSingleton<IResponseCommand, CardAddCheat>();
         services.AddSingleton<IResponseCommand, CardDiscardCheat>();
         services.AddSingleton<IResponseCommand, ChangeManaCheat>();

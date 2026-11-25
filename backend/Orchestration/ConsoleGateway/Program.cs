@@ -37,6 +37,13 @@ builder.AddConsoleGameFlag(new ConsoleGameFlag
     Description = "Validate snapshot records against pre/post game state; throws on drift (tests/dev)",
     StatusLabel = "Snapshot Diff Guard"
 });
+builder.AddConsoleGameFlag(new ConsoleGameFlag
+{
+    Name = GameFlagNames.Cheats,
+    Label = "Cheats",
+    Description = "Allow cheat commands and the oracle of the agent observation; game servers outside Development refuse them anyway",
+    StatusLabel = "Cheats"
+});
 builder.AddConsoleInfrastructureCard(new ConsoleInfrastructureCard
 {
     Icon = "flask-conical",

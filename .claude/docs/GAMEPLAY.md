@@ -248,6 +248,18 @@ pointing directly at the card/command that forgot a `Record*` call.
   round snapshot blocks (init / round-start / round-end).
 - Enabled by default in the Orleans test cluster.
 
+### Cheats and the agent oracle (dev only)
+
+The cheat commands (`GameCheatContexts`, `backend/Game/GamePlay/Commands/Cheats`) derive from `CheatCommand<T>` and
+run only when `ICheatsAccess.IsAllowed`: game flag `Cheats` (`IGameFlags.CheatsEnabled`, switched at runtime in the
+Console) **and** a Development host of the game server (fixed at start). A refused cheat throws
+`SessionRequestException(Forbidden)` - the client gets `ErrorResponse` Forbidden - and writes `[Cheat] Refused ...` to
+the session log; nothing is executed. They are registered in every match (`AddCheatCommands`) so the refusal is explicit,
+not an unknown command. The Coordinator turns the flag on at start in Development only.
+
+The oracle of the agent observation (`HasMine` of closed cells, the opponent hand) needs the same `ICheatsAccess` and a
+match against a bot (`AgentObservationPublisher`); a PvP observation never carries hidden state.
+
 ### Snapshot Handlers (Client)
 
 `SnapshotReceiver` plays most records through an animation queue. These records skip the queue and apply immediately:

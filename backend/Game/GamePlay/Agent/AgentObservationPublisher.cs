@@ -13,7 +13,8 @@ public class AgentObservationPublisher : IAgentObservationPublisher
         IObservationEventBuffer eventBuffer,
         MatchCreateOptions matchOptions,
         ICardConfigs cardConfigs,
-        RoundPlayers roundPlayers)
+        RoundPlayers roundPlayers,
+        ICheatsAccess cheats)
     {
         _gameContext = gameContext;
         _serviceProvider = serviceProvider;
@@ -21,6 +22,7 @@ public class AgentObservationPublisher : IAgentObservationPublisher
         _matchOptions = matchOptions;
         _cardConfigs = cardConfigs;
         _roundPlayers = roundPlayers;
+        _cheats = cheats;
     }
 
     private readonly IGameContext _gameContext;
@@ -29,6 +31,7 @@ public class AgentObservationPublisher : IAgentObservationPublisher
     private readonly MatchCreateOptions _matchOptions;
     private readonly ICardConfigs _cardConfigs;
     private readonly RoundPlayers _roundPlayers;
+    private readonly ICheatsAccess _cheats;
     private readonly Dictionary<Guid, int> _lastCursor = new();
     private int _sequence;
 
@@ -54,12 +57,8 @@ public class AgentObservationPublisher : IAgentObservationPublisher
 
         var currentPlayerId = _serviceProvider.GetService<IGameRound>()?.CurrentPlayer.Value?.User.Id;
 
-        var useOracle = false;
-        if (oracle)
-        {
-            var modeConfig = _serviceProvider.GetService<IGameModeConfig>();
-            useOracle = modeConfig?.Value?.LastManStandingTurnBased.IncludeOracle == true;
-        }
+        // The oracle shows the mines and the hand of the opponent: a cheat, and only against a bot (the agent play).
+        var useOracle = oracle == true && _cheats.IsAllowed == true && IsAgainstBot() == true;
 
         var observation = AgentObservationBuilder.Build(
             _gameContext,
@@ -86,6 +85,17 @@ public class AgentObservationPublisher : IAgentObservationPublisher
         observation.Sequence = ++_sequence;
         observation.EventCursor = _eventBuffer.Cursor;
         user.Send(observation);
+    }
+
+    private bool IsAgainstBot()
+    {
+        foreach (var (user, _) in _gameContext.UserToPlayer)
+        {
+            if (user.IsBot == true)
+                return true;
+        }
+
+        return false;
     }
 
     private IUser? FindUser(Guid viewerId)

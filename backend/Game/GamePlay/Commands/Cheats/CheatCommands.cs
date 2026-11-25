@@ -2,7 +2,7 @@ using Shared;
 
 namespace Game.GamePlay;
 
-public class CardAddCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.CardAdd>(utils)
+public class CardAddCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.CardAdd>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.CardAdd request)
     {
@@ -13,7 +13,7 @@ public class CardAddCheat(GameCommandUtils utils) : GameCommand<GameCheatContext
     }
 }
 
-public class CardDiscardCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.CardRemove>(utils)
+public class CardDiscardCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.CardRemove>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.CardRemove request)
     {
@@ -23,7 +23,7 @@ public class CardDiscardCheat(GameCommandUtils utils) : GameCommand<GameCheatCon
     }
 }
 
-public class ChangeManaCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMana>(utils)
+public class ChangeManaCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.ChangeMana>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMana request)
     {
@@ -33,7 +33,7 @@ public class ChangeManaCheat(GameCommandUtils utils) : GameCommand<GameCheatCont
     }
 }
 
-public class ChangeMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMaxMana>(utils)
+public class ChangeMaxManaCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.ChangeMaxMana>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxMana request)
     {
@@ -44,7 +44,7 @@ public class ChangeMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatC
     }
 }
 
-public class ChangeHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeHealth>(utils)
+public class ChangeHealthCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.ChangeHealth>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeHealth request)
     {
@@ -54,7 +54,7 @@ public class ChangeHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatCo
     }
 }
 
-public class ChangeMaxHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMaxHealth>(utils)
+public class ChangeMaxHealthCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.ChangeMaxHealth>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxHealth request)
     {
@@ -65,7 +65,7 @@ public class ChangeMaxHealthCheat(GameCommandUtils utils) : GameCommand<GameChea
     }
 }
 
-public class ChangeMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMoves>(utils)
+public class ChangeMovesCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.ChangeMoves>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMoves request)
     {
@@ -75,7 +75,7 @@ public class ChangeMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatCon
     }
 }
 
-public class ChangeMaxMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.ChangeMaxMoves>(utils)
+public class ChangeMaxMovesCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.ChangeMaxMoves>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.ChangeMaxMoves request)
     {
@@ -86,7 +86,7 @@ public class ChangeMaxMovesCheat(GameCommandUtils utils) : GameCommand<GameCheat
     }
 }
 
-public class SetMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.SetMaxMana>(utils)
+public class SetMaxManaCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.SetMaxMana>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.SetMaxMana request)
     {
@@ -96,7 +96,7 @@ public class SetMaxManaCheat(GameCommandUtils utils) : GameCommand<GameCheatCont
     }
 }
 
-public class SetMaxHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.SetMaxHealth>(utils)
+public class SetMaxHealthCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.SetMaxHealth>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.SetMaxHealth request)
     {
@@ -106,7 +106,7 @@ public class SetMaxHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatCo
     }
 }
 
-public class SetMaxMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.SetMaxMoves>(utils)
+public class SetMaxMovesCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.SetMaxMoves>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.SetMaxMoves request)
     {
@@ -116,7 +116,7 @@ public class SetMaxMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatCon
     }
 }
 
-public class RestoreManaCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.RestoreMana>(utils)
+public class RestoreManaCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.RestoreMana>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.RestoreMana request)
     {
@@ -125,7 +125,7 @@ public class RestoreManaCheat(GameCommandUtils utils) : GameCommand<GameCheatCon
     }
 }
 
-public class RestoreHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.RestoreHealth>(utils)
+public class RestoreHealthCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.RestoreHealth>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.RestoreHealth request)
     {
@@ -134,7 +134,7 @@ public class RestoreHealthCheat(GameCommandUtils utils) : GameCommand<GameCheatC
     }
 }
 
-public class RestoreMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.RestoreMoves>(utils)
+public class RestoreMovesCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.RestoreMoves>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.RestoreMoves request)
     {
@@ -143,7 +143,7 @@ public class RestoreMovesCheat(GameCommandUtils utils) : GameCommand<GameCheatCo
     }
 }
 
-public class EndMatchCheat(GameCommandUtils utils) : GameCommand<GameCheatContexts.EndMatch>(utils)
+public class EndMatchCheat(GameCommandUtils utils, ICheatsAccess access) : CheatCommand<GameCheatContexts.EndMatch>(utils, access)
 {
     protected override EmptyResponse Execute(Context context, GameCheatContexts.EndMatch request)
     {

@@ -146,7 +146,8 @@ public class AgentObservationBuilderTests
             new ObservationEventBuffer(),
             new MatchCreateOptions { Type = GameMatchType.LastManStanding },
             cardConfigs,
-            new RoundPlayers(fixture.Context));
+            new RoundPlayers(fixture.Context),
+            Substitute.For<ICheatsAccess>());
 
         publisher.Publish(fixture.SelfId, "action", false, string.Empty);
 
@@ -163,6 +164,7 @@ public class AgentObservationBuilderTests
         services.AddSingleton(new MatchCreateOptions { Type = GameMatchType.LastManStandingTurnBased });
         services.AddSingleton(Substitute.For<ICardConfigs>());
         services.AddSingleton(new RoundPlayers(context));
+        services.AddSingleton(Substitute.For<ICheatsAccess>());
         services.AddSingleton<IAgentObservationPublisher, AgentObservationPublisher>();
 
         var provider = services.BuildServiceProvider();

@@ -218,7 +218,7 @@ Do not dump full `Cells` arrays or raw JSON. `BoardAscii` plus a short action li
 | `end-turn` | `game_end_turn`; refused when `MovesLeft` is 0 |
 | `--json <command>` | raw payload (full observation with `Cells`) for other scripts only |
 
-`--oracle` only works when coordinator `LastManStandingTurnBased.IncludeOracle` is true (default false).
+`--oracle` only works when the cheats are allowed: the game flag `Cheats` is on (the coordinator turns it on in Development, the console switches it) and the game server runs in Development; the match is against the bot.
 
 `tools/scripts/card-advisor.py` is optional: an external LLM second opinion that needs an OpenCode key. Use it only when the user asks for cards-via-advisor; the decision stays yours.
 

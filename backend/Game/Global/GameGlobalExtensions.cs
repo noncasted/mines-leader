@@ -1,4 +1,5 @@
 ﻿using Common.Extensions;
+using Game.GamePlay;
 using Infrastructure;
 using Microsoft.Extensions.Hosting;
 
@@ -13,6 +14,9 @@ public static class GameGlobalExtensions
 
         app.Add<SessionFactory>()
            .As<ISessionFactory>();
+
+        app.Add<CheatsAccess>()
+           .As<ICheatsAccess>();
 
         app.Add<SessionSearch>()
            .As<ISessionSearch>();
