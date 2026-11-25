@@ -1,0 +1,33 @@
+{
+    "name": "GamePlay.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GamePlay",
+        "Internal",
+        "Internal.Content",
+        "Internal.Audio",
+        "Internal.Network",
+        "Framework.Common",
+        "Framework.Shared",
+        "Shared.Game",
+        "UniTask",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "MemoryPack.Core.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
