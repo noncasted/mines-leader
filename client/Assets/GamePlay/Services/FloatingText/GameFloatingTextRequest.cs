@@ -21,7 +21,5 @@ namespace GamePlay.Services
         public AnimationCurve Move;
         public AnimationCurve Fade;
         public AnimationCurve Size;
-
-        public GameFloatingTextView Prefab;
     }
 }

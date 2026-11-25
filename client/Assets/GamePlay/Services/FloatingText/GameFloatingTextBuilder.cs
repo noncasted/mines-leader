@@ -126,12 +126,6 @@ namespace GamePlay.Services
             return this;
         }
 
-        public GameFloatingTextBuilder WithPrefab(GameFloatingTextView prefab)
-        {
-            _request.Prefab = prefab;
-            return this;
-        }
-
         public UniTask Run()
         {
             return _service.Run(_request);

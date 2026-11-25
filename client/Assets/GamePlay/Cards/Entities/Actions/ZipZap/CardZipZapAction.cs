@@ -8,7 +8,6 @@ using GamePlay.Services;
 using Internal;
 using Shared;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace GamePlay.Cards
 {
@@ -94,10 +93,9 @@ namespace GamePlay.Cards
                     _animator.ExplodeCell(payload.TargetPlayer, targets[0].Position, CellExplosionType.ZipZap).Forget();
                     _camera.BaseShake();
 
-                    // Lines stay alive until the whole chain is played, so they are tracked and
-                    // destroyed in a finally: a terminated lifetime cancels the awaits below and
-                    // would otherwise leave the lightning VFX hanging on the board forever.
-                    var lines = new List<ZipZapLine>();
+                    // Lines stay on the board until the whole chain is played: they are taken from the pool
+                    // for the chain lifetime, which ends after the last segment or with the sync lifetime.
+                    var linesLifetime = lifetime.Child();
 
                     try
                     {
@@ -109,8 +107,7 @@ namespace GamePlay.Cards
                             var start = targets[index - 1].Cell;
                             var target = targets[index].Cell;
 
-                            var line = _vfxFactory.Create(options.LinePrefab, Vector2.zero);
-                            lines.Add(line);
+                            var line = _vfxFactory.Create(linesLifetime, options.LinePrefab, Vector2.zero);
 
                             await line.Show(lifetime, start, target);
                             _animator.ExplodeCell(payload.TargetPlayer, targets[index].Position, CellExplosionType.ZipZap).Forget();
@@ -119,11 +116,7 @@ namespace GamePlay.Cards
                     }
                     finally
                     {
-                        foreach (var line in lines)
-                        {
-                            if (line != null)
-                                Object.Destroy(line.gameObject);
-                        }
+                        linesLifetime.Terminate();
                     }
                 }
 

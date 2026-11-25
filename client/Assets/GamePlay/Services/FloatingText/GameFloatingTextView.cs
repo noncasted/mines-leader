@@ -10,10 +10,19 @@ namespace GamePlay.Services
         [SerializeField] private TMP_Text _text;
         [SerializeField] private SpriteRenderer _icon;
 
+        private Color _defaultTextColor;
+        private Color _defaultIconColor;
         private Color _textColor;
         private Color _iconColor;
         private Vector3 _origin;
         private float _scale;
+
+        private void Awake()
+        {
+            // A pooled view is shown many times: the colours of the prefab are the base of every show.
+            _defaultTextColor = _text.color;
+            _defaultIconColor = _icon.color;
+        }
 
         public void Setup(GameFloatingTextRequest request)
         {
@@ -26,25 +35,14 @@ namespace GamePlay.Services
             _text.text = request.Text ?? string.Empty;
             _text.gameObject.SetActive(string.IsNullOrEmpty(request.Text) == false);
 
-            if (request.TextColor.HasValue == true)
-                _text.color = request.TextColor.Value;
+            _textColor = request.TextColor ?? _defaultTextColor;
+            _text.color = _textColor;
 
-            _textColor = _text.color;
+            _icon.gameObject.SetActive(request.Icon != null);
+            _icon.sprite = request.Icon;
 
-            if (request.Icon != null)
-            {
-                _icon.gameObject.SetActive(true);
-                _icon.sprite = request.Icon;
-
-                if (request.IconColor.HasValue == true)
-                    _icon.color = request.IconColor.Value;
-            }
-            else
-            {
-                _icon.gameObject.SetActive(false);
-            }
-
-            _iconColor = _icon.color;
+            _iconColor = request.IconColor ?? _defaultIconColor;
+            _icon.color = _iconColor;
         }
 
         public void SetOffset(Vector3 offset)

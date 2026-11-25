@@ -27,15 +27,12 @@ namespace GamePlay.Services
         private AnimationCurve _size = AnimationCurve.Constant(0f, 1f, 1f);
 
         private IUpdater _updater;
-        private ILog _log;
-
-        private int _index;
+        private PrefabPool<GameFloatingTextView> _pool;
 
         [Inject]
-        public void Construct(IUpdater updater, ILog<GameFloatingText> log)
+        public void Construct(IUpdater updater)
         {
             _updater = updater;
-            _log = log;
         }
 
         public void Create(IScopeBuilder builder)
@@ -73,14 +70,6 @@ namespace GamePlay.Services
 
         public async UniTask Run(GameFloatingTextRequest request)
         {
-            var prefab = request.Prefab != null ? request.Prefab : GamePlayPrefabs.FloatingText;
-
-            if (prefab == null)
-            {
-                _log.Error("Floating text prefab is not loaded");
-                return;
-            }
-
             var lifetime = this.GetObjectLifetime();
 
             if (request.Delay > 0f)
@@ -89,28 +78,35 @@ namespace GamePlay.Services
             if (lifetime.IsTerminated == true)
                 return;
 
-            _index++;
+            // The catalogue prefab is loaded with the game content, after the scene services are injected.
+            if (_pool == null)
+                _pool = new PrefabPool<GameFloatingTextView>(lifetime, GamePlayPrefabs.FloatingText, transform);
 
-            var instance = Instantiate(prefab, request.Position, Quaternion.identity, transform);
-            instance.name = $"{prefab.name}_{_index}";
-            instance.Setup(request);
+            var textLifetime = lifetime.Child();
 
-            var direction = request.Direction == Vector3.zero ? Vector3.up : request.Direction;
-            var time = request.Time > 0f ? request.Time : _time;
+            try
+            {
+                var instance = _pool.Get(textLifetime);
+                instance.Setup(request);
 
-            await _updater.Progression(lifetime, time, progress => {
-                if (request.Move != null)
-                    instance.SetOffset(direction * (request.Distance * request.Move.Evaluate(progress)));
+                var direction = request.Direction == Vector3.zero ? Vector3.up : request.Direction;
+                var time = request.Time > 0f ? request.Time : _time;
 
-                if (request.Fade != null)
-                    instance.SetAlpha(request.Fade.Evaluate(progress));
+                await _updater.Progression(textLifetime, time, progress => {
+                    if (request.Move != null)
+                        instance.SetOffset(direction * (request.Distance * request.Move.Evaluate(progress)));
 
-                if (request.Size != null)
-                    instance.SetScale(request.Size.Evaluate(progress));
-            });
+                    if (request.Fade != null)
+                        instance.SetAlpha(request.Fade.Evaluate(progress));
 
-            if (instance != null)
-                Destroy(instance.gameObject);
+                    if (request.Size != null)
+                        instance.SetScale(request.Size.Evaluate(progress));
+                });
+            }
+            finally
+            {
+                textLifetime.Terminate();
+            }
         }
     }
 }

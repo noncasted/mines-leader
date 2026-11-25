@@ -37,13 +37,11 @@ namespace Menu.Decks
         public MenuCardPreviewPlayer(
             IMenuBoard menuBoard,
             IMenuCardPreviewCache cache,
-            ICardActionSyncDispatcher syncDispatcher,
-            MenuPreviewVfxFactory vfxFactory)
+            ICardActionSyncDispatcher syncDispatcher)
         {
             _menuBoard = menuBoard;
             _cache = cache;
             _syncDispatcher = syncDispatcher;
-            _vfxFactory = vfxFactory;
         }
 
         private const int LoopDelayMs = 1500;
@@ -52,7 +50,6 @@ namespace Menu.Decks
         private readonly IMenuBoard _menuBoard;
         private readonly IMenuCardPreviewCache _cache;
         private readonly ICardActionSyncDispatcher _syncDispatcher;
-        private readonly MenuPreviewVfxFactory _vfxFactory;
 
         public RenderTexture PreviewTexture => _menuBoard?.PreviewTexture;
 
@@ -69,7 +66,6 @@ namespace Menu.Decks
             await Show(lifetime, bundle);
 
             _menuBoard.ResetPreview();
-            _vfxFactory.ClearSpawned();
         }
 
         private async UniTask Show(IReadOnlyLifetime lifetime, CardPreviewBundle bundle)
@@ -77,7 +73,6 @@ namespace Menu.Decks
             while (lifetime.IsTerminated == false)
             {
                 _menuBoard.ResetPreview();
-                _vfxFactory.ClearSpawned();
 
                 _menuBoard.ApplyInitialState(bundle.InitialState);
                 await UniTask.Delay(LoopDelayMs / 2, cancellationToken: lifetime.Token);

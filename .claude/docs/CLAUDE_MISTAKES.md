@@ -872,3 +872,18 @@ git -C tools/framework checkout <commit>
 ### Rule
 Before any `git -C <submodule>` command in a fresh clone, copy or worktree, check that `rev-parse --show-toplevel` is the
 submodule path itself. A failed submodule clone must stop the script, not fall through.
+
+## Lesson 23: A Pooled View Keeps the State of Its Last Show
+
+### Mistake Made
+`GameFloatingTextView.Setup` set the text colour only when the request had one and then read `_text.color` back as the base
+of the fade. With a fresh `Instantiate` per text that was the prefab colour; with `PrefabPool<T>` it is the faded colour of
+the previous show (alpha 0), so the second text without a colour is invisible.
+
+### Correct Pattern
+Capture the prefab values once (`Awake`) and set every field the view changes on each show:
+`_textColor = request.TextColor ?? _defaultTextColor; _text.color = _textColor;`.
+
+### Rule
+A view taken from `PrefabPool<T>` resets on every take everything it changes during a show (colours, alpha, scale,
+position, active children, sprites). "If the request has X, set X" is a bug for a pooled view.
