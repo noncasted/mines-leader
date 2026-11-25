@@ -28,7 +28,7 @@ public class LastManStandingTurnBasedRoundTests
         var text = File.ReadAllText(source);
         text.Should().NotContain("TimerCountdown");
         text.Should().NotContain("TimeSpan.FromSeconds(1)");
-        text.Should().Contain("await TurnsCountdown()");
+        text.Should().Contain("await _turn.TurnsCountdown(player, roundForcedLifetime)");
     }
 
     [Fact]
@@ -71,11 +71,14 @@ public class LastManStandingTurnBasedRoundTests
     [InlineData("TimeLimitedRound.cs")]
     public void RoundEnd_GrowsManaThroughBuff(string fileName)
     {
-        var source = Path.Combine(Path.GetDirectoryName(FindRoundSource())!, fileName);
-        var text = File.ReadAllText(source);
+        var directory = Path.GetDirectoryName(FindRoundSource())!;
+        var text = File.ReadAllText(Path.Combine(directory, fileName));
+        var turnEnd = File.ReadAllText(Path.Combine(directory, "RoundTurnEnd.cs"));
 
-        text.Should().Contain("PlayerBaseBuffs.GrowMana(player, endSnapshot, ModeOptions.MaxManaCap)");
+        text.Should().Contain("_turnEnd.Send(player, ModeOptions.MaxManaCap)");
         text.Should().NotContain("Mana.SetMax(endSnapshot");
+        turnEnd.Should().Contain("PlayerBaseBuffs.GrowMana(player, endSnapshot, maxManaCap)");
+        turnEnd.Should().NotContain("Mana.SetMax(endSnapshot");
     }
 
     [Fact]

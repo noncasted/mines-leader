@@ -135,30 +135,7 @@ public class SessionFactory : ISessionFactory
         services.Add<PlayersReadyAwaiter>()
                 .As<IPlayersReadyAwaiter>();
 
-        services.Add<RoundPlayers>();
-
-        switch (createOptions.Type)
-        {
-            case GameMatchType.Single:
-                break;
-            case GameMatchType.TimeLimited:
-                services.Add<TimeLimitedRound>()
-                        .As<IService>()
-                        .As<IGameRound>();
-                break;
-            case GameMatchType.LastManStanding:
-                services.Add<LastManStandingRound>()
-                        .As<IService>()
-                        .As<IGameRound>();
-                break;
-            case GameMatchType.LastManStandingTurnBased:
-                services.Add<LastManStandingTurnBasedRound>()
-                        .As<IService>()
-                        .As<IGameRound>();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        services.AddRound(createOptions.Type);
 
         services.Add<ISessionFactory>(this);
         services.Add<ISessionTicketIssuer>(_tickets);
@@ -237,30 +214,7 @@ public class SessionFactory : ISessionFactory
         services.Add<BotPlayersReadyAwaiter>()
                 .As<IPlayersReadyAwaiter>();
 
-        services.Add<RoundPlayers>();
-
-        switch (createOptions.Type)
-        {
-            case GameMatchType.Single:
-                break;
-            case GameMatchType.TimeLimited:
-                services.Add<TimeLimitedRound>()
-                        .As<IService>()
-                        .As<IGameRound>();
-                break;
-            case GameMatchType.LastManStanding:
-                services.Add<LastManStandingRound>()
-                        .As<IService>()
-                        .As<IGameRound>();
-                break;
-            case GameMatchType.LastManStandingTurnBased:
-                services.Add<LastManStandingTurnBasedRound>()
-                        .As<IService>()
-                        .As<IGameRound>();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        services.AddRound(createOptions.Type);
 
         services.Add<ISessionFactory>(this);
         services.Add<ISessionTicketIssuer>(_tickets);
