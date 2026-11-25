@@ -8,7 +8,7 @@ using Xunit;
 namespace Tests.Meta;
 
 /// <summary>
-/// Проверяет цепочку матч → UserStatsSideEffect → IUserStats →
+/// Checks the chain match -> UserStatsSideEffect -> IUserStats ->
 /// InGameAchievementsSideEffect → IUserInGameAchievements.
 /// </summary>
 [Collection(nameof(SideEffectIntegrationCollection))]
@@ -63,8 +63,8 @@ public class MatchStatsSideEffectTests(SideEffectTestFixture fixture)
 
         var (winnerId, _, _) = await CompleteMatch(new Dictionary<Guid, UserStatsDelta>(), winner, delta);
 
-        // Один прогон доводит цепочку до конца: статы применяются и тут же
-        // ставят в очередь эффект пересчёта ачивок, который добирается тем же drain-ом.
+        // One run takes the chain to the end: the stats are applied and immediately
+        // enqueue the achievement recalculation effect, which the same drain picks up.
         (await DrainSideEffectsAsync()).AssertDrainedWithWork();
 
         IReadOnlyList<InGameAchievementEntry>? unlocked = null;

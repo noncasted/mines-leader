@@ -12,8 +12,8 @@ using Xunit;
 namespace Tests.Game;
 
 /// <summary>
-/// Атакующие карты (Target = OpponentBoard) запрещены, пока противник не сделал первый ход:
-/// его доска ещё не сгенерирована, и карта создала бы поле за него.
+/// Attacking cards (Target = OpponentBoard) are forbidden until the opponent makes the first move:
+/// their board is not generated yet, and the card would create the field for them.
 /// </summary>
 public class CardUseCommandTests : PlayerCardTestsBase
 {
@@ -45,7 +45,7 @@ public class CardUseCommandTests : PlayerCardTestsBase
             Payload = new CardUsePayload.OpponentBomb { Type = card.Type }
         };
 
-        // Гард пропускает карту дальше, а розыгрыш падает уже на пустом провайдере карт.
+        // The guard lets the card through, and playing fails on an empty card provider.
         var act = () => command.Execute(context, request);
         act.Should().Throw<Exception>();
     }
@@ -76,7 +76,7 @@ public class CardUseCommandTests : PlayerCardTestsBase
         context.Player.Mana.Current.Returns(3);
         context.Player.Modifiers.Get(PlayerModifier.NextCardDiscount).Returns(1f);
 
-        // Гард пропускает (4 - 1 = 3 <= 3), розыгрыш падает уже на пустом провайдере карт.
+        // The guard lets it through (4 - 1 = 3 <= 3), playing fails on an empty card provider.
         var act = () => command.Execute(context, new SharedGameAction.CardUse
         {
             CardId = card.Id,

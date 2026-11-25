@@ -30,8 +30,8 @@ public class DimensionRift : ICard<CardUsePayload.DimensionRift>
         var config = _configs.Value.DimensionRift_Normal;
         var pattern = PatternShapes.Rhombus(config.Size);
 
-        // Обмен идёт по одинаковым координатам, поэтому берём только те позиции узора,
-        // которые существуют на обеих досках.
+        // The swap goes by identical coordinates, so we take only the pattern positions
+        // that exist on both boards.
         var positions = pattern.SelectAll(opponentBoard, payload.Position)
                                .Select(cell => cell.Position)
                                .Where(position => ownerBoard.Cells.ContainsKey(position))
@@ -86,13 +86,13 @@ public class DimensionRift : ICard<CardUsePayload.DimensionRift>
     }
 
     /// <summary>
-    /// Клетка пересоздаётся целиком: у <see cref="ITakenCell"/> нельзя снять мину,
-    /// поэтому перенести чужое состояние можно только новым объектом.
+    /// The cell is recreated entirely: a mine cannot be removed from <see cref="ITakenCell"/>,
+    /// so foreign state can be transferred only by a new object.
     /// </summary>
     private static void Apply(IBoard board, Position position, CellState state)
     {
-        // Эффекты (туман, заморозка) наложены на позицию, а не на её содержимое,
-        // поэтому переезжают в новую клетку без изменений.
+        // Effects (fog, freeze) are applied to the position, not to its contents,
+        // so they move to the new cell unchanged.
         var effects = board.Cells[position].Effects.ToList();
 
         if (state.IsTaken == false)

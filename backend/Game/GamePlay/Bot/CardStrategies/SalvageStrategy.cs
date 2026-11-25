@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Утилизации (Salvage) - просматривает верхние карты колоды и берёт одну.
-/// Фиксированный приоритет 4.
+/// Salvage strategy - looks at the top cards of the deck and takes one.
+/// Fixed priority 4.
 /// </summary>
 public class SalvageStrategy : IBotCardStrategy
 {

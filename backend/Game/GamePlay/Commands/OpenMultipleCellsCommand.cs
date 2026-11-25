@@ -39,8 +39,8 @@ public class OpenMultipleCellsCommand(GameCommandUtils utils) : GameCommand<Shar
             placedFlags++;
         });
 
-        // Аккорд стоит ход. Если открывать нечего, ход не списываем: агент и UI получают
-        // отказ, а не молчаливое "ok" с минусом в счётчике ходов.
+        // A chord costs a move. If there is nothing to open, the move is not spent: the agent and UI get
+        // a refusal, not a silent "ok" with a minus in the move counter.
         if (around != placedFlags)
             return EmptyResponse.Fail($"Chord needs {around} flag(s) around, {placedFlags} placed");
 

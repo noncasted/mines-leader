@@ -48,8 +48,8 @@ public class MatchHandle
                 return;
             }
 
-            // Матч с ботом нужно пересоздавать тоже с ботом,
-            // иначе новая сессия будет вечно ждать второго живого игрока.
+            // A match with a bot must be recreated with a bot too,
+            // otherwise the new session would wait forever for a second live player.
             var bot = _users.FirstOrDefault(t => t.IsBot);
             var humans = _users.Where(t => t.IsBot == false).ToList();
 

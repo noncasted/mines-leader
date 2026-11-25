@@ -111,7 +111,7 @@ public class AgentMatchFixtureApplierTests
     [Fact]
     public void ApplyDecks_ShortBotDeck_CyclesToHandSize_SoRestoreDoesNotThrow()
     {
-        // Сценарий cross_vs_hard: bot_deck из 4 карт при HandSize 6 ронял RestoreCards на DrawCard.
+        // Scenario cross_vs_hard: a bot_deck of 4 cards with HandSize 6 made RestoreCards fail on DrawCard.
         var players = CreatePlayers(boardSize: 3);
         players.Opponent.Hand.SetSize(6);
         players.Opponent.Deck.Init(3);
@@ -156,8 +156,8 @@ public class AgentMatchFixtureApplierTests
         AgentMatchFixtureApplier.Apply(players.Context, match, snapshot);
 
         players.Self.Hand.Entries.Should().ContainSingle(card => card.Type == CardType.Sonar);
-        // 3 карты фикстуры идут первыми, дальше список повторяется до Hand.Size = 5,
-        // иначе RestoreCards в конце первого хода упадёт на пустой колоде.
+        // The 3 fixture cards go first, then the list repeats up to Hand.Size = 5,
+        // otherwise RestoreCards at the end of the first turn fails on an empty deck.
         players.Self.Deck.Count.Should().Be(5);
         players.Self.Deck.Peek(0).Should().Be(CardType.Bloodhound);
         players.Self.Deck.Peek(1).Should().Be(CardType.Medic);

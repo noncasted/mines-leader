@@ -15,9 +15,9 @@ public static class AgentMatchFixtureApplier
     }
 
     /// <summary>
-    /// Колода фикстуры короче руки — обычная ситуация для сценария («бот играет вот этими картами»).
-    /// RestoreCards добирает до Hand.Size и падает на пустой колоде, поэтому список
-    /// повторяется по кругу, как это делает Deck.Init, пока карт не хватит на полную руку.
+    /// A fixture deck shorter than the hand is a normal scenario ("the bot plays exactly these cards").
+    /// RestoreCards draws up to Hand.Size and fails on an empty deck, so the list
+    /// is repeated in a circle, like Deck.Init does, until the cards fill a full hand.
     /// </summary>
     private static void ReplaceDeck(IPlayer player, IReadOnlyList<CardType> cards, MoveSnapshot snapshot)
     {

@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Зеркального матча (MirrorMatch) - копирует последнюю карту противника.
-/// Фиксированный приоритет 5.
+/// MirrorMatch strategy - copies the opponent's last card.
+/// Fixed priority 5.
 /// </summary>
 public class MirrorMatchStrategy : IBotCardStrategy
 {

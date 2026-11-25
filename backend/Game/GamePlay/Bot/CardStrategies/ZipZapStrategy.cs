@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия ЗипЗапа (ZipZap) - целевое уничтожение конкретной мины на нашей доске.
-/// Высокий приоритет если закрыто больше 50% поля.
+/// ZipZap strategy - targeted destruction of a specific mine on our board.
+/// High priority if more than 50% of the field is closed.
 /// </summary>
 public class ZipZapStrategy : IBotCardStrategy
 {
@@ -48,9 +48,9 @@ public class ZipZapStrategy : IBotCardStrategy
     {
         var bot = _context.Bot;
 
-        // Ромб чётного размера смещён относительно центра, поэтому не любой якорь
-        // с миной по соседству принимается самой картой. Перебираем кандидатов,
-        // а не полагаемся на первый попавшийся — иначе бот залипает на одном и том же.
+        // A diamond of even size is offset from the center, so not every anchor
+        // with a mine next to it is accepted by the card itself. We try the candidates
+        // instead of relying on the first one found, otherwise the bot gets stuck on the same one.
         foreach (var position in FindMineTargets())
         {
             var payload = new CardUsePayload.ZipZap

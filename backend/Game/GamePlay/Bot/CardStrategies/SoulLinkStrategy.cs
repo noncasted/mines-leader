@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Связи душ (SoulLink) - связывает урон между игроками на N раундов.
-/// Приоритет 5 если HP >= 2.
+/// SoulLink strategy - links damage between players for N rounds.
+/// Priority 5 if HP >= 2.
 /// </summary>
 public class SoulLinkStrategy : IBotCardStrategy
 {

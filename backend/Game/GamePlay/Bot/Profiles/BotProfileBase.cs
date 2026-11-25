@@ -62,8 +62,8 @@ public abstract class BotProfileBase : IBotProfileStrategy
     }
 
     /// <summary>
-    /// Лимит флагов на ход. Один бюджет живёт весь ход, чтобы проходы между открытиями
-    /// клеток суммарно не превышали FlagsPerRound профиля.
+    /// Flag limit per turn. One budget lives for the whole turn so that passes between cell
+    /// openings do not together exceed the profile's FlagsPerRound.
     /// </summary>
     protected sealed class FlagBudget
     {
@@ -107,7 +107,7 @@ public abstract class BotProfileBase : IBotProfileStrategy
         var bot = _botContext.Bot;
         var cardsUsed = 0;
 
-        // Лимита на количество карт нет: бот играет, пока есть подходящие карты, мана и ходы.
+        // No limit on the number of cards: the bot plays while there are suitable cards, mana and moves.
         while (bot.Moves.Left > 0)
         {
             var usedCard = _cardAction.TryExecute(lifetime);
@@ -124,9 +124,9 @@ public abstract class BotProfileBase : IBotProfileStrategy
     }
 
     /// <summary>
-    /// Цикл «флаги, открытие, флаги»: каждая открытая клетка даёт новые цифры, по ним сразу
-    /// ставятся флаги, а флаги открывают аккорды. Первый проход флагов подхватывает клетки,
-    /// открытые картами. Цикл идёт, пока есть ходы и логически выводимые клетки.
+    /// The loop "flags, open, flags": each opened cell gives new numbers, flags are placed on them
+    /// at once, and flags open chords. The first flag pass picks up cells
+    /// opened by cards. The loop runs while there are moves and logically deducible cells.
     /// </summary>
     protected async Task RunSolveLoop(FlagBudget budget, DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
@@ -165,8 +165,8 @@ public abstract class BotProfileBase : IBotProfileStrategy
     }
 
     /// <summary>
-    /// Пауза перед завершением хода, чтобы игрок успел увидеть последние действия бота.
-    /// Раунд может закончиться раньше — тогда ожидание обрывается вместе с lifetime.
+    /// A pause before ending the turn so the player can see the bot's last actions.
+    /// The round may end earlier, then the wait is cut off together with the lifetime.
     /// </summary>
     protected async Task WaitBeforeEndTurn(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
@@ -183,9 +183,9 @@ public abstract class BotProfileBase : IBotProfileStrategy
     }
 
     /// <summary>
-    /// Пауза между картами: разыгранная карта должна повисеть на столе,
-    /// а не улететь в стеш одновременно со следующей. Когда бюджет раунда выбран,
-    /// пауза сжимается до ActionDelay, но не до нуля.
+    /// A pause between cards: a played card should hang on the table,
+    /// not fly to the stash together with the next one. When the round budget is spent,
+    /// the pause shrinks to ActionDelay, but not to zero.
     /// </summary>
     protected async Task DelayForCard(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {
@@ -204,9 +204,9 @@ public abstract class BotProfileBase : IBotProfileStrategy
     }
 
     /// <summary>
-    /// Пауза между флагами и открытиями. Пока бюджет раунда не выбран, темп плавает,
-    /// чтобы бот не выглядел метрономом; когда выбран, действия идут ровно через ActionDelay.
-    /// Мгновенных серий быть не должно: игрок должен видеть каждый флаг.
+    /// A pause between flags and openings. While the round budget is not spent, the pace floats
+    /// so the bot does not look like a metronome; once it is spent, actions go exactly ActionDelay apart.
+    /// There must be no instant series: the player must see every flag.
     /// </summary>
     protected async Task DelayForAction(DateTime startTime, float roundTime, IReadOnlyLifetime lifetime)
     {

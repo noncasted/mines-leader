@@ -60,8 +60,8 @@ public class BotCellAction : IBotCellAction
             return true;
         }
 
-        // Аккорд и одиночное открытие стоят один ход, поэтому выбираем по числу клеток,
-        // которые реально откроются вместе с каскадом.
+        // A chord and a single open cost one move, so we choose by the number of cells
+        // that will actually open together with the cascade.
         var chord = BotOpenPlans.FindBestChord(board);
         var single = BotOpenPlans.FindBestSafeCell(board, depth);
 

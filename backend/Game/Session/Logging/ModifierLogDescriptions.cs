@@ -4,29 +4,29 @@ using Shared;
 namespace Game.Session;
 
 /// <summary>
-/// Почему модификатор пропал из списка активных.
+/// Why the modifier left the list of active ones.
 /// </summary>
 public enum ModifierEndReason
 {
-    /// <summary>Истекла длительность (закончились ходы).</summary>
+    /// <summary>The duration expired (the moves ran out).</summary>
     Expired,
 
-    /// <summary>Эффект был потрачен: щит поглотил мину, скидка ушла в оплату карты и т.п.</summary>
+    /// <summary>The effect was spent: a shield absorbed a mine, a discount went into a card payment, etc.</summary>
     Consumed,
 
-    /// <summary>Эффект сняли принудительно (диспел, конец матча, перезапись).</summary>
+    /// <summary>The effect was removed forcibly (dispel, end of match, overwrite).</summary>
     Removed
 }
 
 /// <summary>
-/// Человекочитаемые описания бафов/дебафов для игрового лога: что за эффект,
-/// откуда он пришёл, сколько живёт и что конкретно даёт игроку.
+/// Human-readable descriptions of buffs/debuffs for the game log: what the effect is,
+/// where it came from, how long it lives and what exactly it gives the player.
 /// </summary>
 public static class ModifierLogDescriptions
 {
     /// <summary>
-    /// Баф это или дебаф: зависит не только от типа, но и от знака значения
-    /// (например AdditionalMoves с минусом — это Lockdown, то есть дебаф).
+    /// Buff or debuff: depends not only on the type but on the sign of the value
+    /// (for example AdditionalMoves with a minus is Lockdown, i.e. a debuff).
     /// </summary>
     public static bool IsHarmful(PlayerModifier type, float value)
     {
@@ -44,7 +44,7 @@ public static class ModifierLogDescriptions
         return IsHarmful(type, value) ? "Debuff" : "Buff";
     }
 
-    /// <summary>Короткое имя эффекта для строки лога.</summary>
+    /// <summary>Short name of the effect for the log line.</summary>
     public static string EffectName(PlayerModifier type)
     {
         return type switch
@@ -66,7 +66,7 @@ public static class ModifierLogDescriptions
         };
     }
 
-    /// <summary>Карта/механика, выдавшая эффект (ключ источника модификатора).</summary>
+    /// <summary>The card/mechanic that granted the effect (the modifier source key).</summary>
     public static string Source(string key)
     {
         if (string.IsNullOrEmpty(key))
@@ -97,7 +97,7 @@ public static class ModifierLogDescriptions
         };
     }
 
-    /// <summary>Длительность: -1 — до снятия/расхода, иначе сколько ходов осталось.</summary>
+    /// <summary>Duration: -1 means until removed/spent, otherwise how many moves are left.</summary>
     public static string Duration(int turnsToEnd)
     {
         if (turnsToEnd < 0)
@@ -116,7 +116,7 @@ public static class ModifierLogDescriptions
     }
 
     /// <summary>
-    /// Развёрнутое пояснение: что именно эффект делает с игроком, на которого повешен.
+    /// Detailed explanation: what exactly the effect does to the player it is attached to.
     /// </summary>
     public static string Explain(PlayerModifier type, float value)
     {
@@ -177,7 +177,7 @@ public static class ModifierLogDescriptions
         };
     }
 
-    /// <summary>Пояснение к тому, почему эффект закончился.</summary>
+    /// <summary>Explanation of why the effect ended.</summary>
     public static string ExplainEnd(PlayerModifier type, ModifierEndReason reason)
     {
         return reason switch

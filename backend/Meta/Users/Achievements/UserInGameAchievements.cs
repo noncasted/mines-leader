@@ -10,23 +10,23 @@ namespace Meta.Users;
 public interface IUserInGameAchievements : IUserGrain, IUserProjectionSource
 {
     /// <summary>
-    /// Сверяет статы игрока с конфигом и открывает все ачивки, условия которых выполнены.
-    /// Награда при этом не выдаётся: игрок забирает её сам через
-    /// <see cref="GetRewardOptions"/> и <see cref="ClaimReward"/>.
-    /// Вызывается сайд-эффектом от <see cref="IUserStats"/> после обновления статов.
+    /// Checks the player's stats against the config and unlocks all achievements whose conditions are met.
+    /// No reward is granted at that point: the player claims it themselves through
+    /// <see cref="GetRewardOptions"/> and <see cref="ClaimReward"/>.
+    /// Called by the side effect from <see cref="IUserStats"/> after the stats are updated.
     /// </summary>
     [Transaction]
     Task<IReadOnlyList<InGameAchievementEntry>> Evaluate();
 
     /// <summary>
-    /// Варианты награды за открытую ачивку. Пул фиксируется при первом запросе,
-    /// поэтому повторный вызов возвращает те же карты и рероллить их нельзя.
+    /// Reward options for an unlocked achievement. The pool is fixed on the first request,
+    /// so a repeated call returns the same cards and they cannot be rerolled.
     /// </summary>
     [Transaction]
     Task<IReadOnlyList<CardType>> GetRewardOptions(InGameAchievementType type, int tier);
 
     /// <summary>
-    /// Выдаёт выбранную карту. Карта должна быть из списка <see cref="GetRewardOptions"/>.
+    /// Grants the chosen card. The card must be from the <see cref="GetRewardOptions"/> list.
     /// </summary>
     [Transaction]
     Task<bool> ClaimReward(InGameAchievementType type, int tier, CardType card);
@@ -171,7 +171,7 @@ public class UserInGameAchievements : UserGrain, IUserInGameAchievements
                     Type = group.Type,
                     Tier = tier.Tier,
                     Date = DateTime.UtcNow,
-                    // Забрать награду нечего, поэтому такая ачивка закрывается сразу.
+                    // There is nothing to claim, so such an achievement is closed at once.
                     Claimed = tier.Reward is not CardUnlockReward
                 };
 
@@ -211,7 +211,7 @@ public class UserInGameAchievements : UserGrain, IUserInGameAchievements
 
         if (options.Count == 0)
         {
-            // Открывать больше нечего — закрываем ачивку, иначе она навсегда зависнет доступной.
+            // Nothing left to unlock: close the achievement, otherwise it hangs available forever.
             _logger.LogInformation("[User] [Achievements] User {Id} has no cards left to unlock for reward", userId);
             await ApplyClaimed(type, tier, null);
             return Array.Empty<CardType>();

@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Итоговая стоимость карты с учётом модификаторов игрока. Один расчёт для розыгрыша,
-/// legal plays и наблюдения агента, чтобы "cost > mana" у агента совпадало с отказом сервера.
+/// Final card cost with the player's modifiers. One calculation for playing, legal plays
+/// and the agent's observation, so the agent's "cost > mana" matches the server's refusal.
 /// </summary>
 public static class CardManaCost
 {

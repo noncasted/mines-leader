@@ -6,7 +6,7 @@ using Xunit;
 namespace Tests.Game;
 
 /// <summary>
-/// Каталог должен покрывать каждый CardType: добавили карту без описания — тест падает.
+/// The catalog must cover every CardType: a card added without a description makes the test fail.
 /// </summary>
 public class AgentCardCatalogTests
 {

@@ -813,7 +813,7 @@ public class RoundActionServiceTests
 
         service.Schedule(action);
 
-        // Ход закончил не владелец действия — длительность не должна сгорать.
+        // The turn was ended by someone other than the action owner: the duration must not burn out.
         service.Tick(new MoveSnapshot(), other);
         action.ExecuteCount.Should().Be(0);
 

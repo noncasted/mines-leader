@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Саботажа колоды (SabotageDeck) - добавляет Dud в колоду противника.
-/// Фиксированный приоритет 5.
+/// SabotageDeck strategy - adds a Dud to the opponent's deck.
+/// Fixed priority 5.
 /// </summary>
 public class SabotageDeckStrategy : IBotCardStrategy
 {

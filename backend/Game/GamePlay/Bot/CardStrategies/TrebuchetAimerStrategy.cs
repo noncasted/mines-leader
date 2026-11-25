@@ -3,9 +3,9 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Прицела Требушета (TrebuchetAimer) - подготовка усиленной атаки.
-/// Высокий приоритет если у нас есть Требушет и противник открыл больше клеток чем мы.
-/// Не тратит ходы, поэтому приоритет при наличии всех условий.
+/// TrebuchetAimer strategy - prepares an empowered attack.
+/// High priority if we have a Trebuchet and the opponent has opened more cells than we have.
+/// Spends no moves, so the priority is high whenever all conditions hold.
 /// </summary>
 public class TrebuchetAimerStrategy : IBotCardStrategy
 {
@@ -30,7 +30,6 @@ public class TrebuchetAimerStrategy : IBotCardStrategy
         var bot = _context.Bot;
         var opponent = _context.Opponent;
 
-        // Проверяем есть ли Требушет в руке или запасах
         var handCards = bot.Hand.Entries;
         var stashCards = bot.Stash.Collect();
 
@@ -41,18 +40,17 @@ public class TrebuchetAimerStrategy : IBotCardStrategy
         if (!hasTrebuchet)
             return 0f;
 
-        // Если у Требушета уже есть бонус - не нужен еще один
+        // If the Trebuchet already has a bonus, another one is not needed
         if (bot.Modifiers.Values[PlayerModifier.TrebuchetBoost] > 0)
-            return 1f; // Низкий приоритет, бонус уже есть
+            return 1f; // Low priority, the bonus is already there
 
-        // Проверяем открыли ли противник больше клеток чем мы
         var botOpenCount = bot.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
         var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
 
         if (opponentOpenCount > botOpenCount)
-            return 8f; // Высокий приоритет - противник впереди
+            return 8f; // High priority - the opponent is ahead
 
-        return 2f; // Низкий приоритет - мы впереди
+        return 2f; // Low priority - we are ahead
     }
 
     public bool Execute(Guid cardId, CardType cardType)

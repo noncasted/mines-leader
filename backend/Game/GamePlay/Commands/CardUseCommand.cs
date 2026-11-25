@@ -24,15 +24,15 @@ public class CardUseCommand(
         var config = configs.Value.All[handCard.Type];
         var opponent = Utils.GameContext.GetOpponent(player);
 
-        // Доска противника появляется только после его первого хода: пока её нет, атакующие
-        // карты сгенерировали бы её за него, поэтому отыгрывать их нельзя.
+        // The opponent's board appears only after their first move: until then attacking
+        // cards would generate it for them, so they cannot be played.
         if (config.Target == CardTarget.OpponentBoard && opponent.Board.IsGenerated == false)
             return EmptyResponse.Fail("Opponent board is not generated yet");
 
         var manaCost = CardManaCost.Resolve(player, config);
 
-        // Mana.Use обрезает остаток до нуля: без этой проверки любая карта играется на пустом
-        // пуле. UI клиента такую карту прячет, мост агента нет.
+        // Mana.Use clamps the remainder to zero: without this check any card plays on an empty
+        // pool. The client UI hides such a card, the agent bridge does not.
         if (player.Mana.Current < manaCost)
             return EmptyResponse.Fail(CardManaCost.NotEnough(manaCost, player.Mana.Current));
 

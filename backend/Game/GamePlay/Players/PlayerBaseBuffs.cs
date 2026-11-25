@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Обнуляет ресурсы игрока на старте сессии и выдаёт базу бафами: сами значения
-/// приходят из конфига режима, но игрок видит их в общем списке бафов.
+/// Zeroes player resources at session start and grants the base through buffs: the values themselves
+/// come from the mode config, but the player sees them in the common list of buffs.
 /// </summary>
 public static class PlayerBaseBuffs
 {
@@ -22,7 +22,7 @@ public static class PlayerBaseBuffs
         Grant(player, snapshot, new BaseManaAddPerRoundModifierSource());
     }
 
-    /// <summary>Конец раунда: +1 к базовому максимуму маны через баф прироста.</summary>
+    /// <summary>End of round: +1 to the base max mana through the growth buff.</summary>
     public static void GrowMana(IPlayer player, MoveSnapshot snapshot, int cap)
     {
         var source = player.Modifiers.Sources.OfType<BaseManaAddPerRoundModifierSource>().FirstOrDefault();

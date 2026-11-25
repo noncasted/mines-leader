@@ -23,7 +23,7 @@ public class RematchAwaiter : IRematchAwaiter
 
     public async Task<bool> ShouldRematch(IReadOnlyLifetime lifetime, TimeSpan timeout)
     {
-        // Боты всегда согласны на реванш, ждём решения только живых игроков.
+        // Bots always agree to a rematch, we wait only for the decisions of live players.
         var humans = _context.Players
                              .Where(t => t.User.IsBot == false)
                              .ToList();

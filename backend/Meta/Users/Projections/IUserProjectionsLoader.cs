@@ -1,8 +1,8 @@
 namespace Meta.Users;
 
 /// <summary>
-/// Читает все проекции юзера в текущей транзакции. Список источников собирает генератор,
-/// который к Meta не подключён, поэтому реализация регистрируется снаружи.
+/// Reads all projections of the user in the current transaction. The list of sources is built by a generator
+/// that is not connected to Meta, so the implementation is registered from outside.
 /// </summary>
 public interface IUserProjectionsLoader
 {

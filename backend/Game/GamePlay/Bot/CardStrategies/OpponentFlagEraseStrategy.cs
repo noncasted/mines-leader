@@ -3,9 +3,9 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Стирания Флагов Противника (OpponentFlagErase) - удаляет один флаг противника.
-/// Нарушает планы противника и заставляет его переоценивать доску.
-/// Полезна если у противника много флагов.
+/// OpponentFlagErase strategy - removes one opponent flag.
+/// Breaks the opponent's plans and forces them to re-evaluate the board.
+/// Useful if the opponent has many flags.
 /// </summary>
 public class OpponentFlagEraseStrategy : IBotCardStrategy
 {
@@ -29,16 +29,15 @@ public class OpponentFlagEraseStrategy : IBotCardStrategy
     {
         var opponent = _context.Opponent;
 
-        // Полезна только если у противника есть флаги
         if (!_boardUtils.HasFlaggedCells(opponent: true))
             return 0f;
 
         var flaggedCount =
             opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken && c.AsTaken().IsFlagged);
 
-        // Чем больше флагов у противника, тем выше полезность
+        // The more flags the opponent has, the more useful the card
         if (flaggedCount > 10)
-            return 7f; // Много флагов - наносим помеху
+            return 7f; // Many flags - we get in the way
 
         if (flaggedCount > 5)
             return 5f;

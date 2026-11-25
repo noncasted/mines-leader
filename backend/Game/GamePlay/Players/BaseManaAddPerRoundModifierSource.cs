@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Прирост максимальной маны за раунды: на старте висит с нулём, а в конце каждого раунда
-/// поднимает базовый максимум на 1 (пока не упёрлись в кап) и копит в Value, сколько уже дал.
+/// Max mana growth per round: at the start it sits at zero, and at the end of each round
+/// it raises the base maximum by 1 (until it hits the cap) and accumulates in Value how much it has given.
 /// </summary>
 public class BaseManaAddPerRoundModifierSource : BasePlayerModifierSource
 {

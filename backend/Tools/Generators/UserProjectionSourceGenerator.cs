@@ -108,7 +108,7 @@ namespace Generators
 
             sb.AppendLine(
                 "    public static async Task<IReadOnlyList<IProjectionPayload>> GetAllUserProjections(IOrleans orleans, Guid userId) {");
-            // Без своей транзакции: вызывающий открывает её сам, вложенный Run завёл бы вторую.
+            // No own transaction: the caller opens it itself, a nested Run would start a second one.
             sb.AppendLine("        var results = await Task.WhenAll(");
 
             for (var i = 0; i < grainInterfaces.Count; i++)

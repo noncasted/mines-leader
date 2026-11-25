@@ -62,8 +62,8 @@ public class BotCardAction : IBotCardAction
         {
             var config = _cardConfigs.Value.All[activeCard.Type];
 
-            // Доска противника не сгенерирована — атаковать нечего, карта только создала бы
-            // поле за него.
+            // The opponent's board is not generated: there is nothing to attack, the card would only create
+            // the field for them.
             if (config.Target == CardTarget.OpponentBoard && opponentBoard.IsGenerated == false)
             {
                 skippedNoBoard.Add(activeCard.Type);

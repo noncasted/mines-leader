@@ -3,9 +3,9 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Бомбы Противника (OpponentBomb) - наносит урон доске противника.
-/// Полезна когда противник открыл больше 70% своей доски.
-/// Не используется если у противника 1 HP (чтобы не добивать).
+/// OpponentBomb strategy - damages the opponent's board.
+/// Useful when the opponent has opened more than 70% of their board.
+/// Not used if the opponent has 1 HP (so as not to finish them off).
 /// </summary>
 public class OpponentBombStrategy : IBotCardStrategy
 {
@@ -37,14 +37,14 @@ public class OpponentBombStrategy : IBotCardStrategy
         if (opponentTotalCells == 0)
             return 0f;
 
-        // Добить противника — лучшее применение карты, а не запрет на неё.
+        // Finishing off the opponent is the best use of the card, not a reason to forbid it.
         if (opponent.Health.Current <= 1)
             return 9f;
 
         var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
         var openRatio = (float)opponentOpenCount / opponentTotalCells;
 
-        // Чем больше поля вскрыто, тем выше шанс попасть по мине и снять хп.
+        // The more of the field is open, the higher the chance to hit a mine and take HP.
         return 3f + openRatio * 5f;
     }
 

@@ -5,8 +5,8 @@ namespace Game.GamePlay;
 public static class BotOpenCascade
 {
     /// <summary>
-    /// Сколько клеток реально откроется, если раскрыть переданные клетки —
-    /// с учётом волны от клеток без мин вокруг. Повторяет логику BoardRevealer.
+    /// How many cells will actually open if the given cells are revealed,
+    /// including the wave from cells with no mines around. Repeats the BoardRevealer logic.
     /// </summary>
     public static int Estimate(IBoard board, IReadOnlyList<Position> seeds)
     {

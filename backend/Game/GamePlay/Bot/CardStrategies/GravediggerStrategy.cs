@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Могильщика (Gravedigger) - восстанавливает карты из запасов в руку.
-/// Рандомный приоритет в зависимости от наличия карт в запасах.
+/// Gravedigger strategy - restores cards from the stash to the hand.
+/// Random priority depending on whether there are cards in the stash.
 /// </summary>
 public class GravediggerStrategy : IBotCardStrategy
 {

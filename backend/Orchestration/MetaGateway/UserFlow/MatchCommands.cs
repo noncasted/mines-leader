@@ -53,7 +53,7 @@ public static class MatchCommands
             };
         }
 
-        /// <summary>Имена соперников читаются одной пачкой: в истории они повторяются.</summary>
+        /// <summary>Opponent names are read in one batch: they repeat in the history.</summary>
         private async Task<Dictionary<Guid, string>> ResolveNames(IEnumerable<Guid> ids)
         {
             var unique = ids.Where(id => id != Guid.Empty).Distinct().ToList();

@@ -3,18 +3,18 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Честный выбор центра для карт с фигурой: считает только то, что видно игроку
-/// (статус клетки, флаг, цифры), геометрию берёт из тех же PatternShapes, что и сама карта.
-/// При равном счёте центр выбирается случайно, чтобы бот не бил всегда в одну точку.
+/// Honest choice of the center for cards with a shape: counts only what the player sees
+/// (cell status, flag, numbers), takes geometry from the same PatternShapes as the card itself.
+/// On equal score the center is random, so the bot does not always hit the same spot.
 /// </summary>
 public static class BotCardTargeting
 {
     public static readonly Position None = new(-1, -1);
 
     /// <summary>
-    /// Bloodhound: ромб, который накрывает больше всего закрытых клеток без флага.
-    /// Клетки фронта (рядом с открытой) считаются вдвое: открытые там цифры
-    /// сразу соединяются с известной зоной и дают аккорды.
+    /// Bloodhound: the diamond covering the most closed cells without a flag.
+    /// Frontier cells (next to an open one) count double: the numbers opened there
+    /// connect to the known zone at once and give chords.
     /// </summary>
     public static Position BestBloodhoundCentre(IBoard board, int size)
     {
@@ -23,8 +23,8 @@ public static class BotCardTargeting
     }
 
     /// <summary>
-    /// MinefieldScout: карта сама выбирает горизонталь или вертикаль по числу закрытых клеток,
-    /// поэтому оценивается та линия, которую возьмёт карта.
+    /// MinefieldScout: the card picks horizontal or vertical by the number of closed cells,
+    /// so the line the card will take is the one evaluated.
     /// </summary>
     public static Position BestMinefieldScoutCentre(IBoard board, int size)
     {
@@ -40,8 +40,8 @@ public static class BotCardTargeting
     }
 
     /// <summary>
-    /// Trebuchet: ромб на доске противника, накрывающий больше всего открытых клеток.
-    /// Клетки с цифрой считаются вдвое: закрыть цифру значит сломать вывод, который на ней строился.
+    /// Trebuchet: the diamond on the opponent's board covering the most open cells.
+    /// Cells with a number count double: closing a number breaks the deduction built on it.
     /// </summary>
     public static Position BestTrebuchetCentre(IBoard opponentBoard, int size)
     {
@@ -63,11 +63,11 @@ public static class BotCardTargeting
     }
 
     /// <summary>
-    /// Sonar: ромб с наибольшей ожидаемой суммой мин без флага. Ожидание берётся только из цифр:
-    /// каждая открытая цифра распределяет свои неотмеченные мины поровну между закрытыми
-    /// соседями без флага, клетке достаётся максимум по соседним цифрам. Клетки вне фронта
-    /// ожидания не имеют, поэтому Sonar не улетает в глубь закрытого поля.
-    /// Счёт целочисленный в сотых долях мины.
+    /// Sonar: the diamond with the highest expected sum of mines without a flag. The expectation comes only from numbers:
+    /// each open number spreads its unmarked mines evenly among the closed
+    /// neighbors without a flag, a cell gets the maximum over the neighboring numbers. Cells outside the frontier
+    /// have no expectation, so Sonar does not fly deep into the closed field.
+    /// The score is an integer in hundredths of a mine.
     /// </summary>
     public static Position BestSonarCentre(IBoard board, int size)
     {
@@ -91,8 +91,8 @@ public static class BotCardTargeting
     }
 
     /// <summary>
-    /// Сколько мин ещё не отмечено по видимым цифрам: сумма по открытым клеткам
-    /// разницы между цифрой и числом флагов вокруг. Честная замена подсчёту настоящих мин.
+    /// How many mines are still unmarked according to the visible numbers: the sum over open cells of
+    /// the difference between the number and the flags around. An honest replacement for counting real mines.
     /// </summary>
     public static int UnresolvedMinesByNumbers(IBoard board)
     {

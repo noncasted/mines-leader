@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Мародёра (Scavenger) - берёт 2 карты из колоды.
-/// Приоритет зависит от количества карт в руке.
+/// Scavenger strategy - takes 2 cards from the deck.
+/// Priority depends on the number of cards in hand.
 /// </summary>
 public class ScavengerStrategy : IBotCardStrategy
 {

@@ -6,15 +6,15 @@ using Xunit;
 namespace Tests.Game;
 
 /// <summary>
-/// Прицеливание карт бота считает только видимое: закрытые клетки, флаги, цифры.
-/// Геометрия совпадает с самой картой, поэтому центр проверяется через те же PatternShapes.
+/// Bot card aiming counts only what is visible: closed cells, flags, numbers.
+/// The geometry matches the card itself, so the center is checked through the same PatternShapes.
 /// </summary>
 public class BotCardTargetingTests
 {
     [Fact]
     public void Bloodhound_CoversTheLargestUnflaggedCluster()
     {
-        // Слева два закрытых столбца, справа один: лучший ромб накрывает левый кластер целиком.
+        // Two closed columns on the left, one on the right: the best diamond covers the whole left cluster.
         var (board, _) = BoardParser.Parse("""
                                            t t _ _ _ _ t
                                            t t _ _ _ _ t
@@ -35,7 +35,7 @@ public class BotCardTargetingTests
     [Fact]
     public void Bloodhound_IgnoresFlaggedCells()
     {
-        // Левый кластер весь под флагами, правый чистый: ромб идёт направо.
+        // The left cluster is fully under flags, the right one is clean: the diamond goes right.
         var (board, _) = BoardParser.Parse("""
                                            f f _ _ _ t t
                                            f f _ _ _ t t
@@ -68,7 +68,7 @@ public class BotCardTargetingTests
     [Fact]
     public void MinefieldScout_PicksTheLineWithMostClosedCells()
     {
-        // Единственная закрытая линия: горизонталь в третьем ряду.
+        // The only closed line: the horizontal in the third row.
         var (board, _) = BoardParser.Parse("""
                                            _ _ _ _ _ _ _
                                            _ _ _ _ _ _ _
@@ -88,7 +88,7 @@ public class BotCardTargetingTests
     [Fact]
     public void Trebuchet_CoversTheLargestOpenArea()
     {
-        // Открыт только левый верхний квадрат: ромб должен лечь на него, а не на закрытое поле.
+        // Only the top-left square is open: the diamond must sit on it, not on the closed field.
         var (board, _) = BoardParser.Parse("""
                                            _ _ _ t t t t
                                            _ _ _ t t t t
@@ -121,8 +121,8 @@ public class BotCardTargetingTests
     [Fact]
     public void Sonar_AimsWhereNumbersPromiseMines()
     {
-        // Слева цифра 2 с двумя закрытыми соседями (обе мины по ограничению),
-        // справа закрытые клетки без единой цифры рядом. Ромб должен лечь налево.
+        // On the left a number 2 with two closed neighbors (both are mines by the constraint),
+        // on the right closed cells with no number nearby. The diamond must go left.
         var (board, _) = BoardParser.Parse("""
                                            _ _ _ _ _ _ t
                                            m _ _ _ _ _ t
@@ -144,7 +144,7 @@ public class BotCardTargetingTests
     [Fact]
     public void Sonar_NoNumbersWithUnresolvedMines_ReturnsNone()
     {
-        // Единственная мина уже под флагом: цифры закрыты, Sonar бить некуда.
+        // The only mine is already under a flag: the numbers are closed, Sonar has nothing to hit.
         var (board, _) = BoardParser.Parse("""
                                            _ _ _ t
                                            _ f _ t

@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Тумана Войны (FogOfWar) - скрывает числа на открытых клетках противника.
-/// Приоритет зависит от количества открытых клеток у противника.
+/// FogOfWar strategy - hides numbers on the opponent's open cells.
+/// Priority depends on the number of open cells of the opponent.
 /// </summary>
 public class FogOfWarStrategy : IBotCardStrategy
 {

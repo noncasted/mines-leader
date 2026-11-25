@@ -5,8 +5,8 @@ namespace Meta.Users;
 public static class AchievementRewardPicker
 {
     /// <summary>
-    /// Набор карт на выбор игроку. Возвращает меньше <paramref name="count"/>,
-    /// если подходящих карт осталось меньше.
+    /// A set of cards for the player to choose from. Returns fewer than <paramref name="count"/>
+    /// if fewer suitable cards remain.
     /// </summary>
     public static IReadOnlyList<CardType> PickCards(
         CardConfigOptions cardConfigs,

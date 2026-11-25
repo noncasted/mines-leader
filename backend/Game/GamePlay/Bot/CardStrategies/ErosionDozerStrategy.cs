@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Эрозионного Бульдозера (ErosionDozer) - разрушает клетку на нашей доске.
-/// Высокий приоритет если закрыто больше 50% поля.
+/// ErosionDozer strategy - destroys a cell on our board.
+/// High priority if more than 50% of the field is closed.
 /// </summary>
 public class ErosionDozerStrategy : IBotCardStrategy
 {

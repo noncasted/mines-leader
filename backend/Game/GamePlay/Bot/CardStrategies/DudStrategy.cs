@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Пустышки (Dud) - карта-заглушка, никогда не используется ботом.
-/// Приоритет 0.
+/// Dud strategy - a placeholder card, never used by the bot.
+/// Priority 0.
 /// </summary>
 public class DudStrategy : IBotCardStrategy
 {

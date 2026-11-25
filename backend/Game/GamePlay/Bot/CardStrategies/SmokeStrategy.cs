@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Дыма (Smoke) - скрывает клетку противника.
-/// Рандомный приоритет.
+/// Smoke strategy - hides an opponent's cell.
+/// Random priority.
 /// </summary>
 public class SmokeStrategy : IBotCardStrategy
 {

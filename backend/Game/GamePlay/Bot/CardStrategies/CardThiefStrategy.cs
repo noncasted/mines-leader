@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Вора карт (CardThief) - крадёт случайную карту из руки противника.
-/// Приоритет 6 если у противника есть карты.
+/// CardThief strategy - steals a random card from the opponent's hand.
+/// Priority 6 if the opponent has cards.
 /// </summary>
 public class CardThiefStrategy : IBotCardStrategy
 {

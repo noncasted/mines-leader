@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Мороза (Frost) - замораживает клетки противника.
-/// Фиксированный приоритет 5.
+/// Frost strategy - freezes the opponent's cells.
+/// Fixed priority 5.
 /// </summary>
 public class FrostStrategy : IBotCardStrategy
 {

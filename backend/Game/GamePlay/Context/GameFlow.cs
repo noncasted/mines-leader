@@ -99,8 +99,8 @@ public class GameFlow : Service, IGameFlow
 
         var matchStats = _statsTracker.Collect();
 
-        // Итоги матча считает грейн, а клиенту они нужны на экране результатов,
-        // поэтому завершаем матч до отправки снапшота о конце игры.
+        // The match results are computed by the grain, and the client needs them on the results screen,
+        // so the match is finished before the end-of-game snapshot is sent.
         var summary = winner != Guid.Empty
             ? ids.ToSession(await _orleans.InTransaction(() =>
                 match.OnComplete(ids.ToBackend(winner), ids.ToBackend(matchStats))))

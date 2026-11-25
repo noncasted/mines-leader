@@ -4,8 +4,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Разведчика Минного Поля (MinefieldScout) - открывает линию клеток.
-/// Приоритет зависит от количества закрытых клеток.
+/// MinefieldScout strategy - opens a line of cells.
+/// Priority depends on the number of closed cells.
 /// </summary>
 public class MinefieldScoutStrategy : IBotCardStrategy
 {
@@ -36,7 +36,7 @@ public class MinefieldScoutStrategy : IBotCardStrategy
 
     public bool Execute(Guid cardId, CardType cardType)
     {
-        // Карта всегда берёт размер Normal, даже для Max: повторяем это при прицеливании.
+        // The card always takes the Normal size, even for Max: repeat that when aiming.
         var size = _cardConfigs.Value.MinefieldScout_Normal.Size;
         var position = BotCardTargeting.BestMinefieldScoutCentre(_context.Bot.Board, size);
 

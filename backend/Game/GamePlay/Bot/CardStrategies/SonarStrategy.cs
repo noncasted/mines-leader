@@ -4,9 +4,9 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Сонара (Sonar) - автоматически флажит мины в области своего поля.
-/// Приоритет и цель считаются только по видимым цифрам: сколько мин ещё не отмечено
-/// и где по ограничениям их ожидается больше всего.
+/// Sonar strategy - automatically flags mines in an area of its own field.
+/// Priority and target are computed from the visible numbers only: how many mines are still unmarked
+/// and where the constraints expect the most of them.
 /// </summary>
 public class SonarStrategy : IBotCardStrategy
 {

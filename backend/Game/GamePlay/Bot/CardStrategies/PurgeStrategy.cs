@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Очистки (Purge) - снимает все вражеские эффекты со своего поля.
-/// Высокий приоритет когда есть активные эффекты на поле.
+/// Purge strategy - removes all enemy effects from its own field.
+/// High priority when there are active effects on the field.
 /// </summary>
 public class PurgeStrategy : IBotCardStrategy
 {

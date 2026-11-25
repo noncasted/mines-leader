@@ -3,9 +3,9 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Краткая сводка того, что карта сделала с доской, для лога сессии: по ней после партии
-/// видно, сколько мин каждая сторона сняла или поставила картами. Карты без влияния на мины
-/// и клетки строки не дают.
+/// A short summary of what the card did to the board, for the session log: after the match it shows
+/// how many mines each side removed or placed with cards. Cards with no effect on mines
+/// and cells produce no rows.
 /// </summary>
 public static class CardActionLog
 {

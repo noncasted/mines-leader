@@ -95,7 +95,7 @@ public class MatchFactory : IMatchFactory
     {
         var botId = GetRandomBotId();
 
-        // Колода бота перевыдаётся из актуального конфига перед каждым матчем.
+        // The bot's deck is reissued from the current config before every match.
         if (botId != Guid.Empty)
             await _botFactory.AssignDeck(botId);
 

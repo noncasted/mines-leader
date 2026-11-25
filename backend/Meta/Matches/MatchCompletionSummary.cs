@@ -1,6 +1,6 @@
 namespace Meta.Matches;
 
-/// <summary>Итоги матча для экрана результатов: считаются здесь же, где применяются к грейнам игроков.</summary>
+/// <summary>Match results for the results screen: computed here, where they are applied to the player grains.</summary>
 [GenerateSerializer]
 public class MatchCompletionSummary
 {

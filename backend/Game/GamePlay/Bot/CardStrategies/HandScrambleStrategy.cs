@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Перемешивания Руки (HandScramble) - случайно заменяет карты в руке противника.
-/// Высокий приоритет когда у противника много карт в руке.
+/// HandScramble strategy - randomly replaces cards in the opponent's hand.
+/// High priority when the opponent has many cards in hand.
 /// </summary>
 public class HandScrambleStrategy : IBotCardStrategy
 {

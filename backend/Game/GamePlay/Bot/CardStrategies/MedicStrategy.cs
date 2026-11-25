@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Медика (Medic) - восстанавливает 1 HP.
-/// Высокий приоритет когда HP критически низкий.
+/// Medic strategy - restores 1 HP.
+/// High priority when HP is critically low.
 /// </summary>
 public class MedicStrategy : IBotCardStrategy
 {

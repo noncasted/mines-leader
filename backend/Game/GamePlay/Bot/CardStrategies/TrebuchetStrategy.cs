@@ -4,9 +4,9 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Требушета (Trebuchet) - дальнобойная атака на доску противника.
-/// Максимальный приоритет если активен модификатор TrebuchetAimer.
-/// Высокий приоритет если противник открыл больше клеток чем мы.
+/// Trebuchet strategy - long-range attack on the opponent's board.
+/// Maximum priority if the TrebuchetAimer modifier is active.
+/// High priority if the opponent has opened more cells than we have.
 /// </summary>
 public class TrebuchetStrategy : IBotCardStrategy
 {
@@ -31,32 +31,29 @@ public class TrebuchetStrategy : IBotCardStrategy
         var bot = _context.Bot;
         var opponent = _context.Opponent;
 
-        // Проверяем есть ли вообще закрытые клетки у противника
         var opponentTakenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Taken);
         var opponentFreeCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
 
         if (opponentTakenCount == 0 || opponentFreeCount == 0)
             return 0f;
 
-        // Если активен модификатор TrebuchetAimer - максимальный приоритет
         if (bot.Modifiers.Values[PlayerModifier.TrebuchetBoost] > 0)
             return 10f;
 
-        // Проверяем открыли ли противник больше клеток чем мы
         var botOpenCount = bot.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
         var opponentOpenCount = opponent.Board.Cells.Values.Count(c => c.Status == CellStatus.Free);
 
         if (opponentOpenCount > botOpenCount)
-            return 7f; // Высокий приоритет - противник впереди
+            return 7f; // High priority - the opponent is ahead
 
-        return 2f; // Низкий приоритет - мы впереди
+        return 2f; // Low priority - we are ahead
     }
 
     public bool Execute(Guid cardId, CardType cardType)
     {
         var bot = _context.Bot;
 
-        // Тот же размер, что посчитает карта: базовый ромб плюс усиление TrebuchetAimer.
+        // The same size the card will compute: the base diamond plus the TrebuchetAimer boost.
         var size = _cardConfigs.Value.Trebuchet_Normal.Size +
                    (int)bot.Modifiers.Values[PlayerModifier.TrebuchetBoost] * 2;
 

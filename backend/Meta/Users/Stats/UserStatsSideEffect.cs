@@ -3,8 +3,8 @@ using Infrastructure;
 namespace Meta.Users;
 
 /// <summary>
-/// Доставляет статы одного игрока за матч в его <see cref="IUserStats"/>.
-/// Матч регистрирует по одному такому эффекту на участника.
+/// Delivers one player's match stats to their <see cref="IUserStats"/>.
+/// The match registers one such effect per participant.
 /// </summary>
 [GenerateSerializer]
 public class UserStatsSideEffect : ITransactionalSideEffect

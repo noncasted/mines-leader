@@ -37,9 +37,9 @@ public class Moves : IMoves
     private int Bonus => (int)_modifiers.Get(PlayerModifier.AdditionalMoves);
 
     /// <summary>
-    /// Положительный модификатор докидывает ходы поверх остатка, отрицательный только
-    /// урезает потолок: дебафф забирает запас, а не уже доступный ход. При максимуме 5
-    /// и остатке 4 после -1 остаётся 4 из 4, а не 3 из 4.
+    /// A positive modifier adds moves on top of the remainder, a negative one only
+    /// cuts the ceiling: a debuff takes the reserve, not an already available move. With a max of 5
+    /// and a remainder of 4, after -1 it stays 4 of 4, not 3 of 4.
     /// </summary>
     private int Gain => Bonus > 0 ? Bonus : 0;
 

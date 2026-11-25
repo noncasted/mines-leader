@@ -11,9 +11,9 @@ public interface IBotFactory
     Task<Guid> Create(string name);
 
     /// <summary>
-    /// Выдаёт боту случайную колоду из текущего профиля конфига. Вызывается при создании
-    /// и перед каждым матчем: колода хранится в состоянии бота, иначе правка конфига
-    /// не доходила бы до ботов, созданных при старте кластера.
+    /// Gives the bot a random deck from the current config profile. Called on creation
+    /// and before every match: the deck is stored in the bot's state, otherwise a config edit
+    /// would not reach bots created at cluster start.
     /// </summary>
     Task AssignDeck(Guid botId);
 }

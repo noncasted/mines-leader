@@ -36,9 +36,9 @@ public class CoinToss : ICard<CardUsePayload.CoinToss>
                 IsHeads = isHeads
             });
 
-        // Обе стороны монетки — модификатор на максимум ходов: решка это дебафф,
-        // а не разовое списание текущих ходов. Ключи источников разные, чтобы
-        // орёл и решка показывались в баффах отдельными записями.
+        // Both sides of the coin are a max-moves modifier: tails is a debuff,
+        // not a one-off deduction of current moves. The source keys differ so that
+        // heads and tails show up as separate entries in the buffs.
         var source = isHeads
             ? new DurationModifierSource(PlayerModifier.AdditionalMoves, config.WinMoves, HeadsKey, 1)
             : new DurationModifierSource(PlayerModifier.AdditionalMoves, -config.LoseMoves, TailsKey, 1);

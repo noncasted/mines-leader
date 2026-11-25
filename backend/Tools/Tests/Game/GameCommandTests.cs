@@ -10,8 +10,8 @@ using Xunit;
 namespace Tests.Game;
 
 /// <summary>
-/// Исключение внутри команды должно уходить агенту как кадр с HasError, иначе мост ждёт
-/// наблюдение 10 секунд и отвечает таймаутом.
+/// An exception inside a command must go to the agent as a frame with HasError, otherwise the bridge waits
+/// for an observation for 10 seconds and answers with a timeout.
 /// </summary>
 public class GameCommandTests
 {

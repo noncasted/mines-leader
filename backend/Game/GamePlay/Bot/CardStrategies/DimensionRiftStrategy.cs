@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Разлома измерений (DimensionRift) - меняет местами области доски.
-/// Фиксированный приоритет 4.
+/// DimensionRift strategy - swaps areas of the board.
+/// Fixed priority 4.
 /// </summary>
 public class DimensionRiftStrategy : IBotCardStrategy
 {

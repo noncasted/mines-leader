@@ -3,9 +3,9 @@ namespace Game.GamePlay;
 public interface IRoundAction
 {
     /// <summary>
-    /// Игрок, по чьим ходам отсчитывается длительность: для модификаторов это их носитель,
-    /// для эффектов на клетках — владелец доски. Иначе дебаф на оппонента сгорал бы
-    /// ещё на ходу кастера, не дожив до хода цели.
+    /// The player whose moves the duration is counted by: for modifiers it is their carrier,
+    /// for effects on cells it is the board owner. Otherwise a debuff on the opponent would expire
+    /// during the caster's turn, before the target's turn.
     /// </summary>
     Guid OwnerId { get; }
 

@@ -7,10 +7,10 @@ public partial class MoveSnapshot
 {
     private readonly List<IMoveSnapshotRecord> _records = new();
 
-    // Ресурсы игрока (мана, здоровье, ходы) не попадают в общий поток в момент мутации:
-    // клиент применил бы их до того, как отыграется анимация карты. Вместо этого копим
-    // по одной актуальной записи на игрока и ресурс, а отдаём их в Collect() последними —
-    // строго после записи о действии, которое их изменило.
+    // Player resources (mana, health, moves) do not go into the common stream at the moment of mutation:
+    // the client would apply them before the card animation plays. Instead we keep
+    // one current record per player and resource, and hand them out last in Collect(),
+    // strictly after the record of the action that changed them.
     private readonly List<ResourceKey> _resourceOrder = new();
     private readonly Dictionary<ResourceKey, IMoveSnapshotRecord> _resources = new();
 
@@ -73,8 +73,8 @@ public partial class MoveSnapshot
     }
 
     /// <summary>
-    /// Последняя запись по ресурсу и есть его финальное состояние, поэтому промежуточные
-    /// значения перетираются: клиенту уходит один унифицированный апдейт на игрока.
+    /// The last record of a resource is its final state, so intermediate
+    /// values are overwritten: the client gets one unified update per player.
     /// </summary>
     private void AppendResource(Guid playerId, ResourceKind kind, IMoveSnapshotRecord record)
     {

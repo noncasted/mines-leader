@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Блокировки (Lockdown) - уменьшает макс. ходы противника на 2 раунда.
-/// Высокий приоритет когда у противника много ходов.
+/// Lockdown strategy - reduces the opponent's max moves for 2 rounds.
+/// High priority when the opponent has many moves.
 /// </summary>
 public class LockdownStrategy : IBotCardStrategy
 {

@@ -3,10 +3,10 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Базовые хп, ходы и мана выдаются игроку бафами: на старте сессии ресурсы стоят в нуле,
-/// а значения из конфига приходят такими источниками. В отличие от карточных бафов они
-/// не складываются в бонус поверх базы, а задают саму базу через SetMax/SetCurrent,
-/// поэтому живут вечно и не тикают.
+/// Base HP, moves and mana are granted to the player through buffs: at session start resources are zero,
+/// and config values come through such sources. Unlike card buffs they
+/// do not add a bonus on top of the base but set the base itself through SetMax/SetCurrent,
+/// so they live forever and do not tick.
 /// </summary>
 public abstract class BasePlayerModifierSource : IModifierSource
 {

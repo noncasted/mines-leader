@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Затмения (Blackout) - затемняет клетки противника.
-/// Фиксированный приоритет 5.
+/// Blackout strategy - darkens the opponent's cells.
+/// Fixed priority 5.
 /// </summary>
 public class BlackoutStrategy : IBotCardStrategy
 {

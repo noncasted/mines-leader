@@ -3,8 +3,8 @@ using Shared;
 namespace Meta.Users;
 
 /// <summary>
-/// Пачка статов за один матч. Собирается на игровой сессии и после матча
-/// отправляется в грейн игрока одним сообщением.
+/// A batch of stats for one match. Collected in the game session and sent to
+/// the player's grain in one message after the match.
 /// </summary>
 [GenerateSerializer]
 public class UserStatsDelta

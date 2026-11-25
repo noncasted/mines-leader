@@ -29,7 +29,7 @@ public class RoundTurnEnd
             player.Mana.Restore(endSnapshot);
             _sessionLogger.LogManaChanged(player.User.Id, player.Mana.Current, player.Mana.ResultMax);
 
-            // Отыгранные карты лежат на столе до конца хода — здесь сервер отправляет их в стеш.
+            // Played cards lie on the table until the end of the turn; here the server sends them to the stash.
             endSnapshot.RecordCardsStashed(player);
 
             _players.RestoreCards(player, endSnapshot);

@@ -5,8 +5,8 @@ namespace Game.GamePlay;
 public static class BotOpenPlans
 {
     /// <summary>
-    /// Аккорд: открытая клетка, у которой все мины уже отмечены флагами,
-    /// раскрывает всех оставшихся закрытых соседей за один ход.
+    /// Chord: an open cell whose mines are all marked with flags
+    /// reveals all remaining closed neighbors in one move.
     /// </summary>
     public static BotOpenPlan? FindBestChord(IBoard board)
     {
@@ -41,7 +41,7 @@ public static class BotOpenPlans
                     continue;
                 }
 
-                // Ложный флаг где-то рядом — аккорд взорвёт нас, пропускаем.
+                // A wrong flag nearby: the chord would blow us up, skip.
                 if (taken.HasMine == true)
                 {
                     blocked = true;

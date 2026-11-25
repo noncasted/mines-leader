@@ -4,8 +4,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Ищейки (Bloodhound) - выявляет флаги на нашей доске, раскрывая скрытые мины.
-/// Высокий приоритет если закрыто больше 50% поля (нужно быстрее открываться).
+/// Bloodhound strategy - reveals flags on our board, exposing hidden mines.
+/// High priority if more than 50% of the field is closed (we need to open up faster).
 /// </summary>
 public class BloodhoundStrategy : IBotCardStrategy
 {

@@ -109,8 +109,8 @@ public class Match : Grain, IMatch
     }
 
     /// <summary>
-    /// Статы уезжают в грейн игрока отдельным сайд-эффектом — по одному на участника,
-    /// чтобы завершение матча не зависело от их обработки.
+    /// Stats go to the player's grain as a separate side effect, one per participant,
+    /// so that finishing the match does not depend on their processing.
     /// </summary>
     private static void RegisterStatsSideEffect(
         Dictionary<Guid, UserStatsDelta>? matchStats,

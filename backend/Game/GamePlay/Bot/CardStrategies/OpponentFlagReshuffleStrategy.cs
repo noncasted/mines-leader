@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Перетасовки Флагов Противника (OpponentFlagReshuffle) - перемешивает флаги.
-/// Высокий приоритет если противник установил ~50% флагов от количества мин.
+/// OpponentFlagReshuffle strategy - shuffles the opponent's flags.
+/// High priority if the opponent has placed ~50% of flags relative to the number of mines.
 /// </summary>
 public class OpponentFlagReshuffleStrategy : IBotCardStrategy
 {
@@ -29,7 +29,6 @@ public class OpponentFlagReshuffleStrategy : IBotCardStrategy
     {
         var opponent = _context.Opponent;
 
-        // Полезна только если у противника есть флаги
         if (!_boardUtils.HasFlaggedCells(opponent: true))
             return 0f;
 
@@ -41,11 +40,11 @@ public class OpponentFlagReshuffleStrategy : IBotCardStrategy
         if (minesCount == 0)
             return 0f;
 
-        // Если противник установил примерно 50% флагов от мин
+        // If the opponent has placed about 50% of flags relative to mines
         var flagRatio = (float)flaggedCount / minesCount;
 
-        if (Math.Abs(flagRatio - 0.5f) < 0.3f) // 20-80% флагов
-            return 8f; // Высокий приоритет - нарушим его стратегию
+        if (Math.Abs(flagRatio - 0.5f) < 0.3f) // 20-80% of flags
+            return 8f; // High priority - we break their strategy
 
         return 3f;
     }

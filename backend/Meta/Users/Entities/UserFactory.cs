@@ -107,8 +107,8 @@ public class UserFactory : IUserFactory
         var handle = _orleans.CreateUserHandle(id);
         var name = options.Name ?? $"User_{id.ToString()[..8]}";
 
-        // Грейны независимые, поэтому инициализация идёт веером; последовательна только
-        // цепочка самой сущности, где имя ставится поверх Initialize.
+        // The grains are independent, so initialization fans out; only the chain of the entity itself
+        // is sequential, where the name is set on top of Initialize.
         await Task.WhenAll(
             InitializeEntity(),
             handle.Deck.Initialize(),

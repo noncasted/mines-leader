@@ -49,7 +49,7 @@ public static class AgentLegalPlaysBuilder
         {
             view.ManaCost = CardManaCost.Resolve(self, config);
 
-            // Пока противник не сделал первый ход, его доски нет и карты по ней запрещены.
+            // Until the opponent makes the first move they have no board, and cards on it are illegal.
             if (config.Target == CardTarget.OpponentBoard && opponent?.Board.IsGenerated == false)
             {
                 view.Error = "Opponent board is not generated yet";
@@ -75,8 +75,8 @@ public static class AgentLegalPlaysBuilder
         }
 
         view.NeedsPosition = payload is IBoardCardUsePayload;
-        // CardUsePayload.ZipZap.CardId — это id самой карты, сервер его не читает (ZipZap.Use берёт
-        // context.CardId). Дополнительная карта нужна только Recycler.
+        // CardUsePayload.ZipZap.CardId is the id of the card itself, the server does not read it (ZipZap.Use takes
+        // context.CardId). An extra card is needed only for Recycler.
         view.NeedsExtraCard = payload is CardUsePayload.Recycler;
         view.NeedsChosenIndex = payload is CardUsePayload.Salvage;
 
@@ -114,10 +114,10 @@ public static class AgentLegalPlaysBuilder
         var width = board.Size.x;
         var height = board.Size.y;
 
-        // Своя доска появляется на первом клике, и карты по ней зовут EnsureGenerated сами:
-        // до генерации легальна любая клетка. Исключение — карты, которым нужны открытые
-        // клетки (ZipZap): на свежей доске их нет. Пустой список без ошибки агент читает
-        // как "нельзя", поэтому оба случая отвечаем явно.
+        // The own board appears on the first click, and cards on it call EnsureGenerated themselves:
+        // before generation any cell is legal. The exception is cards that need open
+        // cells (ZipZap): a fresh board has none. The agent reads an empty list without an error
+        // as "not allowed", so both cases are answered explicitly.
         if (board.IsGenerated == false)
         {
             if (info.Cells == AgentCardCells.Free)
@@ -151,8 +151,8 @@ public static class AgentLegalPlaysBuilder
     }
 
     /// <summary>
-    /// Повторяет фильтр клеток из Use карты по видимому состоянию доски. Мины не учитываются:
-    /// карты вроде ChainReaction, которым нужна мина под кликом, получают все закрытые клетки.
+    /// Repeats the cell filter from the card's Use by the visible board state. Mines are ignored:
+    /// cards like ChainReaction, which need a mine under the click, get all closed cells.
     /// </summary>
     private static bool IsLegal(AgentCardInfo info, int size, IBoard board, Position position)
     {
@@ -163,8 +163,8 @@ public static class AgentLegalPlaysBuilder
             case AgentCardCatalog.ShapeCross:
                 return Matches(PatternShapes.Cross(size), info.Cells, board, position);
             case AgentCardCatalog.ShapeLine:
-                // Карта берёт ориентацию с большим числом подходящих клеток (MinefieldScout.Use),
-                // поэтому позиция легальна, если хотя бы одна ориентация что-то задевает.
+                // The card takes the orientation with more fitting cells (MinefieldScout.Use),
+                // so a position is legal if at least one orientation hits something.
                 return Matches(PatternShapes.Line(size, horizontal: true), info.Cells, board, position)
                        || Matches(PatternShapes.Line(size, horizontal: false), info.Cells, board, position);
             case AgentCardCatalog.ShapeSingle:

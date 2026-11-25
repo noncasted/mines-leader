@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Утилиты для анализа доски при использовании карт.
-/// Все методы берут данные из IBotContext через конструктор.
+/// Utilities for board analysis when using cards.
+/// All methods take data from IBotContext through the constructor.
 /// </summary>
 public class BotBoardUtils
 {

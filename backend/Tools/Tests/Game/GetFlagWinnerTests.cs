@@ -361,8 +361,8 @@ public class GetFlagWinnerTests
     [Fact]
     public void DetonatedMine_RemainingMinesFlagged_ReturnsWinnerId()
     {
-        // Подорванная мина стала Free и с поля исчезла. Оставшиеся мины отмечены —
-        // доска считается зачищенной, победа по флагам засчитывается.
+        // The blown-up mine became Free and disappeared from the field. The remaining mines are marked,
+        // so the board counts as cleared and the flag victory is awarded.
         var (board1, _) = BoardParser.Parse("""
                                             f f f f _
                                             t t t t t
@@ -392,7 +392,7 @@ public class GetFlagWinnerTests
     [Fact]
     public void AllMinesFlagged_NoDetonations_ReturnsWinnerId()
     {
-        // Все мины на поле отмечены флагами, взрывов не было.
+        // All mines on the field are marked with flags, no explosions happened.
         var (board1, _) = BoardParser.Parse("""
                                             f f f f f
                                             t t t t t

@@ -5,8 +5,8 @@ namespace Game.GamePlay;
 public static class BotProvenSafeCells
 {
     /// <summary>
-    /// Все клетки, безопасность которых доказана ограничениями.
-    /// Порядок перемешан, чтобы при равном каскаде бот не ходил всегда в один и тот же угол.
+    /// All cells whose safety is proven by the constraints.
+    /// The order is shuffled so that on an equal cascade the bot does not always go to the same corner.
     /// </summary>
     public static List<Position> Collect(IBoard board, int depth)
     {

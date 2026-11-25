@@ -103,7 +103,7 @@ public class AgentLegalPlaysBuilderTests
     [MemberData(nameof(PositionCardTypes))]
     public void EveryPositionCard_HalfOpenBoards_HasCellsAndNoError(CardType type)
     {
-        // Левая половина открыта, правая закрыта: и Taken-, и Free-правила находят клетки.
+        // The left half is open, the right is closed: both Taken and Free rules find cells.
         var fixture = CreateFixture(
             selfTypes: [type],
             selfBoard: HalfOpenBoard(8),
@@ -135,7 +135,7 @@ public class AgentLegalPlaysBuilderTests
     [Fact]
     public void Trebuchet_OpponentBoardGenerated_TargetsOpenCells()
     {
-        // Trebuchet.Use берёт SelectFree: закрывает открытые клетки врага и ставит мины.
+        // Trebuchet.Use takes SelectFree: it closes the enemy's open cells and places mines.
         var fixture = CreateFixture(selfTypes: [CardType.Trebuchet], opponentBoard: HalfOpenBoard(8));
 
         var response = Build(fixture);
@@ -143,7 +143,7 @@ public class AgentLegalPlaysBuilderTests
 
         card.Error.Should().BeEmpty();
         card.Cells.Should().NotBeEmpty();
-        // Центр ромба 4 накрывает x-2..x+1: у клеток с x >= 6 в ромбе нет открытых клеток (x < 4).
+        // The center of diamond 4 covers x-2..x+1: for cells with x >= 6 the diamond has no open cells (x < 4).
         card.Cells.Should().NotContain(cell => cell.X >= 6);
     }
 
@@ -176,8 +176,8 @@ public class AgentLegalPlaysBuilderTests
     [Fact]
     public void MinefieldScout_LegalWhenEitherOrientationHitsClosedCells()
     {
-        // Открыто всё, кроме строки y = 3. Размер линии в конфиге 4..5: от (0, 2) вертикаль
-        // задевает (0, 3), горизонталь нет. От (0, 0) ни одна ориентация до строки 3 не дотягивается.
+        // Everything is open except row y = 3. The line size in the config is 4..5: from (0, 2) the vertical
+        // touches (0, 3), the horizontal does not. From (0, 0) neither orientation reaches row 3.
         var free = new List<(int x, int y)>();
         for (var y = 0; y < 7; y++)
         {
@@ -337,7 +337,7 @@ public class AgentLegalPlaysBuilderTests
         health.SetMax(new MoveSnapshot(), 3);
         health.SetCurrent(new MoveSnapshot(), 3);
 
-        // Маны с запасом: тесты проверяют клетки и формы, а не бюджет.
+        // Plenty of mana: the tests check cells and shapes, not the budget.
         var mana = new Mana(modifiers);
         mana.SetMax(new MoveSnapshot(), 99);
         mana.SetCurrent(new MoveSnapshot(), 99);

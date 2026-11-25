@@ -14,15 +14,15 @@ public interface IBoard
     Position Size { get; }
 
     /// <summary>
-    /// Доска существует только после первого хода владельца: до генерации клеток нет,
-    /// и играть по ней карты нельзя.
+    /// The board exists only after the owner's first move: there are no cells before generation,
+    /// and cards cannot be played on it.
     /// </summary>
     bool IsGenerated { get; }
 
     /// <summary>
-    /// Мины, подорванные владельцем доски при открытии клетки. Клетка становится Free,
-    /// мина с поля исчезает. На победу по флагам не влияет: важно только состояние
-    /// оставшихся Taken-клеток. HP = 0 проверяется отдельно.
+    /// Mines blown up by the board owner when opening a cell. The cell becomes Free,
+    /// the mine disappears from the field. Does not affect the flag victory: only the state of
+    /// the remaining Taken cells matters. HP = 0 is checked separately.
     /// </summary>
     int DetonatedMines { get; }
 

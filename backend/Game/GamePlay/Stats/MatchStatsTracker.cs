@@ -4,8 +4,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Копит статистику каждого игрока за матч. После завершения матча собранные
-/// дельты уходят в грейн ачивок соответствующего пользователя.
+/// Accumulates each player's stats for the match. After the match ends the collected
+/// deltas go to the achievements grain of the corresponding user.
 /// </summary>
 public interface IMatchStatsTracker
 {
@@ -13,7 +13,7 @@ public interface IMatchStatsTracker
 
     void AddCardPlayed(Guid userId, CardGroup group);
 
-    /// <summary>Забирает накопленные статы и очищает трекер — на реванше счёт начинается заново.</summary>
+    /// <summary>Takes the accumulated stats and clears the tracker: on a rematch the count starts over.</summary>
     Dictionary<Guid, UserStatsDelta> Collect();
 }
 

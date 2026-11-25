@@ -46,7 +46,7 @@ public class MovesModifierTests
     }
 
     /// <summary>
-    /// Дебафф режет потолок, а не уже доступный ход: при 4 из 5 после -1 остаётся 4 из 4.
+    /// A debuff cuts the ceiling, not an already available move: at 4 of 5 after -1 it stays 4 of 4.
     /// </summary>
     [Fact]
     public void NegativeModifier_OnlyCapsThePool_WhenThereIsSlack()

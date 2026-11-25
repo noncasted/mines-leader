@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Сифона (Siphon) - снимает ману у противника.
-/// Высокий приоритет когда у противника много маны.
+/// Siphon strategy - drains mana from the opponent.
+/// High priority when the opponent has a lot of mana.
 /// </summary>
 public class SiphonStrategy : IBotCardStrategy
 {

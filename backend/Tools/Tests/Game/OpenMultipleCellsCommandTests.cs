@@ -11,8 +11,8 @@ using Xunit;
 namespace Tests.Game;
 
 /// <summary>
-/// Аккорд списывает ход только когда реально что-то открывает. Пустой аккорд
-/// (все соседи открыты или под флагами) и аккорд с несовпавшими флагами — отказ без хода.
+/// A chord spends a move only when it actually opens something. An empty chord
+/// (all neighbors open or under flags) and a chord with mismatched flags are refused without a move.
 /// </summary>
 public class OpenMultipleCellsCommandTests
 {

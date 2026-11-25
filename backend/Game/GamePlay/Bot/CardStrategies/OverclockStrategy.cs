@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Разгона (Overclock) - добавляет 2 хода.
-/// Высокий приоритет в начале хода когда ходов достаточно для комбо.
+/// Overclock strategy - adds 2 moves.
+/// High priority at the start of a turn when there are enough moves for a combo.
 /// </summary>
 public class OverclockStrategy : IBotCardStrategy
 {

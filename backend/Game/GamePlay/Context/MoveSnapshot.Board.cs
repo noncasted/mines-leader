@@ -60,8 +60,8 @@ public partial class MoveSnapshot
     }
 
     /// <summary>
-    /// Подорванные мины входят в общее число: их уже нет на поле, но флагом они не закрыты,
-    /// поэтому счётчик оставшихся мин обязан их показывать.
+    /// Blown-up mines count in the total: they are gone from the field but not covered by a flag,
+    /// so the remaining-mines counter must show them.
     /// </summary>
     public void RecordBoardStateUpdate(IBoard board)
     {

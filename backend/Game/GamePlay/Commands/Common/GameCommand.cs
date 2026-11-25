@@ -48,8 +48,8 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
                 Utils.Logger.LogError(e, "[Game] [Command] Error executing command {CommandName} for player {PlayerId}",
                     request.GetType().Name, player.User.Id);
 
-                // Агент ждёт кадр наблюдения после каждой команды; без публикации он получает
-                // "Timed out waiting for observation" вместо текста ошибки.
+                // The agent waits for an observation frame after every command; without publishing it gets
+                // "Timed out waiting for observation" instead of the error text.
                 var failed = EmptyResponse.Fail("An error occurred while processing the command.");
                 Utils.ObservationPublisher?.Publish(player.User.Id, "action", true, failed.Message, RequestOracle);
                 return failed;
@@ -81,9 +81,9 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
     protected abstract EmptyResponse Execute(Context context, TRequest request);
 
     /// <summary>
-    /// Очередь хода для действий на доске и карт. В пошаговом режиме CurrentPlayer задан,
-    /// в реальном времени он null и очередь не проверяется. Раньше действие вне хода
-    /// доходило до Moves.OnUsed, падало с исключением и уходило клиенту как
+    /// Turn queue for board actions and cards. In turn-based mode CurrentPlayer is set,
+    /// in real time it is null and the queue is not checked. Previously an action out of turn
+    /// reached Moves.OnUsed, threw an exception and went to the client as
     /// "An error occurred while processing the command".
     /// </summary>
     protected EmptyResponse? RequireOwnTurn(Context context)
@@ -97,8 +97,8 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
     }
 
     /// <summary>
-    /// Очередь хода плюс остаток ходов: open и chord стоят ход, без него отказ до
-    /// любых побочных эффектов (генерация доски, лог, урон).
+    /// Turn queue plus remaining moves: open and chord cost a move, without one the action is refused before
+    /// any side effects (board generation, log, damage).
     /// </summary>
     protected EmptyResponse? RequireMove(Context context)
     {

@@ -44,8 +44,8 @@ public class MirrorMatch : ICard<CardUsePayload.MirrorMatch>
 
         var copiedType = lastCard.Value;
 
-        // Скопированная атака бьёт уже по доске оппонента: если её ещё нет, карта
-        // сгенерировала бы поле за него.
+        // The copied attack hits the opponent's board: if it does not exist yet, the card
+        // would generate the field for them.
         if (_configs.Value.All.TryGetValue(copiedType, out var copiedConfig) == true &&
             copiedConfig.Target == CardTarget.OpponentBoard &&
             opponent.Board.IsGenerated == false)

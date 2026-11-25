@@ -3,8 +3,8 @@ using Shared;
 namespace Game.GamePlay;
 
 /// <summary>
-/// Стратегия Печенья с предсказанием (FortuneCookie) - раскрывает позиции мин на своей доске.
-/// Фиксированный приоритет 4.
+/// FortuneCookie strategy - reveals mine positions on its own board.
+/// Fixed priority 4.
 /// </summary>
 public class FortuneCookieStrategy : IBotCardStrategy
 {

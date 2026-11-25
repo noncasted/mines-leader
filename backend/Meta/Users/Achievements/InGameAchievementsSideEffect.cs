@@ -3,8 +3,8 @@ using Infrastructure;
 namespace Meta.Users;
 
 /// <summary>
-/// Пересчитывает ачивки игрока. Регистрируется грейном <see cref="IUserStats"/>
-/// после того, как статы обновились.
+/// Recalculates the player's achievements. Registered by the <see cref="IUserStats"/> grain
+/// after the stats are updated.
 /// </summary>
 [GenerateSerializer]
 public class InGameAchievementsSideEffect : ITransactionalSideEffect
