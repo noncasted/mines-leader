@@ -215,11 +215,7 @@ namespace GamePlay.Services
             public void Execute(BoardSnapshotRecord.EffectAdded record)
             {
                 var vector = record.Position.ToVector();
-
-                if (_board.Cells[vector] is CellView cellView)
-                {
-                    cellView.Effects.AddEffect(record.EffectId, record.Type);
-                }
+                _board.Cells[vector].Effects.Add(record.EffectId, record.Type);
             }
         }
 
@@ -235,11 +231,7 @@ namespace GamePlay.Services
             public void Execute(BoardSnapshotRecord.EffectRemoved record)
             {
                 var vector = record.Position.ToVector();
-
-                if (_board.Cells[vector] is CellView cellView)
-                {
-                    cellView.Effects.RemoveEffect(record.EffectId);
-                }
+                _board.Cells[vector].Effects.Remove(record.EffectId);
             }
         }
     }

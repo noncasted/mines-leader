@@ -1,19 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Internal;
 using Shared;
 using UnityEngine;
 
 namespace GamePlay.Boards.Effects
 {
+    public interface ICellEffects
+    {
+        IReadOnlyCollection<CellEffectType> Active { get; }
+
+        void Add(Guid effectId, CellEffectType type);
+        void Remove(Guid effectId);
+    }
+
     [DisallowMultipleComponent]
-    public class CellEffects : MonoBehaviour
+    public class CellEffects : MonoBehaviour, ICellEffects
     {
         [SerializeField] private Dictionary<CellEffectType, CellEffect> _effects;
 
         private static readonly ILog _log = Logs.Of<CellEffects>();
 
-        private readonly Dictionary<Guid, ILifetime> _active = new();
+        private readonly Dictionary<Guid, ActiveEffect> _active = new();
+
+        public IReadOnlyCollection<CellEffectType> Active => _active.Values.Select(effect => effect.Type).ToArray();
 
         private void Awake()
         {
@@ -21,32 +32,55 @@ namespace GamePlay.Boards.Effects
                 effect.gameObject.SetActive(false);
         }
 
-        public void AddEffect(Guid effectId, CellEffectType cellEffectType)
+        public void Add(Guid effectId, CellEffectType type)
         {
-            if (_effects.TryGetValue(cellEffectType, out var effect) == false)
+            // One card play gives one effect id to a set of distinct cells, so a cell never gets the same id twice
+            // while it is active: a repeat means a broken sync.
+            if (_active.ContainsKey(effectId) == true)
             {
-                _log.Warning("Missing effect prefab for {Type}", cellEffectType);
+                throw new InvalidOperationException(
+                    $"Effect {effectId} ({type}) is already active on cell {transform.parent.name}");
+            }
+
+            if (_effects.TryGetValue(type, out var effect) == false)
+            {
+                _log.Warning("Missing effect prefab for {Type}", type);
                 return;
             }
 
             var lifetime = this.GetObjectLifetime().Child();
-            _active[effectId] = lifetime;
+            _active.Add(effectId, new ActiveEffect(type, lifetime));
             effect.Activate(lifetime);
         }
 
-        public void RemoveEffect(Guid effectId)
+        public void Remove(Guid effectId)
         {
-            if (_active.TryGetValue(effectId, out var lifetime))
-            {
-                lifetime.Terminate();
-                _active.Remove(effectId);
-            }
+            // A change of the cell status clears its effects, and the server still sends the removal
+            // of the effect for every cell it was put on, so an unknown id is expected here.
+            if (_active.Remove(effectId, out var active) == false)
+                return;
+
+            active.Lifetime.Terminate();
         }
 
         public void Clear()
         {
-            foreach (var (_, lifetime) in _active)
-                lifetime.Terminate();
+            foreach (var (_, active) in _active)
+                active.Lifetime.Terminate();
+
+            _active.Clear();
+        }
+
+        private readonly struct ActiveEffect
+        {
+            public ActiveEffect(CellEffectType type, ILifetime lifetime)
+            {
+                Type = type;
+                Lifetime = lifetime;
+            }
+
+            public CellEffectType Type { get; }
+            public ILifetime Lifetime { get; }
         }
     }
 }

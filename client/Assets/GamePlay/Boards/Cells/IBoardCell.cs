@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using GamePlay.Boards.Effects;
 using Internal;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ namespace GamePlay.Boards
         ICellPointerHandler PointerHandler { get; }
         IBoard Source { get; }
         ICellSelectionView Selection { get; }
+        ICellVisuals Visuals { get; }
+        ICellEffects Effects { get; }
 
         ICellTakenState EnsureTaken();
         ICellFreeState EnsureFree();

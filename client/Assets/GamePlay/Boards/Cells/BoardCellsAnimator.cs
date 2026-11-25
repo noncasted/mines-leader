@@ -34,8 +34,7 @@ namespace GamePlay.Boards
                 if (board.Cells.TryGetValue(vector, out var cell) == false)
                     continue;
 
-                if (cell is CellView cellView)
-                    tasks.Add(cellView.Visuals.PlaySelection(lifetime));
+                tasks.Add(cell.Visuals.PlaySelection(lifetime));
             }
 
             if (tasks.Count > 0)
@@ -57,8 +56,7 @@ namespace GamePlay.Boards
                 if (board.Cells.TryGetValue(vector, out var cell) == false)
                     continue;
 
-                if (cell is CellView cellView)
-                    tasks.Add(cellView.Visuals.PlayCellAction(lifetime));
+                tasks.Add(cell.Visuals.PlayCellAction(lifetime));
             }
 
             if (tasks.Count > 0)
@@ -93,8 +91,7 @@ namespace GamePlay.Boards
             if (board.Cells.TryGetValue(vector, out var cell) == false)
                 return;
 
-            if (cell is CellView cellView)
-                cellView.Effects.AddEffect(effectId, type);
+            cell.Effects.Add(effectId, type);
         }
 
         public void FlagCell(Guid targetPlayer, Position position)

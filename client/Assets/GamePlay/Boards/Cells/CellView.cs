@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards.Effects;
 using Internal;
@@ -32,8 +33,8 @@ namespace GamePlay.Boards
         public ICellPointerHandler PointerHandler => _pointerHandler;
         public IBoard Source => _board;
         public ICellSelectionView Selection => _selection;
-        public CellVisuals Visuals => _visuals;
-        public CellEffects Effects => _effects;
+        public ICellVisuals Visuals => _visuals;
+        public ICellEffects Effects => _effects;
 
         public bool IsAnimating => AnimatorKind != null;
 
@@ -61,7 +62,7 @@ namespace GamePlay.Boards
                 Active = isActiveAndEnabled,
                 Flagged = false,
                 MinesAround = null,
-                Effects = new System.Collections.Generic.List<string>(),
+                Effects = _effects.Active.Select(type => type.ToString()).ToList(),
                 Animator = AnimatorKind
             };
 
@@ -101,7 +102,7 @@ namespace GamePlay.Boards
         {
             if (_state.Value is not CellTakenState)
             {
-                Effects.Clear();
+                _effects.Clear();
 
                 var taken = new CellTakenState(this, _takenView, _actions);
                 _state.Set(taken);
@@ -115,7 +116,7 @@ namespace GamePlay.Boards
         {
             if (_state.Value is not CellFreeState)
             {
-                Effects.Clear();
+                _effects.Clear();
 
                 _cellAnimator.PlayOpen(this.GetObjectLifetime()).Forget();
                 var free = new CellFreeState(_boardPosition, _freeView);
@@ -140,6 +141,7 @@ namespace GamePlay.Boards
 
         public void ResetState()
         {
+            _effects.Clear();
             _state.Set(null);
         }
 

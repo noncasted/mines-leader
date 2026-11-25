@@ -4,8 +4,14 @@ using UnityEngine;
 
 namespace GamePlay.Boards
 {
+    public interface ICellVisuals
+    {
+        UniTask PlaySelection(IReadOnlyLifetime lifetime);
+        UniTask PlayCellAction(IReadOnlyLifetime lifetime);
+    }
+
     [DisallowMultipleComponent]
-    public class CellVisuals : MonoBehaviour, ISpriteAnimationRenderer
+    public class CellVisuals : MonoBehaviour, ICellVisuals, ISpriteAnimationRenderer
     {
         [SerializeField] private SpriteRenderer _renderer;
 
