@@ -153,6 +153,9 @@ game (`client/Assets`, `shared`, `backend`) and `tools/framework`.
   and `client/.editorconfig` (client, `root = true`), now `FWR004`, `FWR005` = error, `FWR001`, `FWR002`, `FWR003`,
   `FWR006` = warning. They act only in `dotnet build`: the Unity compile reads no `.editorconfig` and shows every FWR
   rule as a warning in the console, an error rule does not stop the editor - the gate is `run-tests.sh` and CI.
+  The backend build gets the dll from `backend/Directory.Build.props` and `shared/shared.csproj` (the props do not
+  reach `shared/`); the framework projects of `backend.slnx` (`tools/framework/backend`) are not analysed by the
+  game, the client build covers the client, shared and common sources of the framework.
 - **Raising a rule to error**: when the warnings of a rule in the code of the game reach 0 in the report (both
   builds), set `dotnet_diagnostic.FWRxxx.severity = error` in both `.editorconfig` and `client/.editorconfig`, run
   `tools/scripts/run-tests.sh` and commit the two files. Findings left only in `tools/framework` block it too: the

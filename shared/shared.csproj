@@ -27,6 +27,12 @@
         <ProjectReference Include="..\tools\framework\common\framework.common.csproj"/>
     </ItemGroup>
 
+    <!-- Framework.Analyzers (FWR rules, severities in the root .editorconfig): backend/Directory.Build.props does not reach this
+         folder, so the backend build of shared needs its own reference; the Unity compile takes the dll from its .meta. -->
+    <ItemGroup>
+        <Analyzer Include="..\tools\framework\client\core\Analyzers\Framework.Analyzers.dll"/>
+    </ItemGroup>
+
     <ItemGroup>
         <EditorConfigFiles Remove="Backend\.editorconfig"/>
         <EditorConfigFiles Remove="Domain\.editorconfig"/>

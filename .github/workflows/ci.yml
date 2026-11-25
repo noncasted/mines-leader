@@ -59,7 +59,8 @@ jobs:
         run: tools/scripts/check-format.sh --backend
 
       # Fails on the Framework.Analyzers rules with severity error in .editorconfig (FWR004, FWR005): the
-      # analyzer dll comes from the submodule checked out above (backend/Directory.Build.props).
+      # analyzer dll comes from the submodule checked out above (backend/Directory.Build.props,
+      # shared/shared.csproj).
       - name: Build backend
         run: dotnet build backend/backend.slnx
 
