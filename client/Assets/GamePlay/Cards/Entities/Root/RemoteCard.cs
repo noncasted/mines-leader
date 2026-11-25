@@ -20,8 +20,10 @@ namespace GamePlay.Cards
             ICardStash stash,
             ICardDropped dropped,
             ICardDefinition definition,
-            ICardRevealView revealView)
+            ICardRevealView revealView,
+            ILog<RemoteCard> log)
         {
+            _log = log;
             Id = id;
             _view = view;
             _containerLifetime = containerLifetime;
@@ -36,6 +38,7 @@ namespace GamePlay.Cards
             _revealView = revealView;
         }
 
+        private readonly ILog _log;
         private readonly ICardView _view;
         private readonly ILifetime _containerLifetime;
         private readonly ICardRemoteDrop _drop;
@@ -65,7 +68,7 @@ namespace GamePlay.Cards
 
         public UniTask Destroy()
         {
-            Debug.Log($"[Game] [Card] Destroying remote card with ID: {Id}");
+            _log.Debug("Destroying remote card with ID: {Id}", Id);
             _containerLifetime.Terminate();
             _view.Destroy();
 

@@ -35,6 +35,7 @@ namespace Menu.Unlocks
         private ICardDescriptionProvider _descriptions;
         private ICardConfigs _configs;
         private IUIStateMachine _stateMachine;
+        private ILog _log;
         private IAchievementTier _tier;
         private bool _isOpen;
 
@@ -46,8 +47,10 @@ namespace Menu.Unlocks
             ICardsRegistry cards,
             ICardDescriptionProvider descriptions,
             ICardConfigs configs,
-            IUIStateMachine stateMachine)
+            IUIStateMachine stateMachine,
+            ILog<MenuUnlockSelection> log)
         {
+            _log = log;
             _rewards = rewards;
             _cards = cards;
             _descriptions = descriptions;
@@ -102,14 +105,14 @@ namespace Menu.Unlocks
             // Запрос не дошёл: держать окно в загрузке бессмысленно, закрываем — тир останется незабранным.
             if (options == null)
             {
-                Debug.LogError($"[MenuUnlockSelection] Failed to load rewards for {_tier.Type} tier {_tier.Tier}");
+                _log.Error("Failed to load rewards for {Type} tier {Tier}", _tier.Type, _tier.Tier);
                 return;
             }
 
             // Выйти без выбора нельзя, поэтому пустой пул — единственный способ закрыть окно без карты.
             if (options.Count == 0)
             {
-                Debug.Log($"[MenuUnlockSelection] No cards left for {_tier.Type} tier {_tier.Tier}");
+                _log.Info("No cards left for {Type} tier {Tier}", _tier.Type, _tier.Tier);
                 return;
             }
 
@@ -160,7 +163,7 @@ namespace Menu.Unlocks
             catch (Exception e)
             {
                 // Claim вызывается через Forget, и без перехвата окно навсегда осталось бы в "Unlocking...".
-                Debug.LogError($"[MenuUnlockSelection] Claim failed: {e}");
+                _log.Error(e, "Claim failed");
             }
 
             if (lifetime.IsTerminated == true)

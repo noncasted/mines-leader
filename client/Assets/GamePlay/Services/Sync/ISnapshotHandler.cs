@@ -27,6 +27,8 @@ namespace GamePlay.Services
 
         public class Resolver<T> where T : IMoveSnapshotRecord
         {
+            private static readonly ILog _log = Logs.Of<Resolver<T>>();
+
             public Resolver(ISnapshotReceiver receiver, ISnapshotHandler<T> handler)
             {
                 _handler = handler;
@@ -45,7 +47,7 @@ namespace GamePlay.Services
                         nameof(moveRecord));
                 }
 
-                Debug.Log($"[Snapshot] Handling record of type {typeof(T).Name}.");
+                _log.Debug("Handling record of type {Type}.", typeof(T).Name);
 
                 return _handler.Handle(record);
             }

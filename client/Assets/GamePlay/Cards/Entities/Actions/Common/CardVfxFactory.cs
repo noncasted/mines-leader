@@ -13,11 +13,13 @@ namespace GamePlay.Cards
     {
         private int _index;
         private IViewInjector _viewInjector;
+        private ILog _log;
 
         [Inject]
-        internal void Construct(IViewInjector viewInjector)
+        internal void Construct(IViewInjector viewInjector, ILog<CardVfxFactory> log)
         {
             _viewInjector = viewInjector;
+            _log = log;
         }
 
         public void Create(IScopeBuilder builder)
@@ -30,7 +32,7 @@ namespace GamePlay.Cards
         {
             if (prefab == null)
             {
-                Debug.LogError("Prefab is null. Cannot create VFX.");
+                _log.Error("Prefab is null. Cannot create VFX.");
                 return null;
             }
 

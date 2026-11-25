@@ -32,13 +32,16 @@ namespace Meta
         public Matchmaking(
             IMetaBackend backend,
             IMetaConnection metaConnection,
-            IBackendProjection<SharedMatchmaking.MatchResult> gameResultProjection)
+            IBackendProjection<SharedMatchmaking.MatchResult> gameResultProjection,
+            ILog<Matchmaking> log)
         {
+            _log = log;
             _backend = backend;
             _metaConnection = metaConnection;
             _gameResultProjection = gameResultProjection;
         }
 
+        private readonly ILog _log;
         private readonly IMetaBackend _backend;
         private readonly IMetaConnection _metaConnection;
         private readonly IBackendProjection<SharedMatchmaking.MatchResult> _gameResultProjection;
@@ -79,8 +82,8 @@ namespace Meta
             {
                 if (result.RequestId != requestId)
                 {
-                    Debug.LogWarning($"[Matchmaking] Ignored the {result.Status} result of search {result.RequestId}: "
-                                     + $"waiting for search {requestId}");
+                    _log.Warning("Ignored the {Status} result of search {RequestId}: waiting for search {Expected}",
+                        result.Status, result.RequestId, requestId);
                     return;
                 }
 

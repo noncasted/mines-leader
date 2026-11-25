@@ -38,14 +38,17 @@ namespace Meta
             NetworkConnection connection,
             IBackendClient client,
             IReadOnlyLifetime lifetime,
-            BackendOptions options)
+            BackendOptions options,
+            ILog<MetaBackend> log)
         {
+            _log = log;
             _options = options;
             _connection = connection;
             Client = client;
             Lifetime = lifetime;
         }
 
+        private readonly ILog _log;
         private readonly BackendOptions _options;
         private readonly NetworkConnection _connection;
 
@@ -61,7 +64,10 @@ namespace Meta
             IReadOnlyLifetime lifetime,
             SharedBackendSocketAuth.Request auth)
         {
-            Debug.Log("[Meta] Connecting to backend as: " + (auth.GuestId == Guid.Empty ? "new guest" : $"guest {auth.GuestId}"));
+            if (auth.GuestId == Guid.Empty)
+                _log.Info("Connecting to backend as a new guest");
+            else
+                _log.Info("Connecting to backend as guest {GuestId}", auth.GuestId);
 
             // Коннект идёт параллельно загрузке меню: отрезок на стек не встаёт, иначе чужие этапы
             // вложились бы в ожидание сокета. Текущим он делается только на синхронном прологе,

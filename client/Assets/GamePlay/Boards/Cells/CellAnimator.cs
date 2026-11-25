@@ -8,6 +8,8 @@ namespace GamePlay.Boards
     [DisallowMultipleComponent]
     public class CellAnimator : MonoBehaviour, ISpriteAnimationRenderer
     {
+        private static readonly ILog _log = Logs.Of<CellAnimator>();
+
         [SerializeField] private SpriteRenderer _renderer;
 
         private ForwardSpriteAnimation _mineExplosion;
@@ -53,7 +55,7 @@ namespace GamePlay.Boards
 
         public async UniTask PlayExplosion(IReadOnlyLifetime lifetime, CellExplosionType type)
         {
-            Debug.Log("Explode");
+            _log.Debug("Explode {Type}", type);
             ForwardSpriteAnimation anim = type switch
             {
                 CellExplosionType.ZipZap => _zipZapExplosion,

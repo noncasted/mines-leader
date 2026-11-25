@@ -10,12 +10,17 @@ namespace GamePlay.Services
 {
     public class CardsStashedSnapshotHandler : ISnapshotHandler<PlayerSnapshotRecord.CardsStashed>
     {
-        public CardsStashedSnapshotHandler(IGameContext gameContext, IAudioPlayer audioPlayer)
+        public CardsStashedSnapshotHandler(
+            IGameContext gameContext,
+            IAudioPlayer audioPlayer,
+            ILog<CardsStashedSnapshotHandler> log)
         {
+            _log = log;
             _gameContext = gameContext;
             _audioPlayer = audioPlayer;
         }
 
+        private readonly ILog _log;
         private readonly IGameContext _gameContext;
         private readonly IAudioPlayer _audioPlayer;
 
@@ -24,7 +29,7 @@ namespace GamePlay.Services
             var player = _gameContext.GetPlayer(record.PlayerId);
             var cards = player.Table.Collect();
 
-            Debug.Log($"Handling stash snapshot for player {record.PlayerId}, cards {cards.Count}");
+            _log.Debug("Handling stash snapshot for player {PlayerId}, cards {Count}", record.PlayerId, cards.Count);
 
             foreach (var card in cards)
                 StashThenDestroy(card).NoAwait();

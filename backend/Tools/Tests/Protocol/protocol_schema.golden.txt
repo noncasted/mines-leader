@@ -296,7 +296,7 @@ type Shared.SharedBoardSnapshot BoardOwnerId:System.Guid,Records:System.Collecti
 type Shared.SharedClientTelemetry+Batch SessionId:System.Guid,Names:Shared.SharedClientTelemetry+MetricName[],Samples:Shared.SharedClientTelemetry+Sample[],Errors:Shared.SharedClientTelemetry+Error[],Marks:Shared.SharedClientTelemetry+Mark[]
 type Shared.SharedClientTelemetry+BatchResult Enabled:System.Boolean
 type Shared.SharedClientTelemetry+Device Platform:System.String,BuildVersion:System.String,Browser:System.String,BrowserMajor:System.Int32,Os:System.String,OsMajor:System.Int32,Gpu:System.String,Cores:System.Int32,MemoryClass:System.Double,ScreenWidth:System.Int32,ScreenHeight:System.Int32,Dpr:System.Double
-type Shared.SharedClientTelemetry+Error Time:System.Int64,Level:Shared.SharedClientTelemetry+ErrorLevel,Message:System.String,Stack:System.String,Repeat:System.Int32
+type Shared.SharedClientTelemetry+Error Time:System.Int64,Level:Shared.SharedClientTelemetry+ErrorLevel,Message:System.String,Stack:System.String,Repeat:System.Int32,Category:System.String
 type Shared.SharedClientTelemetry+Mark Time:System.Int64,Name:System.String,Detail:System.String,DurationMs:System.Nullable<System.Int64>
 type Shared.SharedClientTelemetry+MetricName Name:System.String,Unit:System.String
 type Shared.SharedClientTelemetry+PreviousSession SessionId:System.Guid,Tags:System.String[],LastSampleTime:System.Int64,SinceMs:System.Int64,Marks:Shared.SharedClientTelemetry+Mark[],SampleNames:System.String[],Samples:Shared.SharedClientTelemetry+Sample[]

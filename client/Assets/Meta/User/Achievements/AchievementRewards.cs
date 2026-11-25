@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Internal;
 using Shared;
 using UnityEngine;
 
@@ -22,12 +23,14 @@ namespace Meta
 
     public class AchievementRewards : IAchievementRewards
     {
-        public AchievementRewards(IMetaBackend backend)
+        public AchievementRewards(IMetaBackend backend, ILog<AchievementRewards> log)
         {
             _backend = backend;
+            _log = log;
         }
 
         private readonly IMetaBackend _backend;
+        private readonly ILog _log;
 
         public async UniTask<IReadOnlyList<CardType>> GetOptions(IAchievementTier tier)
         {
@@ -39,7 +42,7 @@ namespace Meta
             }
             catch (Exception e) when (e is NetworkRequestException || e is TimeoutException || e is OperationCanceledException)
             {
-                Debug.LogException(e);
+                _log.Exception(e);
                 return null;
             }
         }

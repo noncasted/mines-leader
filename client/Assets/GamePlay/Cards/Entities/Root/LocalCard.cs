@@ -20,8 +20,10 @@ namespace GamePlay.Cards
             ICardDropped dropped,
             ICardView view,
             ICardDefinition definition,
-            ICardPointerHandler pointerHandler)
+            ICardPointerHandler pointerHandler,
+            ILog<LocalCard> log)
         {
+            _log = log;
             Id = id;
             Type = type;
             _containerLifetime = containerLifetime;
@@ -36,6 +38,7 @@ namespace GamePlay.Cards
             PointerHandler = pointerHandler;
         }
 
+        private readonly ILog _log;
         private readonly ILifetime _containerLifetime;
         private readonly ICardLocalDrop _drop;
         private readonly ICardStash _stash;
@@ -65,7 +68,7 @@ namespace GamePlay.Cards
 
         public UniTask Destroy()
         {
-            Debug.Log($"[Game] [Card] Destroying local card with ID: {Id}");
+            _log.Debug("Destroying local card with ID: {Id}", Id);
             _containerLifetime.Terminate();
             _view.Destroy();
 

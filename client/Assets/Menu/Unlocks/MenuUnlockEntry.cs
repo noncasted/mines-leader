@@ -10,6 +10,8 @@ namespace Menu.Unlocks
     [DisallowMultipleComponent]
     public class MenuUnlockEntry : MonoBehaviour
     {
+        private static readonly ILog _log = Logs.Of<MenuUnlockEntry>();
+
         [SerializeField] private GameObject _lock;
         [SerializeField] private TMP_Text _name;
         [SerializeField] private TMP_Text _counter;
@@ -43,7 +45,7 @@ namespace Menu.Unlocks
 
             if (Button == null)
             {
-                Debug.LogError($"[MenuUnlockEntry] {name} has no Button, unlock is not clickable");
+                _log.Error("{Name} has no Button, unlock is not clickable", name);
                 return;
             }
 

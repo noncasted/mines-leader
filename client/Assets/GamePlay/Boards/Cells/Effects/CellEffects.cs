@@ -11,6 +11,8 @@ namespace GamePlay.Boards.Effects
     {
         [SerializeField] private Dictionary<CellEffectType, CellEffect> _effects;
 
+        private static readonly ILog _log = Logs.Of<CellEffects>();
+
         private readonly Dictionary<Guid, ILifetime> _active = new();
 
         private void Awake()
@@ -23,7 +25,7 @@ namespace GamePlay.Boards.Effects
         {
             if (_effects.TryGetValue(cellEffectType, out var effect) == false)
             {
-                Debug.LogWarning($"[CellEffects] Missing effect prefab for {cellEffectType}");
+                _log.Warning("Missing effect prefab for {Type}", cellEffectType);
                 return;
             }
 

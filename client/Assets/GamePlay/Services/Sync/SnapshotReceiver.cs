@@ -14,6 +14,12 @@ namespace GamePlay.Services
 
     public class SnapshotReceiver : OneWayCommand<SharedMoveSnapshot>, ISnapshotReceiver, IReceivedSnapshots, IScopeSetup
     {
+        public SnapshotReceiver(ILog<SnapshotReceiver> log)
+        {
+            _log = log;
+        }
+
+        private readonly ILog _log;
         private readonly Dictionary<Type, Func<IMoveSnapshotRecord, UniTask>> _handlers = new();
         private readonly EventSource<SharedMoveSnapshot> _received = new();
         private readonly Queue<IMoveSnapshotRecord> _queue = new();
@@ -156,7 +162,7 @@ namespace GamePlay.Services
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Exception occurred while processing move snapshot records: {e}");
+                    _log.Error(e, "Exception occurred while processing move snapshot records");
                 }
             }
         }

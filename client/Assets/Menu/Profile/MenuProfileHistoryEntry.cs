@@ -13,6 +13,8 @@ namespace Menu.Profile
     [DisallowMultipleComponent]
     public class MenuProfileHistoryEntry : MonoBehaviour
     {
+        private static readonly ILog _log = Logs.Of<MenuProfileHistoryEntry>();
+
         [SerializeField] private TMP_Text _title;
         [SerializeField] private TMP_Text _result;
         [SerializeField] private Image _background;
@@ -44,7 +46,7 @@ namespace Menu.Profile
         {
             if (_button == null)
             {
-                Debug.LogError($"[MenuProfileHistoryEntry] {name} has no Button, match is not selectable");
+                _log.Error("{Name} has no Button, match is not selectable", name);
                 return;
             }
 

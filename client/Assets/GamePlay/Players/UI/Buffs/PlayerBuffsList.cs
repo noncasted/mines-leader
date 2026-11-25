@@ -11,6 +11,8 @@ namespace GamePlay.Players.Buffs
 {
     public class PlayerBuffsList : IUpdatable
     {
+        private static readonly ILog _log = Logs.Of<PlayerBuffsList>();
+
         public PlayerBuffsList(
             RectTransform container,
             PlayerBuffView viewPrefab,
@@ -51,13 +53,13 @@ namespace GamePlay.Players.Buffs
 
                 if (_modifiers.TryGet(overview.Key, out var definition) == false)
                 {
-                    Debug.LogWarning(
-                        $"[Buffs] No modifier definition for source key '{overview.Key}' " +
-                        $"({overview.Type}) — the icon will be empty. Add it to buffs-info.json.");
+                    _log.Warning(
+                        "No modifier definition for source key '{Key}' ({Type}) — the icon will be empty. Add it to buffs-info.json.",
+                        overview.Key, overview.Type);
                 }
 
-                Debug.Log($"[Buffs] {(_showOnRight ? "own" : "opponent")} add '{overview.Key}' " +
-                          $"value={overview.Value} turns={overview.TurnsToEnd}");
+                _log.Debug("{Side} add '{Key}' value={Value} turns={Turns}",
+                    _showOnRight ? "own" : "opponent", overview.Key, overview.Value, overview.TurnsToEnd);
 
                 var view = Object.Instantiate(_viewPrefab, _container);
                 view.Setup(overview, definition?.Image);

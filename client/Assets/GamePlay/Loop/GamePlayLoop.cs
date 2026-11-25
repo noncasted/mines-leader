@@ -24,8 +24,10 @@ namespace GamePlay.Loop
             IGameEnd gameEnd,
             IEventLoop eventLoop,
             IBoardsReveal boardsReveal,
-            GameServicesInitializer servicesInitializer)
+            GameServicesInitializer servicesInitializer,
+            ILog<GamePlayLoop> log)
         {
+            _log = log;
             _session = session;
             _gameContext = gameContext;
             _gameState = gameState;
@@ -36,6 +38,7 @@ namespace GamePlay.Loop
             _servicesInitializer = servicesInitializer;
         }
 
+        private readonly ILog _log;
         private readonly INetworkSession _session;
         private readonly INetworkConnection _connection;
         private readonly IGameContext _gameContext;
@@ -68,14 +71,14 @@ namespace GamePlay.Loop
             
             _servicesInitializer.Init(lifetime);
 
-            Debug.Log("[Game] All players connected. Starting the match...");
+            _log.Info("All players connected. Starting the match...");
             _connection.OneWay(new MatchActionContexts.PlayerReady());
             _gameState.Set(GameStateType.Active);
 
             var gameResult = await _gameState.WaitCompletion(lifetime);
             await _connection.ForceSendAll();
 
-            Debug.Log($"[Game] Match completed with result: {gameResult.Type}");
+            _log.Info("Match completed with result: {Result}", gameResult.Type);
 
             _gameState.Set(GameStateType.Completed);
 

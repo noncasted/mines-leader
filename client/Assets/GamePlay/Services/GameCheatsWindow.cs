@@ -16,6 +16,9 @@ namespace GamePlay.Services {
 
     [AutoStaticsCleanup]
     public static partial class GameCheatsBridge {
+        [NoAutoStaticsCleanup]
+        private static readonly ILog _log = Logs.Of(typeof(GameCheatsBridge));
+
         public static bool IsActive { get; set; }
 
         private static INetworkConnection _connection;
@@ -83,7 +86,7 @@ namespace GamePlay.Services {
 
         private static void Send(INetworkContext context) {
             if (_connection == null) {
-                Debug.LogWarning("[GameCheats] Not connected - start a game first");
+                _log.Warning("Not connected - start a game first");
                 return;
             }
 

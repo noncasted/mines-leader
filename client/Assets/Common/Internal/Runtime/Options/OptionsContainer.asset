@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _debug:
     _enableGizmos: 0
-    _enableLogs: 0
   _version:
     _value: 1.0.0
   _backend:
@@ -23,3 +22,8 @@ MonoBehaviour:
     _localApiUrl: http://localhost:7101
   _platform:
     _platform: 110
+  _logs:
+    _development: 1
+    _release: 2
+    _mark: 4
+    _rules: []

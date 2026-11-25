@@ -1,5 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using Internal;
 using Shared;
 using UnityEngine;
 
@@ -7,6 +8,8 @@ namespace Meta
 {
     public static class BackendEndpoints
     {
+        private static readonly ILog _log = Logs.Of(typeof(BackendEndpoints));
+
         // Queues the player; the result comes later as a MatchResult projection with this requestId.
         public static UniTask SearchGame(this IMetaBackend backend, GameMatchType type, Guid requestId)
         {
@@ -93,7 +96,7 @@ namespace Meta
 
             // A reward the rules refuse is EmptyResponse.Fail; a failed command throws (IConnectionWriter.WriteRequest).
             if (response.HasError == true)
-                Debug.LogError($"Claim achievement reward failed: {response.Message}");
+                _log.Error("Claim achievement reward failed: {Message}", response.Message);
 
             return response.HasError == false;
         }

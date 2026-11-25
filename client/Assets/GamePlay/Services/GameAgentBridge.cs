@@ -12,6 +12,9 @@ using UnityEngine;
 namespace GamePlay.Services {
     [AutoStaticsCleanup]
     public static partial class GameAgentBridge {
+        [NoAutoStaticsCleanup]
+        private static readonly ILog _log = Logs.Of(typeof(GameAgentBridge));
+
         public static bool IsActive { get; private set; }
         public static SharedAgentObservation LastObservation { get; private set; }
 
@@ -179,7 +182,7 @@ namespace GamePlay.Services {
                     new SharedAgentLegalPlaysRequest());
             }
             catch (Exception exception) {
-                Debug.LogError($"[GameAgent] Legal plays failed: {exception}");
+                _log.Error(exception, "Legal plays failed");
                 return new SharedAgentLegalPlaysResponse {
                     Cards = new List<AgentLegalCardView>()
                 };
@@ -331,7 +334,7 @@ namespace GamePlay.Services {
                 return null;
             }
             catch (Exception exception) {
-                Debug.LogError($"[GameAgent] Request failed: {exception}");
+                _log.Error(exception, "Request failed");
                 return ErrorObservation(exception.Message);
             }
         }

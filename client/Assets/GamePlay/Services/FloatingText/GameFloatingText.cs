@@ -27,13 +27,15 @@ namespace GamePlay.Services
         private AnimationCurve _size = AnimationCurve.Constant(0f, 1f, 1f);
 
         private IUpdater _updater;
+        private ILog _log;
 
         private int _index;
 
         [Inject]
-        public void Construct(IUpdater updater)
+        public void Construct(IUpdater updater, ILog<GameFloatingText> log)
         {
             _updater = updater;
+            _log = log;
         }
 
         public void Create(IScopeBuilder builder)
@@ -75,7 +77,7 @@ namespace GamePlay.Services
 
             if (prefab == null)
             {
-                Debug.LogError("Floating text prefab is not loaded");
+                _log.Error("Floating text prefab is not loaded");
                 return;
             }
 

@@ -8,6 +8,8 @@ namespace Internal
 {
     public static class CardIconsExporter
     {
+        private static readonly ILog _log = Logs.Of(typeof(CardIconsExporter));
+
         [Serializable]
         private class CardInfo
         {
@@ -31,7 +33,7 @@ namespace Internal
 
             if (!File.Exists(jsonPath))
             {
-                Debug.LogError($"[CardIconsExporter] cards-info.json not found at: {jsonPath}");
+                _log.Error("cards-info.json not found at: {Path}", jsonPath);
                 return;
             }
 
@@ -40,7 +42,7 @@ namespace Internal
 
             if (root?.cards == null || root.cards.Length == 0)
             {
-                Debug.LogWarning("[CardIconsExporter] No cards found in JSON.");
+                _log.Warning("No cards found in JSON.");
                 return;
             }
 
@@ -57,7 +59,7 @@ namespace Internal
             {
                 if (string.IsNullOrEmpty(card.icon))
                 {
-                    Debug.LogWarning($"[CardIconsExporter] Card '{card.type}' has no icon path.");
+                    _log.Warning("Card '{Type}' has no icon path.", card.type);
                     skipped++;
                     continue;
                 }
@@ -66,8 +68,7 @@ namespace Internal
 
                 if (string.IsNullOrEmpty(assetPath))
                 {
-                    Debug.LogWarning(
-                        $"[CardIconsExporter] Icon not found for card '{card.type}' (searched: {card.icon}).");
+                    _log.Warning("Icon not found for card '{Type}' (searched: {Icon}).", card.type, card.icon);
                     skipped++;
                     continue;
                 }
@@ -76,8 +77,7 @@ namespace Internal
 
                 if (sprite == null)
                 {
-                    Debug.LogWarning(
-                        $"[CardIconsExporter] Failed to load sprite for card '{card.type}' at: {assetPath}");
+                    _log.Warning("Failed to load sprite for card '{Type}' at: {Path}", card.type, assetPath);
                     skipped++;
                     continue;
                 }
@@ -91,7 +91,7 @@ namespace Internal
                 exported++;
             }
 
-            Debug.Log($"[CardIconsExporter] Done. Exported: {exported}, Skipped: {skipped}. Output: {outputDir}");
+            _log.Info("Done. Exported: {Exported}, Skipped: {Skipped}. Output: {Output}", exported, skipped, outputDir);
             AssetDatabase.Refresh();
         }
 

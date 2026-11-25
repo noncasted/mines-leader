@@ -20,6 +20,10 @@ namespace Flow.Mocks
         /// </summary>
         public const string FixturePrefsKey = "MinesLeader.GameMock.Fixture";
 
+#if UNITY_EDITOR
+        private static readonly ILog _log = Logs.Of<GameMock>();
+#endif
+
         [SerializeField] private GameMatchType _mode;
 
         public override async UniTask Process()
@@ -54,7 +58,7 @@ namespace Flow.Mocks
             if (string.IsNullOrEmpty(json))
                 return null;
 
-            Debug.Log($"[GameMock] Applying agent fixture: {json}");
+            _log.Info("Applying agent fixture: {Json}", json);
             return JsonConvert.DeserializeObject<AgentMatchFixture>(json, new StringEnumConverter());
 #else
             return null;

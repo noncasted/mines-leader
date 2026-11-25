@@ -14,13 +14,16 @@ namespace GamePlay.Services
         public CardActionSnapshotHandler(
             IReadOnlyLifetime lifetime,
             IGameContext gameContext,
-            IAudioPlayer audioPlayer)
+            IAudioPlayer audioPlayer,
+            ILog<CardActionSnapshotHandler> log)
         {
+            _log = log;
             _lifetime = lifetime;
             _gameContext = gameContext;
             _audioPlayer = audioPlayer;
         }
 
+        private readonly ILog _log;
         private readonly IReadOnlyLifetime _lifetime;
         private readonly IGameContext _gameContext;
         private readonly IAudioPlayer _audioPlayer;
@@ -30,8 +33,8 @@ namespace GamePlay.Services
             var player = _gameContext.GetPlayer(record.PlayerId);
             var card = player.Hand.Entries.First(t => t.Id == record.CardId)!;
 
-            Debug.Log(
-                $"Handling card action snapshot for player {record.PlayerId}, card {record.CardId}, data {record.Data}");
+            _log.Debug("Handling card action snapshot for player {PlayerId}, card {CardId}, data {Data}",
+                record.PlayerId, record.CardId, record.Data);
 
             Vector2? dropPosition = record.HasDropPosition
                 ? new Vector2(record.DropX, record.DropY)

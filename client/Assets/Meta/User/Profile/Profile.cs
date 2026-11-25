@@ -56,14 +56,17 @@ namespace Meta
             IMetaBackend backend,
             IBackendProjection<SharedBackendUser.ProfileProjection> profileProjection,
             IBackendProjection<SharedBackendUser.UserStatsProjection> statsProjection,
-            IBackendProjection<SharedBackendUser.RatingProjection> ratingProjection)
+            IBackendProjection<SharedBackendUser.RatingProjection> ratingProjection,
+            ILog<Profile> log)
         {
+            _log = log;
             _backend = backend;
             _profileProjection = profileProjection;
             _statsProjection = statsProjection;
             _ratingProjection = ratingProjection;
         }
 
+        private readonly ILog _log;
         private readonly IMetaBackend _backend;
         private readonly IBackendProjection<SharedBackendUser.ProfileProjection> _profileProjection;
         private readonly IBackendProjection<SharedBackendUser.UserStatsProjection> _statsProjection;
@@ -104,7 +107,7 @@ namespace Meta
 
             if (response?.Matches == null)
             {
-                Debug.LogError("[Profile] Match history request returned no data");
+                _log.Error("Match history request returned no data");
                 return Array.Empty<ProfileMatchEntry>();
             }
 
@@ -133,7 +136,7 @@ namespace Meta
 
             if (response == null)
             {
-                Debug.LogError($"[Profile] Match details request for {matchId} returned no data");
+                _log.Error("Match details request for {MatchId} returned no data", matchId);
                 return null;
             }
 

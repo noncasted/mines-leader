@@ -15,14 +15,17 @@ namespace GamePlay.Services
             IReadOnlyLifetime lifetime,
             IGameContext gameContext,
             CardFactory cardFactory,
-            IAudioPlayer audioPlayer)
+            IAudioPlayer audioPlayer,
+            ILog<CardAddSnapshotHandler> log)
         {
+            _log = log;
             _lifetime = lifetime;
             _gameContext = gameContext;
             _cardFactory = cardFactory;
             _audioPlayer = audioPlayer;
         }
 
+        private readonly ILog _log;
         private readonly IReadOnlyLifetime _lifetime;
         private readonly IGameContext _gameContext;
         private readonly CardFactory _cardFactory;
@@ -35,13 +38,13 @@ namespace GamePlay.Services
 
             if (record.IsStash == true)
             {
-                Debug.Log(
-                    $"Handling stash add snapshot for player {record.PlayerId}, card {record.CardId}, type {record.Type}");
+                _log.Debug("Handling stash add snapshot for player {PlayerId}, card {CardId}, type {Type}",
+                    record.PlayerId, record.CardId, record.Type);
                 return;
             }
 
-            Debug.Log(
-                $"Handling card add snapshot for player {record.PlayerId}, card {record.CardId}, type {record.Type}");
+            _log.Debug("Handling card add snapshot for player {PlayerId}, card {CardId}, type {Type}",
+                record.PlayerId, record.CardId, record.Type);
             _cardFactory.Create(_lifetime, isLocal, record.CardId, record.Type).Forget();
             _audioPlayer.PlayRandomFromGroup(GamePlayAudio.GameCardSpawn);
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f));

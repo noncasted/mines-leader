@@ -26,8 +26,10 @@ namespace Meta
             IReadOnlyList<IMetaRegistry> registries,
             IBackendProjection<SharedBackendUser.ProfileProjection> profile,
             IClientOutdatedNotice outdatedNotice,
-            IClientTelemetry telemetry)
+            IClientTelemetry telemetry,
+            ILog<MetaLoop> log)
         {
+            _log = log;
             _authentication = authentication;
             _backend = backend;
             _state = state;
@@ -44,6 +46,7 @@ namespace Meta
         // The server sends the projections right after the connect: none in this time - the connection is not alive.
         private static readonly TimeSpan ReceiveTimeout = TimeSpan.FromSeconds(20);
 
+        private readonly ILog _log;
         private readonly IAuthentication _authentication;
         private readonly IMetaBackend _backend;
         private readonly IMetaState _state;
@@ -121,7 +124,7 @@ namespace Meta
                 // editor: Project Tools > User).
                 catch (MetaAuthRejectedException exception) when (lifetime.IsTerminated == false)
                 {
-                    Debug.LogError($"[Meta] [Loop] The saved guest is refused, the meta connection is not retried: {exception.Status}");
+                    _log.Error("The saved guest is refused, the meta connection is not retried: {Status}", exception.Status);
                     return;
                 }
                 // The explicit retry: whatever fails here (no network, the socket lost, no projections) is tried
@@ -132,12 +135,12 @@ namespace Meta
                     // with the way to update covers the menu.
                     if (_outdatedNotice.IsShown == true)
                     {
-                        Debug.LogWarning("[Meta] [Loop] The client is outdated: the meta connection is not retried");
+                        _log.Warning("The client is outdated: the meta connection is not retried");
                         return;
                     }
 
-                    Debug.LogWarning($"[Meta] [Loop] Meta connection failed, next attempt in {RetryDelay.TotalSeconds} s: " +
-                                     $"{exception.GetType().Name} {exception.Message}");
+                    _log.Warning("Meta connection failed, next attempt in {Seconds} s: {Type} {Message}",
+                        RetryDelay.TotalSeconds, exception.GetType().Name, exception.Message);
                 }
 
                 await UniTask.Delay(RetryDelay, DelayType.Realtime, cancellationToken: lifetime.Token);
@@ -146,7 +149,7 @@ namespace Meta
 
         private async UniTask<bool> Authorize(IReadOnlyLifetime lifetime)
         {
-            Debug.Log("[Meta] [Loop] Starting meta connection");
+            _log.Info("Starting meta connection");
 
             // The branch runs in parallel with the whole start: a root of the trace of its own (not under the Meta stage) and
             // off the stack, or the stages of the menu would nest into the wait for the socket. It is made current only on the
@@ -187,7 +190,7 @@ namespace Meta
 
                 userId = response.UserId;
 
-                Debug.Log("[Meta] [Loop] Waiting for projections");
+                _log.Info("Waiting for projections");
 
                 // Проекции приезжают с бэкенда пачкой после коннекта: этот отрезок и есть
                 // ожидание данных, без которых меню открывать нечем.
@@ -204,7 +207,7 @@ namespace Meta
             if (profile == null)
             {
                 connectionLifetime.Terminate();
-                Debug.LogError("[Meta] [Loop] Profile projection is missing, user is not initialized");
+                _log.Error("Profile projection is missing, user is not initialized");
                 return false;
             }
 
@@ -216,13 +219,13 @@ namespace Meta
 
             _userId = userId;
 
-            Debug.Log("[Meta] [Loop] Meta connection completed successfully: " + profile.Id);
+            _log.Info("Meta connection completed successfully: {UserId}", profile.Id);
             return true;
         }
 
         private async UniTaskVoid Reconnect(UniTaskCompletionSource completion)
         {
-            Debug.Log("[Meta] [Loop] The meta connection is lost: connecting again");
+            _log.Info("The meta connection is lost: connecting again");
 
             // The connection of the lost socket goes first: the reader, the writer and the commands run again on it.
             _connectionLifetime.Terminate();
@@ -244,7 +247,7 @@ namespace Meta
 
                 await loss.Race(profileTask);
 
-                Debug.Log("[Meta] [Loop] The meta connection is restored: " + _userId);
+                _log.Info("The meta connection is restored: {UserId}", _userId);
                 // A new connection: the id of the startup record of the previous one is not valid on it.
                 _telemetry.SendStartupTrace();
                 _reconnect = null;
@@ -279,7 +282,7 @@ namespace Meta
             var legacyUserId = _authentication.LoadLegacyUserId();
 
             if (legacyUserId.HasValue == true)
-                Debug.LogWarning($"[Meta] [Loop] The saved user {legacyUserId.Value} has no guest secret and cannot be entered: a new guest is created");
+                _log.Warning("The saved user {UserId} has no guest secret and cannot be entered: a new guest is created", legacyUserId.Value);
 
             return new SharedBackendSocketAuth.Request();
         }
