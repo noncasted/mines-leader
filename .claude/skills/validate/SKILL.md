@@ -76,6 +76,9 @@ Read each `.cs` file in full. Check every applicable rule:
 - [ ] Methods returning collections never return `null` — use `Array.Empty<T>()`
 - [ ] File I/O wrapped in `try/catch` with `Debug.LogError` and return `null`
 
+**Comments**:
+- [ ] Comments in `.cs` are English only: Cyrillic in `//`, `///`, `/* */` is a violation (`❌`). String literals (UI texts, messages, test data) are content, not comments. Check: `grep -nP '//.*[\x{0400}-\x{04FF}]'` over the changed files, plus `/* */` blocks. The framework analyzer FWR004 (CommentLanguage) reports the same at build once it is connected.
+
 ### Step 4 — Output the report
 
 ---

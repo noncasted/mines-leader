@@ -887,3 +887,19 @@ Capture the prefab values once (`Awake`) and set every field the view changes on
 ### Rule
 A view taken from `PrefabPool<T>` resets on every take everything it changes during a show (colours, alpha, scale,
 position, active children, sprites). "If the request has X, set X" is a bug for a pooled view.
+
+## Lesson 24: Code Comments Written in Russian Because the Answers Are in Russian
+
+### Mistake Made
+The user asks for prose of answers in Russian, and the agent carried the language into the code: `//` and `///` comments in
+Russian, next to English ones in the same file (about 300 lines across client, backend and shared had to be translated).
+
+### Correct Pattern
+```csharp
+// The flag is set after the value: whoever waited for readiness already sees the data.
+```
+
+### Rule
+Prose of answers and docs of the game is Russian; identifiers and comments in code are English. A comment explains "why"
+and is written in English from the start. String literals with UI texts are content and stay as they are.
+`/validate` and the analyzer FWR004 report Cyrillic in comments.
