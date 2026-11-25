@@ -14,7 +14,12 @@ namespace GamePlay.Loop
 
         public class Rematch : IGameEndTransition
         {
-            public SessionData NewSession { get; set; }
+            public Rematch(SessionData newSession)
+            {
+                NewSession = newSession;
+            }
+
+            public SessionData NewSession { get; }
         }
     }
 }

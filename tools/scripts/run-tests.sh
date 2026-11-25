@@ -20,7 +20,7 @@
 #   generator  dotnet build tools/framework/client/core/Source~/ContainerGenerator -c Release + ContainerGenerator.Verify
 #   unity      Unity -batchmode -nographics -runTests -testPlatform EditMode on the copied client
 #              (all EditMode test assemblies of the project: GamePlay.Tests, GamePlay.Metrics.Tests, Flow.Tests,
-#              Internal.Content.Tests and the tests of the packages in "testables" of the manifest: core,
+#              Global.Tests, Internal.Content.Tests and the tests of the packages in "testables" of the manifest: core,
 #              match-metrics, network); a watchdog kills the run when a script compilation is
 #              requested after the start of the tests (the UniTask waits would stop until the limit)
 #

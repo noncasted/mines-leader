@@ -22,10 +22,16 @@ namespace GamePlay.Cards
         UniTask Sync(IReadOnlyLifetime lifetime, ICardActionData data);
     }
 
-    public class CardActionResult
+    public readonly struct CardActionResult
     {
-        public bool IsSuccess { get; set; }
-        public ICardUsePayload Payload { get; set; }
+        public CardActionResult(bool isSuccess, ICardUsePayload payload)
+        {
+            IsSuccess = isSuccess;
+            Payload = payload;
+        }
+
+        public bool IsSuccess { get; }
+        public ICardUsePayload Payload { get; }
     }
 
     public static class CardActionExtensions

@@ -63,27 +63,27 @@ namespace GamePlay.UI
             _shakeIntensity.SetValueWithoutNotify(save.ShakeIntensity);
 
             _masterVolume.onValueChanged.Listen(screenLifetime, value => {
-                save.MasterVolume = value;
+                save.SetMasterVolume(value);
                 Apply(save);
             });
 
             _musicVolume.onValueChanged.Listen(screenLifetime, value => {
-                save.MusicVolume = value;
+                save.SetMusicVolume(value);
                 Apply(save);
             });
 
             _soundsVolume.onValueChanged.Listen(screenLifetime, value => {
-                save.SoundsVolume = value;
+                save.SetSoundsVolume(value);
                 Apply(save);
             });
 
             _shakeIntensity.onValueChanged.Listen(screenLifetime, value => {
-                save.ShakeIntensity = value;
+                save.SetShakeIntensity(value);
                 Apply(save);
             });
 
             _vSync.Bind(screenLifetime, save.VSync, value => {
-                save.VSync = value;
+                save.SetVSync(value);
                 Apply(save);
             });
 

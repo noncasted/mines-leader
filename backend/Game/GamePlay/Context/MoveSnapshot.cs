@@ -14,10 +14,17 @@ public partial class MoveSnapshot
     private readonly List<ResourceKey> _resourceOrder = new();
     private readonly Dictionary<ResourceKey, IMoveSnapshotRecord> _resources = new();
 
-    public ISessionLogger? SessionLogger { get; set; }
-    public bool HasDropPosition { get; set; }
-    public float DropX { get; set; }
-    public float DropY { get; set; }
+    // A snapshot without a logger (the completion of the match, card previews, tests) logs nothing.
+    public MoveSnapshot()
+    {
+    }
+
+    public MoveSnapshot(ISessionLogger sessionLogger)
+    {
+        SessionLogger = sessionLogger;
+    }
+
+    public ISessionLogger? SessionLogger { get; }
 
     public int Count => _records.Count;
 

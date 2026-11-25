@@ -4,6 +4,11 @@ namespace Menu.Common
 {
     public class GameLoadData
     {
-        public SharedMatchmaking.MatchResult Result { get; set; }
+        public GameLoadData(SharedMatchmaking.MatchResult result)
+        {
+            Result = result;
+        }
+
+        public SharedMatchmaking.MatchResult Result { get; }
     }
 }

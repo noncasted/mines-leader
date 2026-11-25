@@ -37,14 +37,13 @@ namespace GamePlay.Cards
             var pattern = new Pattern(_context.TargetBoard, _config.MaxSize);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.FortuneBlast()
             {
-                IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.FortuneBlast()
-                {
-                    Position = result.Position.ToPosition()
-                }
+                Type = _context.Type,
+                Position = result.Position.ToPosition()
             };
+
+            return new CardActionResult(result.IsSuccess, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.FortuneBlast>

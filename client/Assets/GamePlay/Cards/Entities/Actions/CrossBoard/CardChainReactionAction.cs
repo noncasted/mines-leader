@@ -30,14 +30,13 @@ namespace GamePlay.Cards
             var pattern = new Pattern(_context.TargetBoard);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.ChainReaction()
             {
-                IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.ChainReaction()
-                {
-                    Position = result.Position.ToPosition()
-                }
+                Type = _context.Type,
+                Position = result.Position.ToPosition()
             };
+
+            return new CardActionResult(result.IsSuccess, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.ChainReaction>

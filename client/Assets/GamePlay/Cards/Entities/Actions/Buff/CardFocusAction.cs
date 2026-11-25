@@ -10,22 +10,27 @@ namespace GamePlay.Cards
     /// </summary>
     public class CardFocusAction : ICardAction
     {
-        public CardFocusAction(ICardDropDetector dropDetector)
+        public CardFocusAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.Focus()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.Focus()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Focus>

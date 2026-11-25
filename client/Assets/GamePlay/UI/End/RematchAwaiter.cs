@@ -65,10 +65,8 @@ namespace GamePlay.UI
 
         public void OnSuccess(RematchContexts.Success data)
         {
-            _completion.TrySetResult(new GameEndTransition.Rematch()
-            {
-                NewSession = new SessionData(data.ServerUrl, data.SessionId, data.Ticket)
-            });
+            _completion.TrySetResult(
+                new GameEndTransition.Rematch(new SessionData(data.ServerUrl, data.SessionId, data.Ticket)));
         }
     }
 }

@@ -7,33 +7,6 @@ using UnityEngine;
 
 namespace Meta
 {
-    /// <summary>
-    /// Одна строка истории матчей. Приезжает пачкой по запросу, реактивных обновлений нет:
-    /// история меняется только между входами на экран профиля.
-    /// </summary>
-    public class ProfileMatchEntry
-    {
-        public Guid Id { get; set; }
-        public GameMatchType Type { get; set; }
-        public string OpponentName { get; set; }
-        public bool Won { get; set; }
-        public DateTime Date { get; set; }
-        public TimeSpan Time { get; set; }
-    }
-
-    /// <summary>Развёрнутый матч: колоды обеих сторон, время и изменение рейтинга.</summary>
-    public class ProfileMatchDetails
-    {
-        public Guid Id { get; set; }
-        public GameMatchType Type { get; set; }
-        public string OpponentName { get; set; }
-        public bool Won { get; set; }
-        public TimeSpan Time { get; set; }
-        public int RatingChange { get; set; }
-        public IReadOnlyList<CardType> OwnCards { get; set; }
-        public IReadOnlyList<CardType> OpponentCards { get; set; }
-    }
-
     public interface IProfile
     {
         Guid Id { get; }
@@ -116,15 +89,13 @@ namespace Meta
 
             foreach (var match in response.Matches)
             {
-                entries.Add(new ProfileMatchEntry
-                {
-                    Id = match.Id,
-                    Type = match.Type,
-                    OpponentName = match.OpponentName,
-                    Won = match.Winner == userId,
-                    Date = match.Date,
-                    Time = match.Time
-                });
+                entries.Add(new ProfileMatchEntry(
+                    id: match.Id,
+                    type: match.Type,
+                    opponentName: match.OpponentName,
+                    won: match.Winner == userId,
+                    date: match.Date,
+                    time: match.Time));
             }
 
             return entries;
@@ -140,17 +111,15 @@ namespace Meta
                 return null;
             }
 
-            return new ProfileMatchDetails
-            {
-                Id = response.MatchId,
-                Type = response.Type,
-                OpponentName = response.OpponentName,
-                Won = response.Won,
-                Time = response.Time,
-                RatingChange = response.RatingChange,
-                OwnCards = response.OwnCards ?? new List<CardType>(),
-                OpponentCards = response.OpponentCards ?? new List<CardType>()
-            };
+            return new ProfileMatchDetails(
+                id: response.MatchId,
+                type: response.Type,
+                opponentName: response.OpponentName,
+                won: response.Won,
+                time: response.Time,
+                ratingChange: response.RatingChange,
+                ownCards: response.OwnCards ?? new List<CardType>(),
+                opponentCards: response.OpponentCards ?? new List<CardType>());
         }
     }
 }

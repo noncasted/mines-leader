@@ -7,22 +7,27 @@ namespace GamePlay.Cards
 {
     public class CardPurgeAction : ICardAction
     {
-        public CardPurgeAction(ICardDropDetector dropDetector)
+        public CardPurgeAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.Purge()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.Purge()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Purge>

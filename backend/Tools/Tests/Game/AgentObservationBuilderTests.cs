@@ -182,7 +182,7 @@ public class AgentObservationBuilderTests
                                                 """);
 
         var logger = Substitute.For<ISessionLogger>();
-        var snapshot = new MoveSnapshot { SessionLogger = logger };
+        var snapshot = new MoveSnapshot(logger);
 
         var opened = snapshot.RecordReveal(board, target);
 

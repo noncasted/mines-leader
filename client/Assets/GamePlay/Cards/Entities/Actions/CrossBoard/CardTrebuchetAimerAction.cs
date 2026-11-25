@@ -10,24 +10,28 @@ namespace GamePlay.Cards
     {
         public CardTrebuchetAimerAction(
             ICardDropDetector dropDetector,
-            IPlayerModifiers modifiers)
+            IPlayerModifiers modifiers,
+            CardType type)
         {
             _dropDetector = dropDetector;
             _modifiers = modifiers;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
         private readonly IPlayerModifiers _modifiers;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.TrebuchetAimer()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.TrebuchetAimer()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.TrebuchetAimer>

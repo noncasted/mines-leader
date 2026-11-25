@@ -8,10 +8,18 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    public class CardDropResult
+    public readonly struct CardDropResult
     {
-        public bool IsSuccess { get; set; }
-        public Vector2Int Position { get; set; }
+        public CardDropResult(bool isSuccess, Vector2Int position)
+        {
+            IsSuccess = isSuccess;
+            Position = position;
+        }
+
+        public static CardDropResult Failed => new(false, BoardExtensions.Outside);
+
+        public bool IsSuccess { get; }
+        public Vector2Int Position { get; }
     }
 
     public interface ICardDropArea
@@ -85,20 +93,16 @@ namespace GamePlay.Cards
             DeselectAll();
 
             if (isCanceled == true || aimedBoard == null)
-                return new CardDropResult() { IsSuccess = false };
+                return CardDropResult.Failed;
 
             // The cells could change while the pointer stayed on one cell: the drop is judged by the data of now.
             dropData.Clear();
             pattern.GetDropData(position, dropData);
 
             if (dropData.Count == 0)
-                return new CardDropResult() { IsSuccess = false };
+                return CardDropResult.Failed;
 
-            return new CardDropResult()
-            {
-                IsSuccess = true,
-                Position = position
-            };
+            return new CardDropResult(true, position);
 
             void UpdateSelection()
             {

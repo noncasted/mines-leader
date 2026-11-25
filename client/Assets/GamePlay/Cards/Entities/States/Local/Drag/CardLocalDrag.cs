@@ -26,7 +26,6 @@ namespace GamePlay.Cards
             ICardStateLifetime stateLifetime,
             ICardAction action,
             IPlayerTurns turns,
-            ICardDefinition definition,
             IGameContext gameContext)
         {
             _connection = connection;
@@ -38,7 +37,6 @@ namespace GamePlay.Cards
             _stateLifetime = stateLifetime;
             _action = action;
             _turns = turns;
-            _definition = definition;
             _gameContext = gameContext;
         }
 
@@ -51,7 +49,6 @@ namespace GamePlay.Cards
         private readonly ICardStateLifetime _stateLifetime;
         private readonly ICardAction _action;
         private readonly IPlayerTurns _turns;
-        private readonly ICardDefinition _definition;
         private readonly IGameContext _gameContext;
 
         public async UniTask Enter(ICardLocalIdle idle)
@@ -99,8 +96,6 @@ namespace GamePlay.Cards
 
             if (useResult.IsSuccess == true && _gameContext.IsPaused == false)
             {
-                useResult.Payload.Type = _definition.Type;
-
                 var dropPosition = _input.World;
                 var requestResult = await _connection.Request(new SharedGameAction.CardUse()
                 {

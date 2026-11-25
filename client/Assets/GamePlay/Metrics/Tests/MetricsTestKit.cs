@@ -115,7 +115,7 @@ namespace GamePlay.Metrics.Tests
             public IViewableProperty<GameStateType> Value => _value;
             public IViewableProperty<MatchCompletedData> CompletedData => _completed;
 
-            public void Complete(MatchResultType type) => _completed.Set(new MatchCompletedData { Type = type });
+            public void Complete(MatchResultType type) => _completed.Set(MatchCompletedData.WithoutResults(type));
 
             public void Set(GameStateType type) => throw new NotSupportedException();
             public void SetWinner(GameCompletedRecord record) => throw new NotSupportedException();

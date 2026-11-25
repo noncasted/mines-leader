@@ -58,16 +58,14 @@ namespace GamePlay.Loop
             var self = SelectSelfResult(record);
             var isWin = player.Info.IsLocal == true;
 
-            _completion.TrySetResult(new MatchCompletedData()
-            {
-                Type = isWin ? MatchResultType.Win : MatchResultType.Lose,
-                Duration = record.Duration,
-                RatingChange = self.RatingChange,
-                CurrentRating = self.Rating,
-                Stats = self.Stats,
-                LoserId = isWin ? _context.Other.Id : _context.Self.Id,
-                Boards = record.Boards
-            });
+            _completion.TrySetResult(new MatchCompletedData(
+                type: isWin ? MatchResultType.Win : MatchResultType.Lose,
+                duration: record.Duration,
+                ratingChange: self.RatingChange,
+                currentRating: self.Rating,
+                stats: self.Stats,
+                loserId: isWin ? _context.Other.Id : _context.Self.Id,
+                boards: record.Boards));
         }
 
         private MatchPlayerResult SelectSelfResult(GameCompletedRecord record)
@@ -84,18 +82,12 @@ namespace GamePlay.Loop
 
         public void OnLeave()
         {
-            _completion.TrySetResult(new MatchCompletedData()
-            {
-                Type = MatchResultType.Leave
-            });
+            _completion.TrySetResult(MatchCompletedData.WithoutResults(MatchResultType.Leave));
         }
 
         public void OnFailed()
         {
-            _completion.TrySetResult(new MatchCompletedData()
-            {
-                Type = MatchResultType.Failed
-            });
+            _completion.TrySetResult(MatchCompletedData.WithoutResults(MatchResultType.Failed));
         }
     }
 }

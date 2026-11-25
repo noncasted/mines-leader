@@ -8,22 +8,27 @@ namespace GamePlay.Cards
 {
     public class CardSiphonAction : ICardAction
     {
-        public CardSiphonAction(ICardDropDetector dropDetector)
+        public CardSiphonAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.Siphon()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.Siphon()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Siphon>

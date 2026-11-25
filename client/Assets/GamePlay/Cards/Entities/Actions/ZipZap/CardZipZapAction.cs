@@ -37,15 +37,14 @@ namespace GamePlay.Cards
             var pattern = new Pattern(_context.TargetBoard);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.ZipZap()
             {
-                IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.ZipZap()
-                {
-                    Position = result.Position.ToPosition(),
-                    CardId = _cardId
-                }
+                Type = _context.Type,
+                Position = result.Position.ToPosition(),
+                CardId = _cardId
             };
+
+            return new CardActionResult(result.IsSuccess, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.ZipZap>

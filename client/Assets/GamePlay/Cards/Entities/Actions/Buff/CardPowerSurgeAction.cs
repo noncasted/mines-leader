@@ -10,22 +10,27 @@ namespace GamePlay.Cards
     /// </summary>
     public class CardPowerSurgeAction : ICardAction
     {
-        public CardPowerSurgeAction(ICardDropDetector dropDetector)
+        public CardPowerSurgeAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.PowerSurge()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.PowerSurge()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.PowerSurge>

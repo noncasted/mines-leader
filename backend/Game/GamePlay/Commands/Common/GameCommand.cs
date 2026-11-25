@@ -22,10 +22,7 @@ public abstract class GameCommand<TRequest> : ResponseCommand<TRequest, EmptyRes
         var player = Utils.GameContext.UserToPlayer[user];
         var lifetime = new Lifetime();
 
-        var snapshot = new MoveSnapshot
-        {
-            SessionLogger = Utils.SessionLogger
-        };
+        var snapshot = new MoveSnapshot(Utils.SessionLogger);
 
         var commandContext = new Context
         {

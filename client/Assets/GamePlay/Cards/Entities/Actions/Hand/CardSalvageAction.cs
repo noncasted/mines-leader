@@ -10,22 +10,27 @@ namespace GamePlay.Cards
     /// </summary>
     public class CardSalvageAction : ICardAction
     {
-        public CardSalvageAction(ICardDropDetector dropDetector)
+        public CardSalvageAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.Salvage()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.Salvage()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.Salvage>

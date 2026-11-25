@@ -57,27 +57,27 @@ namespace Menu.Settings
             _shakeIntensity.SetValueWithoutNotify(save.ShakeIntensity);
 
             _masterVolume.onValueChanged.Listen(lifetime, value => {
-                save.MasterVolume = value;
+                save.SetMasterVolume(value);
                 Apply(save);
             });
 
             _musicVolume.onValueChanged.Listen(lifetime, value => {
-                save.MusicVolume = value;
+                save.SetMusicVolume(value);
                 Apply(save);
             });
 
             _soundsVolume.onValueChanged.Listen(lifetime, value => {
-                save.SoundsVolume = value;
+                save.SetSoundsVolume(value);
                 Apply(save);
             });
 
             _shakeIntensity.onValueChanged.Listen(lifetime, value => {
-                save.ShakeIntensity = value;
+                save.SetShakeIntensity(value);
                 Apply(save);
             });
 
             _vSync.Bind(lifetime, save.VSync, value => {
-                save.VSync = value;
+                save.SetVSync(value);
                 Apply(save);
             });
 

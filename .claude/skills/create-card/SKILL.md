@@ -404,19 +404,24 @@ using Shared;
 namespace GamePlay.Cards
 {
     public class CardNewCardAction : ICardAction {
-        public CardNewCardAction(ICardDropDetector dropDetector) {
+        // CardType is registered in the card scope: a Max variant shares the action of the normal card.
+        public CardNewCardAction(ICardDropDetector dropDetector, CardType type) {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime) {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult() {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.NewCard()
+            // The action builds the whole payload, the type included: nobody sets it on the result later.
+            var payload = new CardUsePayload.NewCard() {
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.NewCard> {
@@ -462,12 +467,12 @@ namespace GamePlay.Cards
             var pattern = new Pattern(_context.TargetBoard, _config.Size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            return new CardActionResult() {
-                IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.NewCard() {
-                    Position = result.Position.ToPosition()
-                }
+            var payload = new CardUsePayload.NewCard() {
+                Type = _context.Type,
+                Position = result.Position.ToPosition()
             };
+
+            return new CardActionResult(result.IsSuccess, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.NewCard> {

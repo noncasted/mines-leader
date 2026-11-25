@@ -50,9 +50,7 @@ public class CardUseCommand(
         var modifiersBefore = player.Modifiers.Sources.Count;
         var opponentModifiersBefore = opponent.Modifiers.Sources.Count;
 
-        context.Snapshot.HasDropPosition = request.HasDropPosition;
-        context.Snapshot.DropX = request.DropX;
-        context.Snapshot.DropY = request.DropY;
+        context.Snapshot.SetDropPosition(request.HasDropPosition, request.DropX, request.DropY);
 
         var use = Utils.ServiceProvider.Use(cardContext, request.Payload);
 

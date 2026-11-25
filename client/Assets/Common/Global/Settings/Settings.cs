@@ -65,7 +65,7 @@ namespace Global.Settings
 
         public async UniTask Apply(SettingsSave save)
         {
-            save.WasChanged = true;
+            save.MarkChanged();
             await _saves.Save(save);
             _save = save;
             Push(save);

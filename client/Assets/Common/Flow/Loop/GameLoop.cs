@@ -77,18 +77,15 @@ namespace Flow.Loop
                     }
                     case GameEndTransition.Rematch rematch:
                     {
-                        Game(new GameLoadData()
-                                    {
-                                        Result = new SharedMatchmaking.MatchResult()
-                                        {
-                                            ServerUrl = rematch.NewSession.ServerUrl,
-                                            SessionId = rematch.NewSession.SessionId,
-                                            Ticket = rematch.NewSession.Ticket,
-                                            Type = loadData.Result.Type
-                                        }
-                                    }
-                                )
-                            .Forget();
+                        var result = new SharedMatchmaking.MatchResult()
+                        {
+                            ServerUrl = rematch.NewSession.ServerUrl,
+                            SessionId = rematch.NewSession.SessionId,
+                            Ticket = rematch.NewSession.Ticket,
+                            Type = loadData.Result.Type
+                        };
+
+                        Game(new GameLoadData(result)).Forget();
 
                         break;
                     }

@@ -43,10 +43,7 @@ public class BotCommandUtils : IBotCommandUtils
 
     public void WithSnapshot(Action<MoveSnapshot> action)
     {
-        var snapshot = new MoveSnapshot
-        {
-            SessionLogger = _sessionLogger
-        };
+        var snapshot = new MoveSnapshot(_sessionLogger);
 
         var preState = _diffGuard.IsEnabled == true
             ? GameStateCapture.Capture(_gameContext)

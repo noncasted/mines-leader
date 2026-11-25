@@ -69,10 +69,7 @@ namespace Menu.Common
 
             var result = await completion.Task;
 
-            return new GameLoadData()
-            {
-                Result = result
-            };
+            return new GameLoadData(result);
         }
     }
 }

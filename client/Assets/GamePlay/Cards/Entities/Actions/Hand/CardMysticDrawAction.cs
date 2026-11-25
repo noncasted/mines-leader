@@ -11,22 +11,27 @@ namespace GamePlay.Cards
     /// </summary>
     public class CardMysticDrawAction : ICardAction
     {
-        public CardMysticDrawAction(ICardDropDetector dropDetector)
+        public CardMysticDrawAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.MysticDraw()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.MysticDraw()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.MysticDraw>

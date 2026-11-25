@@ -34,14 +34,13 @@ namespace GamePlay.Cards
             var pattern = new Pattern(_context.TargetBoard, _config.Size);
             var result = await _dropArea.Show(lifetime, selectionLifetime, pattern);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.MinefieldScout()
             {
-                IsSuccess = result.IsSuccess,
-                Payload = new CardUsePayload.MinefieldScout()
-                {
-                    Position = result.Position.ToPosition()
-                }
+                Type = _context.Type,
+                Position = result.Position.ToPosition()
             };
+
+            return new CardActionResult(result.IsSuccess, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.MinefieldScout>

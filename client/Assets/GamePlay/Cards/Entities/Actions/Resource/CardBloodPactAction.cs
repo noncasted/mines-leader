@@ -11,22 +11,27 @@ namespace GamePlay.Cards
     /// </summary>
     public class CardBloodPactAction : ICardAction
     {
-        public CardBloodPactAction(ICardDropDetector dropDetector)
+        public CardBloodPactAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.BloodPact()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.BloodPact()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.BloodPact>

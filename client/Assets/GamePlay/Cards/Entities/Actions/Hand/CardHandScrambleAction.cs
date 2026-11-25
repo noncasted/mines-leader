@@ -7,22 +7,27 @@ namespace GamePlay.Cards
 {
     public class CardHandScrambleAction : ICardAction
     {
-        public CardHandScrambleAction(ICardDropDetector dropDetector)
+        public CardHandScrambleAction(
+            ICardDropDetector dropDetector,
+            CardType type)
         {
             _dropDetector = dropDetector;
+            _type = type;
         }
 
         private readonly ICardDropDetector _dropDetector;
+        private readonly CardType _type;
 
         public async UniTask<CardActionResult> TryUse(IReadOnlyLifetime lifetime)
         {
             var isDropped = await _dropDetector.Wait(lifetime);
 
-            return new CardActionResult()
+            var payload = new CardUsePayload.HandScramble()
             {
-                IsSuccess = isDropped,
-                Payload = new CardUsePayload.HandScramble()
+                Type = _type
             };
+
+            return new CardActionResult(isDropped, payload);
         }
 
         public class Snapshot : ICardActionSync<CardActionSnapshot.HandScramble>

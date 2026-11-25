@@ -110,7 +110,7 @@ namespace Flow.Tests
                 if (_loads == 1 && _playFirst == true)
                 {
                     var result = new SharedMatchmaking.MatchResult { Type = GameMatchType.LastManStandingTurnBased };
-                    return UniTask.FromResult(new GameLoadData { Result = result });
+                    return UniTask.FromResult(new GameLoadData(result));
                 }
 
                 return new UniTaskCompletionSource<GameLoadData>().Task;
@@ -135,7 +135,7 @@ namespace Flow.Tests
 
                 if (_loads == 1)
                 {
-                    var rematch = new GameEndTransition.Rematch { NewSession = new SessionData("url", Guid.NewGuid(), "ticket") };
+                    var rematch = new GameEndTransition.Rematch(new SessionData("url", Guid.NewGuid(), "ticket"));
                     return UniTask.FromResult<IGameEndTransition>(rematch);
                 }
 

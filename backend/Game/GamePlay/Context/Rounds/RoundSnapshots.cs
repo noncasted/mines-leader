@@ -24,7 +24,7 @@ public class RoundSnapshots
 
     public void SendChecked(string stage, Action<MoveSnapshot> record)
     {
-        var snapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
+        var snapshot = new MoveSnapshot(_sessionLogger);
 
         var preState = _diffGuard.IsEnabled == true
             ? GameStateCapture.Capture(_gameContext)
@@ -43,7 +43,7 @@ public class RoundSnapshots
 
     public void Send(Action<MoveSnapshot> record)
     {
-        var snapshot = new MoveSnapshot { SessionLogger = _sessionLogger };
+        var snapshot = new MoveSnapshot(_sessionLogger);
         record(snapshot);
         _snapshotSender.Send(snapshot);
     }

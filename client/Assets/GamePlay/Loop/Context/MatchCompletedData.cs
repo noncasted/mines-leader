@@ -4,30 +4,50 @@ using Shared;
 
 namespace GamePlay.Loop
 {
-    public enum MatchResultType
-    {
-        Win = 1,
-        Lose = 2,
-        Leave = 3,
-
-        // The client could not apply a snapshot of the server (SnapshotReceiver): its state is out of sync, the match ends
-        // without results.
-        Failed = 4
-    }
-
     public class MatchCompletedData
     {
-        public MatchResultType Type { get; set; }
-        public TimeSpan Duration { get; set; }
-        public int RatingChange { get; set; }
-        public int CurrentRating { get; set; }
+        public MatchCompletedData(
+            MatchResultType type,
+            TimeSpan duration,
+            int ratingChange,
+            int currentRating,
+            IUserStatsState stats,
+            Guid loserId,
+            IReadOnlyList<BoardRevealState> boards)
+        {
+            Type = type;
+            Duration = duration;
+            RatingChange = ratingChange;
+            CurrentRating = currentRating;
+            Stats = stats;
+            LoserId = loserId;
+            Boards = boards;
+        }
 
-        /// <summary>Статистика локального игрока за матч. Пустая, если матч закончился выходом.</summary>
-        public IUserStatsState Stats { get; set; } = new MatchPlayerStats();
+        public MatchResultType Type { get; }
+        public TimeSpan Duration { get; }
+        public int RatingChange { get; }
+        public int CurrentRating { get; }
 
-        public Guid LoserId { get; set; }
+        // Stats of the local player in the match. Empty when the match ended without results.
+        public IUserStatsState Stats { get; }
 
-        /// <summary>Серверные состояния обеих досок на конец матча. Пустые, если матч закончился выходом.</summary>
-        public IReadOnlyList<BoardRevealState> Boards { get; set; } = Array.Empty<BoardRevealState>();
+        public Guid LoserId { get; }
+
+        // Server states of both boards at the end of the match. Empty when the match ended without results.
+        public IReadOnlyList<BoardRevealState> Boards { get; }
+
+        // A match that ended without results (a leave, a broken sync): no duration, rating, stats or boards.
+        public static MatchCompletedData WithoutResults(MatchResultType type)
+        {
+            return new MatchCompletedData(
+                type: type,
+                duration: TimeSpan.Zero,
+                ratingChange: 0,
+                currentRating: 0,
+                stats: new MatchPlayerStats(),
+                loserId: Guid.Empty,
+                boards: Array.Empty<BoardRevealState>());
+        }
     }
 }
