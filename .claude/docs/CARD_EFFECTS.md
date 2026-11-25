@@ -2,7 +2,7 @@
 
 ## Overview
 
-Card effect values are defined in `shared/Configs/CardConfigOptions.cs` and synchronized into runtime descriptions via `CardDescriptionProvider`.
+Card effect values are defined in `shared/Configs/Cards` (`CardConfigOptions.<Group>.cs`, one effect interface per file in `Effects/`) and synchronized into runtime descriptions via `CardDescriptionProvider`.
 
 Descriptions in `client/Assets/Common/Resources/cards-info.json` use markup tokens that are replaced at runtime with actual config values.
 
@@ -91,7 +91,7 @@ var config = payload.Type == CardType.Blackout_Max
 
 ## Adding New Effect Types
 
-1. Add a new interface in `shared/Configs/CardConfigOptions.cs`
+1. Add a new interface in its own file in `shared/Configs/Cards/Effects/`
 2. Apply it to relevant card config classes
 3. Add a new token constant and replace logic in `CardDescriptionProvider`
 4. Update descriptions in `cards-info.json` to use the new token

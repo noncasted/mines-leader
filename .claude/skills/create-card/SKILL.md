@@ -111,28 +111,26 @@ NewCard_Max = 2610,    // only if has Max variant
 ```
 
 ### 2.2 Card Config
-**File:** `shared/Configs/CardConfigOptions.cs`
+**Folder:** `shared/Configs/Cards` (namespace `Shared`, partial files of `CardConfigOptions`)
 
-Three changes in this file:
-
-**A) Add union attribute** at the top with `ICardConfig`:
+**A) Add union attribute** on `ICardConfig` in `ICardConfig.cs`:
 ```csharp
 [MemoryPackUnion(25, typeof(CardConfigOptions.NewCard))]
 ```
 
-**B) Add config properties** in the `CardConfigOptions` class body:
+**B) Add config properties** in the `CardConfigOptions` class body (`CardConfigOptions.cs`):
 ```csharp
 public NewCard NewCard_Normal { get; set; } = new();
 public NewCard NewCard_Max { get; set; } = new();    // only if has Max variant
 ```
 
-**C) Add to `All` dictionary**:
+**C) Add to `All` dictionary** (`CardConfigOptions.All.cs`):
 ```csharp
 { CardType.NewCard, NewCard_Normal },
 { CardType.NewCard_Max, NewCard_Max },    // only if has Max variant
 ```
 
-**D) Add config class** at the bottom:
+**D) Add config class** in the file of its group, `CardConfigOptions.<Group>.cs` (Attack, Buff, Debuff, Defense, Scout):
 ```csharp
 [MemoryPackable]
 public partial class NewCard : ICardConfig {
@@ -146,14 +144,14 @@ public partial class NewCard : ICardConfig {
 ```
 
 ### 2.3 Card Use Payload
-**File:** `shared/Game/Cards/ICardUsePayload.cs`
+**Folder:** `shared/Game/Cards`
 
-**A) Add union attribute:**
+**A) Add union attribute** on `ICardUsePayload` in `ICardUsePayload.cs`:
 ```csharp
 [MemoryPackUnion(25, typeof(CardUsePayload.NewCard))]
 ```
 
-**B) Add payload class** inside `CardUsePayload`:
+**B) Add payload class** inside `CardUsePayload`, in the file of its group `CardUsePayload.<Group>.cs`:
 
 For board-targeting cards:
 ```csharp
@@ -173,14 +171,14 @@ public partial class NewCard : ICardUsePayload {
 ```
 
 ### 2.4 Card Action Snapshot
-**File:** `shared/Game/Snapshots/CardActionSnapshotRecord.cs`
+**Folder:** `shared/Game/Snapshots`
 
-**A) Add union attribute:**
+**A) Add union attribute** on `ICardActionData` in `ICardActionData.cs`:
 ```csharp
 [MemoryPackUnion(25, typeof(CardActionSnapshot.NewCard))]
 ```
 
-**B) Add snapshot class** inside `CardActionSnapshot`:
+**B) Add snapshot class** inside `CardActionSnapshot`, in the file of its group `CardActionSnapshot.<Group>.cs`:
 ```csharp
 [MemoryPackable]
 public partial class NewCard : ICardActionData {
