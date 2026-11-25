@@ -105,6 +105,7 @@ ExportedObj/
 *.mdb.meta
 
 /client/sysinfo.txt
+mono_crash.*
 
 *.apk
 *.aab
