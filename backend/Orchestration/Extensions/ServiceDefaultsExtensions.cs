@@ -1,18 +1,10 @@
-using Common.Extensions;
 using Infrastructure;
-using Infrastructure.Logging;
+using Infrastructure.Telemetry;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using OpenTelemetry;
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Shared;
 
 namespace Orchestration;
@@ -27,7 +19,7 @@ public static class ServiceDefaultsExtensions
         // The INetworkContext union of the game: registered before any socket reads a message.
         NetworkProtocol.Register();
 
-        builder.ConfigureOpenTelemetry();
+        builder.AddTelemetryDefaults();
         builder.AddDefaultHealthChecks();
 
         var services = builder.Services;
@@ -44,95 +36,12 @@ public static class ServiceDefaultsExtensions
 
     extension(IHostApplicationBuilder builder)
     {
-        private void ConfigureOpenTelemetry()
-        {
-            var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME") ??
-                              builder.Environment.ApplicationName.ToLowerInvariant();
-            builder.Logging.SetMinimumLevel(LogLevel.Trace);
-            AddFileLogging(builder, serviceName);
-
-            builder.Logging.AddOpenTelemetry(logging => {
-                logging.IncludeFormattedMessage = true;
-                logging.IncludeScopes = true;
-            });
-
-            builder.Services.AddOpenTelemetry()
-                   .ConfigureResource(resourceBuilder => {
-                       var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME");
-
-                       if (serviceName == null)
-                           return;
-
-                       var instanceId = Environment.GetEnvironmentVariable("SERVICE_INSTANCE_ID")
-                                        ?? Environment.GetEnvironmentVariable("HOSTNAME")
-                                        ?? serviceName;
-                       resourceBuilder.AddService(
-                           serviceName,
-                           autoGenerateServiceInstanceId: false,
-                           serviceInstanceId: instanceId);
-                   })
-                   .WithMetrics(metrics => {
-                       metrics.AddAspNetCoreInstrumentation()
-                              .AddHttpClientInstrumentation()
-                              .AddRuntimeInstrumentation()
-                              .AddMeter("Microsoft.Orleans");
-                   })
-                   .WithTracing(tracing => {
-                       tracing.AddSource(builder.Environment.ApplicationName)
-                              .AddAspNetCoreInstrumentation(options => options.Filter = context =>
-                                  !context.Request.Path.StartsWithSegments(HealthEndpointPath) &&
-                                  !context.Request.Path.StartsWithSegments(AlivenessEndpointPath))
-                              .AddHttpClientInstrumentation();
-
-                       tracing.AddAspNetCoreInstrumentation()
-                              .AddHttpClientInstrumentation();
-                   })
-                   .WithLogging();
-
-            builder.AddOpenTelemetryExporters();
-        }
-
-        private void AddOpenTelemetryExporters()
-        {
-            var connection = builder.Configuration.GetConnectionString(ConnectionNames.OpenTelemetry);
-
-            if (connection == null)
-            {
-                var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
-
-                if (useOtlpExporter)
-                    builder.Services.AddOpenTelemetry().UseOtlpExporter();
-
-                return;
-            }
-
-            var uri = new Uri(connection);
-            builder.Services.AddOpenTelemetry().UseOtlpExporter(OtlpExportProtocol.HttpProtobuf, uri);
-        }
-
         private void AddDefaultHealthChecks()
         {
             builder.Services.AddHealthChecks()
                    .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"])
                    .AddCheck<OrleansReadyHealthCheck>("orleans", tags: ["ready"]);
         }
-    }
-
-    // Dev-only diagnostics (backend/.telemetry/logs, see .claude/docs/TELEMETRY.md): production containers log
-    // through OpenTelemetry only. Options: FileLoggerOptions in the "FileLogging" configuration section.
-    public static void AddFileLogging(IHostApplicationBuilder builder, string serviceName)
-    {
-        if (builder.Environment.IsDevelopment() == false)
-            return;
-
-        var options = builder.Configuration.GetSection(FileLoggerOptions.SectionName).Get<FileLoggerOptions>()
-                      ?? new FileLoggerOptions();
-
-        if (options.Enabled == false)
-            return;
-
-        // Factory registration: the container disposes the provider on shutdown, which flushes the queue.
-        builder.Services.AddSingleton<ILoggerProvider>(_ => new FileLoggerProvider(serviceName, options));
     }
 
     private const string ReadyEndpointPath = "/ready";

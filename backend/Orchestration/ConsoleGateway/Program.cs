@@ -58,7 +58,7 @@ builder.AddClientTelemetryReader();
 var aspireDashboard = builder.Configuration.GetSection("AspireDashboard");
 
 if (aspireDashboard.Exists() == true)
-    builder.AddConsoleBackendTraces(aspireDashboard);
+    builder.AddConsoleAspireDashboardTraces(aspireDashboard);
 
 builder.AddMatchMetricsReader();
 builder.Services.AddBlazorBlueprintComponents();

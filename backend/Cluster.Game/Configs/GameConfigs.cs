@@ -44,6 +44,7 @@ public static class GameConfigsExtensions
 public class GameConfigsSetup : ICoordinatorSetupCompleted
 {
     public GameConfigsSetup(
+        IHostEnvironment environment,
         ICardConfigs cards,
         IBotConfig bots,
         IGameModeConfig gameMode,
@@ -54,6 +55,7 @@ public class GameConfigsSetup : ICoordinatorSetupCompleted
         IPlayerConfig player,
         ILogger<GameConfigsSetup> logger)
     {
+        _environment = environment;
         _cards = cards;
         _bots = bots;
         _gameMode = gameMode;
@@ -65,6 +67,7 @@ public class GameConfigsSetup : ICoordinatorSetupCompleted
         _logger = logger;
     }
 
+    private readonly IHostEnvironment _environment;
     private readonly ICardConfigs _cards;
     private readonly IBotConfig _bots;
     private readonly IGameModeConfig _gameMode;
@@ -77,13 +80,13 @@ public class GameConfigsSetup : ICoordinatorSetupCompleted
 
     public async Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        await ConfigsInitializer.Init("config.cards", _cards, _logger);
-        await ConfigsInitializer.Init("config.bot", _bots, _logger);
-        await ConfigsInitializer.Init("config.gameMode", _gameMode, _logger);
-        await ConfigsInitializer.Init("config.matchMaking", _matchMaking, MatchMakingOptions.CreateDefault(), _logger);
-        await ConfigsInitializer.Init("config.rating", _rating, _logger);
-        await ConfigsInitializer.Init("config.achievements", _achievements, InGameAchievementOptions.CreateDefault(), _logger);
-        await ConfigsInitializer.Init("config.userDeck", _userDeck, _logger);
-        await ConfigsInitializer.Init("config.player", _player, _logger);
+        await ConfigsInitializer.Init(_environment, "config.cards", _cards, _logger);
+        await ConfigsInitializer.Init(_environment, "config.bot", _bots, _logger);
+        await ConfigsInitializer.Init(_environment, "config.gameMode", _gameMode, _logger);
+        await ConfigsInitializer.Init(_environment, "config.matchMaking", _matchMaking, _logger);
+        await ConfigsInitializer.Init(_environment, "config.rating", _rating, _logger);
+        await ConfigsInitializer.Init(_environment, "config.achievements", _achievements, _logger);
+        await ConfigsInitializer.Init(_environment, "config.userDeck", _userDeck, _logger);
+        await ConfigsInitializer.Init(_environment, "config.player", _player, _logger);
     }
 }

@@ -2,6 +2,7 @@ using Cluster.Configs;
 using Game.ClientTelemetry;
 using Infrastructure;
 using Internal;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Orchestration;
@@ -10,17 +11,22 @@ namespace Orchestration;
 // A row already written (on or off from the Features page of the console) is left as it is, so turning it off survives a deploy.
 public class ClientTelemetryDefaultSetup : ICoordinatorSetupCompleted
 {
-    public ClientTelemetryDefaultSetup(ClientTelemetryDefaultState state, ILogger<ClientTelemetryDefaultSetup> logger)
+    public ClientTelemetryDefaultSetup(
+        IHostEnvironment environment,
+        ClientTelemetryDefaultState state,
+        ILogger<ClientTelemetryDefaultSetup> logger)
     {
+        _environment = environment;
         _state = state;
         _logger = logger;
     }
 
+    private readonly IHostEnvironment _environment;
     private readonly ClientTelemetryDefaultState _state;
     private readonly ILogger<ClientTelemetryDefaultSetup> _logger;
 
     public Task OnCoordinatorSetupCompleted(IReadOnlyLifetime lifetime)
     {
-        return ConfigsInitializer.Init("config.clientTelemetry", _state, new ClientTelemetrySettingsState { IsEnabled = true }, _logger);
+        return ConfigsInitializer.Init(_environment, "config.clientTelemetry", _state, _logger);
     }
 }

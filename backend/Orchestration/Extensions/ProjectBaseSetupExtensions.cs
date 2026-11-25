@@ -79,7 +79,7 @@ public static class ProjectBaseSetupExtensions
             builder.Add<StateStorageReader>()
                    .As<IStateStorageReader>();
 
-            builder.Services.AddHostedService<MetricsSnapshotService>();
+            builder.AddMetricsSnapshots();
 
             return builder;
         }
