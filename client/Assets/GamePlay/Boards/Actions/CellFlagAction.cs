@@ -34,6 +34,7 @@ namespace GamePlay.Boards
 
             var own = _selection.Selected.Value;
 
+            // The input comes with the pointer anywhere: off the cells nothing is selected.
             if (own == null)
                 return;
 

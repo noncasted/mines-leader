@@ -31,35 +31,16 @@ namespace GamePlay.Cards
             // Resolvers are pulled here rather than injected through the constructor:
             // MirrorMatch's resolver depends back on this dispatcher to play its copied action.
             foreach (var sync in _container.ResolveAll<ICardActionSync>())
-            {
-                var payloadType = ExtractPayloadType(sync);
-
-                if (payloadType == null)
-                    continue;
-
-                _byPayload[payloadType] = sync;
-            }
+                _byPayload.Add(sync.PayloadType, sync);
         }
 
-        public async UniTask Dispatch(IReadOnlyLifetime lifetime, ICardActionData data)
+        public UniTask Dispatch(IReadOnlyLifetime lifetime, ICardActionData data)
         {
-            if (_byPayload.TryGetValue(data.GetType(), out var sync) == true)
-                await sync.Sync(lifetime, data);
-        }
+            // Every payload of the protocol has a sync (AddAllCardActionSyncs): a missing one is a missing registration.
+            if (_byPayload.TryGetValue(data.GetType(), out var sync) == false)
+                throw new InvalidOperationException($"No card action sync is registered for {data.GetType().Name}");
 
-        private static Type ExtractPayloadType(ICardActionSync sync)
-        {
-            var type = sync.GetType();
-
-            if (type.IsGenericType == false)
-                return null;
-
-            var args = type.GetGenericArguments();
-
-            if (args.Length != 2)
-                return null;
-
-            return args[1];
+            return sync.Sync(lifetime, data);
         }
     }
 }

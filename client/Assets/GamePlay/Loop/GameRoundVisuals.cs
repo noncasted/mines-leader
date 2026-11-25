@@ -40,6 +40,7 @@ namespace GamePlay.Loop
             Apply(_ownFrame, _ownPlate, player != null && player == _gameContext.Self);
             Apply(_opponentFrame, _opponentPlate, player != null && player == _gameContext.Other);
 
+            // No current player between the rounds and after the match: no turn to announce.
             if (player == null)
                 return;
 

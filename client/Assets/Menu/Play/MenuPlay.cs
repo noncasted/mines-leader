@@ -90,7 +90,7 @@ namespace Menu.Play
             foreach (var type in options.Available)
             {
                 if (_gameModesRegistry.Entries.TryGetValue(type, out var definition) == false)
-                    continue;
+                    throw new InvalidOperationException($"Game mode {type} is available on the backend but unknown to the client");
 
                 var view = Object.Instantiate(MenuPrefabs.GameModeEntry, _modesRoot);
                 view.Setup(definition);

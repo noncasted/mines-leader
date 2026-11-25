@@ -13,9 +13,7 @@ namespace Menu.Decks
         public MenuPreviewGameCamera(IMenuBoard menuBoard)
         {
             _camera = menuBoard.PreviewCamera;
-
-            if (_camera != null)
-                _origin = _camera.transform.position;
+            _origin = _camera.transform.position;
         }
 
         private readonly Camera _camera;
@@ -29,9 +27,6 @@ namespace Menu.Decks
 
         public void Shake(float time, float intensity)
         {
-            if (_camera == null)
-                return;
-
             // One-shot random offset. The scene has no updater hooked up on this stub, so we
             // just nudge once — enough to register as a hit on the preview.
             var offsetX = Random.Range(-intensity, intensity);

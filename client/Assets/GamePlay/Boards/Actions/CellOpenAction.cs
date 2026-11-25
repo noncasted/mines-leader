@@ -41,6 +41,7 @@ namespace GamePlay.Boards
 
             var cell = _selection.Selected.Value;
 
+            // The input comes with the pointer anywhere: off the cells nothing is selected.
             if (cell == null)
                 return;
 

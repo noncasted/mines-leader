@@ -25,7 +25,8 @@ namespace Menu.Decks
         {
             _projection.View(lifetime, value =>
             {
-                if (value?.Bundles == null)
+                // The projection is viewed before the backend sent it.
+                if (value == null)
                     return;
 
                 _cache.Set(value.Bundles);

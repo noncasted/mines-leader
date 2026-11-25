@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Cards;
@@ -25,7 +26,18 @@ namespace GamePlay.Services
             var card = player.Hand.Entries.FirstOrDefault(c => c.Id == record.CardId);
 
             if (card == null)
+            {
+                // A played card leaves the hand with its CardUse record and stays on the table until CardsStashed:
+                // the CardRemove the server sends after the use has nothing to do. Any other missing card is a
+                // broken sync.
+                if (player.Table.Entries.Any(c => c.Id == record.CardId) == false)
+                {
+                    throw new InvalidOperationException(
+                        $"Card {record.CardId} of player {record.PlayerId} is neither in the hand nor on the table");
+                }
+
                 return;
+            }
 
             if (record.IsStash == false)
             {

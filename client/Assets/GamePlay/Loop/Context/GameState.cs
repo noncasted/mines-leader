@@ -48,6 +48,8 @@ namespace GamePlay.Loop
 
         public void SetWinner(GameCompletedRecord record)
         {
+            // No winner: the round ended without a result (the session was closed before anybody won), the backend
+            // closes the match without results and there is nothing to show.
             if (record.Winner == Guid.Empty)
                 return;
 
@@ -63,16 +65,13 @@ namespace GamePlay.Loop
                 CurrentRating = self.Rating,
                 Stats = self.Stats,
                 LoserId = isWin ? _context.Other.Id : _context.Self.Id,
-                Boards = (IReadOnlyList<BoardRevealState>)record.Boards ?? Array.Empty<BoardRevealState>()
+                Boards = record.Boards
             });
         }
 
         private MatchPlayerResult SelectSelfResult(GameCompletedRecord record)
         {
-            if (record.Players == null)
-                return new MatchPlayerResult();
-
-            return record.Players.FirstOrDefault(t => t.PlayerId == _context.Self.Id) ?? new MatchPlayerResult();
+            return record.Players.First(t => t.PlayerId == _context.Self.Id);
         }
 
         public async UniTask<MatchCompletedData> WaitCompletion(IReadOnlyLifetime lifetime)

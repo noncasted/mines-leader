@@ -17,6 +17,8 @@ namespace GamePlay.Cards
 
     public interface ICardActionSync
     {
+        Type PayloadType { get; }
+
         UniTask Sync(IReadOnlyLifetime lifetime, ICardActionData data);
     }
 
@@ -50,6 +52,8 @@ namespace GamePlay.Cards
             }
 
             private readonly TImplementation _implementation;
+
+            public Type PayloadType => typeof(TData);
 
             public UniTask Sync(IReadOnlyLifetime lifetime, ICardActionData data)
             {

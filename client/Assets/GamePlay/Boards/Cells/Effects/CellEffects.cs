@@ -20,8 +20,6 @@ namespace GamePlay.Boards.Effects
     {
         [SerializeField] private Dictionary<CellEffectType, CellEffect> _effects;
 
-        private static readonly ILog _log = Logs.Of<CellEffects>();
-
         private readonly Dictionary<Guid, ActiveEffect> _active = new();
 
         public IReadOnlyCollection<CellEffectType> Active => _active.Values.Select(effect => effect.Type).ToArray();
@@ -44,8 +42,8 @@ namespace GamePlay.Boards.Effects
 
             if (_effects.TryGetValue(type, out var effect) == false)
             {
-                _log.Warning("Missing effect prefab for {Type}", type);
-                return;
+                throw new InvalidOperationException(
+                    $"Cell {transform.parent.name} has no view of effect {type} ({effectId})");
             }
 
             var lifetime = this.GetObjectLifetime().Child();

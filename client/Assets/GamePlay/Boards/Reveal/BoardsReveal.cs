@@ -30,7 +30,8 @@ namespace GamePlay.Boards
 
         public async UniTask Play(IReadOnlyLifetime lifetime, MatchCompletedData data)
         {
-            if (data.Boards == null || data.Boards.Count == 0)
+            // The player left the match: there are no results and no boards to reveal.
+            if (data.Type == MatchResultType.Leave)
                 return;
 
             List<IBoardCell> mines = null;
@@ -44,7 +45,11 @@ namespace GamePlay.Boards
                     mines = boardMines;
             }
 
-            if (mines == null || mines.Count == 0)
+            if (mines == null)
+                throw new InvalidOperationException($"The match results have no board of the loser {data.LoserId}");
+
+            // The board of the loser has no mines when it was never generated: the loser made no move.
+            if (mines.Count == 0)
                 return;
 
             Shuffle(mines);
@@ -60,8 +65,7 @@ namespace GamePlay.Boards
 
             foreach (var cellState in state.Cells)
             {
-                if (board.Cells.TryGetValue(cellState.Position.ToVector(), out var cell) == false)
-                    continue;
+                var cell = board.GetSyncedCell(state.OwnerId, cellState.Position);
 
                 if (cellState.IsFree == true)
                 {

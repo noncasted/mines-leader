@@ -18,18 +18,12 @@ namespace Menu.Decks
 
         public async UniTask PlayTargetAnimation(IReadOnlyLifetime lifetime, Guid targetPlayer, IReadOnlyList<Position> positions)
         {
-            if (positions == null || positions.Count == 0)
-                return;
-
             var board = _menuBoard.Board;
             var tasks = new List<UniTask>();
 
             foreach (var position in positions)
             {
-                var vector = position.ToVector();
-
-                if (board.Cells.TryGetValue(vector, out var cell) == false)
-                    continue;
+                var cell = board.GetSyncedCell(targetPlayer, position);
 
                 tasks.Add(cell.Visuals.PlaySelection(lifetime));
             }
@@ -40,18 +34,12 @@ namespace Menu.Decks
 
         public async UniTask PlayActionAnimation(IReadOnlyLifetime lifetime, Guid targetPlayer, IReadOnlyList<Position> positions)
         {
-            if (positions == null || positions.Count == 0)
-                return;
-
             var board = _menuBoard.Board;
             var tasks = new List<UniTask>();
 
             foreach (var position in positions)
             {
-                var vector = position.ToVector();
-
-                if (board.Cells.TryGetValue(vector, out var cell) == false)
-                    continue;
+                var cell = board.GetSyncedCell(targetPlayer, position);
 
                 tasks.Add(cell.Visuals.PlayCellAction(lifetime));
             }
@@ -62,17 +50,11 @@ namespace Menu.Decks
 
         public UniTask OpenCells(IReadOnlyLifetime lifetime, Guid targetPlayer, IReadOnlyList<OpenedCell> cells)
         {
-            if (cells == null)
-                return UniTask.CompletedTask;
-
             var board = _menuBoard.Board;
 
             foreach (var opened in cells)
             {
-                var vector = opened.Position.ToVector();
-
-                if (board.Cells.TryGetValue(vector, out var cell) == false)
-                    continue;
+                var cell = board.GetSyncedCell(targetPlayer, opened.Position);
 
                 cell.EnsureFree().OnMinesUpdated(opened.MinesAround);
             }
@@ -82,49 +64,35 @@ namespace Menu.Decks
 
         public void AddEffect(Guid effectId, CellEffectType type, Guid targetPlayer, Position position)
         {
-            var vector = position.ToVector();
-
-            if (_menuBoard.Board.Cells.TryGetValue(vector, out var cell) == false)
-                return;
+            var cell = _menuBoard.Board.GetSyncedCell(targetPlayer, position);
 
             cell.Effects.Add(effectId, type);
         }
 
         public void FlagCell(Guid targetPlayer, Position position)
         {
-            var vector = position.ToVector();
-
-            if (_menuBoard.Board.Cells.TryGetValue(vector, out var cell) == false)
-                return;
+            var cell = _menuBoard.Board.GetSyncedCell(targetPlayer, position);
 
             cell.EnsureTaken().OnFlagUpdated(true);
         }
 
         public void UnflagCell(Guid targetPlayer, Position position)
         {
-            var vector = position.ToVector();
-
-            if (_menuBoard.Board.Cells.TryGetValue(vector, out var cell) == false)
-                return;
+            var cell = _menuBoard.Board.GetSyncedCell(targetPlayer, position);
 
             cell.EnsureTaken().OnFlagUpdated(false);
         }
+
         public void EnsureTaken(Guid targetPlayer, Position position)
         {
-            var vector = position.ToVector();
-
-            if (_menuBoard.Board.Cells.TryGetValue(vector, out var cell) == false)
-                return;
+            var cell = _menuBoard.Board.GetSyncedCell(targetPlayer, position);
 
             cell.EnsureTaken();
         }
 
         public UniTask ExplodeCell(Guid targetPlayer, Position position, CellExplosionType type)
         {
-            var vector = position.ToVector();
-
-            if (_menuBoard.Board.Cells.TryGetValue(vector, out var cell) == false)
-                return UniTask.CompletedTask;
+            var cell = _menuBoard.Board.GetSyncedCell(targetPlayer, position);
 
             return cell.Explode(type);
         }

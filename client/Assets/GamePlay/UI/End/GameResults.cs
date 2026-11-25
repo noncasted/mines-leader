@@ -53,9 +53,6 @@ namespace GamePlay.UI
 
         public void SetNotification(string message)
         {
-            if (_current == null)
-                return;
-
             _current.SetNotification(message);
         }
     }

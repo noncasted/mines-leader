@@ -21,12 +21,10 @@ namespace GamePlay.Players.Buffs
 
         public void Show(string description)
         {
-            EnsureTransform();
             EnsureCanvas();
             DisableRaycasts();
 
-            if (_description != null)
-                _description.text = description;
+            _description.text = description;
 
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
@@ -38,14 +36,9 @@ namespace GamePlay.Players.Buffs
             if (IsShown == false)
                 return;
 
-            EnsureTransform();
             EnsureCanvas();
 
-            if (_canvas == null)
-                return;
-
-            if (_rectTransform.parent is not RectTransform parent)
-                return;
+            var parent = (RectTransform)_rectTransform.parent;
 
             var camera = _canvas.renderMode == RenderMode.ScreenSpaceOverlay
                 ? null
@@ -62,14 +55,6 @@ namespace GamePlay.Players.Buffs
 
             _rectTransform.pivot = new Vector2(pivotX, pivotY);
             _rectTransform.anchoredPosition = localPoint;
-        }
-
-        private void EnsureTransform()
-        {
-            if (_rectTransform != null)
-                return;
-
-            _rectTransform = (RectTransform)transform;
         }
 
         private void EnsureCanvas()

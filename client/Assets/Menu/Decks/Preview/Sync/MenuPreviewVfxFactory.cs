@@ -1,6 +1,8 @@
+using System;
 using GamePlay.Cards;
 using Internal;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Menu.Decks
 {
@@ -26,9 +28,6 @@ namespace Menu.Decks
 
         public void ClearSpawned()
         {
-            if (_anchorTransform == null)
-                return;
-
             // Destroy every previously spawned VFX instance (ZipZap lightning lines, any
             // other per-card visual) so the next preview starts with a clean slate.
             for (var i = _anchorTransform.childCount - 1; i >= 0; i--)
@@ -40,34 +39,31 @@ namespace Menu.Decks
             // Parent VFX under the Menu_Board root so spawned instances inherit its scene,
             // world position and — critically — the layer the preview camera is rendering
             // (a standalone root would land on Default layer, which the preview camera may cull).
-            var board = _menuBoard.Board as Component;
+            var board = (Component)_menuBoard.Board;
 
-            if (board != null)
-            {
-                var host = new GameObject("MenuPreviewVfxAnchor");
-                host.transform.SetParent(board.transform, worldPositionStays: false);
-                host.layer = board.gameObject.layer;
-                _anchorTransform = host.transform;
+            var host = new GameObject("MenuPreviewVfxAnchor");
+            host.transform.SetParent(board.transform, worldPositionStays: false);
+            host.layer = board.gameObject.layer;
+            _anchorTransform = host.transform;
 
-                lifetime.Listen(() => {
-                    if (_anchorTransform != null)
-                        Object.Destroy(_anchorTransform.gameObject);
-                });
-            }
+            lifetime.Listen(() => {
+                // The anchor is a child of the board: an unloaded menu scene destroys it before the scope ends.
+                if (_anchorTransform != null)
+                    Object.Destroy(_anchorTransform.gameObject);
+            });
         }
 
         public T Create<T>(T prefab, Vector2 position, float angle = 0) where T : MonoBehaviour
         {
             if (prefab == null)
-                return null;
+                throw new ArgumentNullException(nameof(prefab), $"VFX prefab of type {typeof(T).Name} is not set");
 
             _index++;
 
             var instance = Object.Instantiate(prefab, position, Quaternion.Euler(0, 0, angle), _anchorTransform);
             instance.name = $"{prefab.name}_preview_{_index}";
 
-            if (_anchorTransform != null)
-                SetLayerRecursively(instance.gameObject, _anchorTransform.gameObject.layer);
+            SetLayerRecursively(instance.gameObject, _anchorTransform.gameObject.layer);
 
             _viewInjector.Inject(instance);
 

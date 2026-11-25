@@ -148,10 +148,13 @@ namespace GamePlay.Boards
 
             var local = position - bounds.Item1;
 
+            // A cell spans [start, start + size): the upper and right edges of the board belong to no cell, like
+            // every other point outside. Cells abut each other (BoardConstructor has no gap between them), so the
+            // position is the local point divided by the size of a cell.
             if (local.x < 0 ||
-                local.x > bounds.Item2.x - bounds.Item1.x ||
+                local.x >= bounds.Item2.x - bounds.Item1.x ||
                 local.y < 0 ||
-                local.y > bounds.Item2.y - bounds.Item1.y)
+                local.y >= bounds.Item2.y - bounds.Item1.y)
             {
                 return new Vector2Int(-1, -1);
             }
@@ -160,6 +163,20 @@ namespace GamePlay.Boards
             var y = Mathf.FloorToInt(local.y / board.ConstructionDataData.CellSize);
 
             return new Vector2Int(x, y);
+        }
+
+        // The cell of a position the server sent for the board of owner: the server board has the same cells, so a
+        // position without a cell is a broken sync.
+        public static IBoardCell GetSyncedCell(this IBoard board, Guid owner, Position position)
+        {
+            if (board.Cells.TryGetValue(position.ToVector(), out var cell) == false)
+            {
+                throw new InvalidOperationException(
+                    $"Cell ({position.x}, {position.y}) is not on the board of player {owner} " +
+                    $"(size {board.ConstructionDataData.Size})");
+            }
+
+            return cell;
         }
 
         public static IReadOnlyList<IBoardCell> GetClosedShape(this IBoard board, Vector2Int start)

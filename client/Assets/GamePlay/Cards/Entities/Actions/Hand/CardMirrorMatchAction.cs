@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using Internal;
 using Shared;
@@ -43,7 +44,7 @@ namespace GamePlay.Cards
             public UniTask Sync(IReadOnlyLifetime lifetime, CardActionSnapshot.MirrorMatch payload)
             {
                 if (payload.CopiedAction == null)
-                    return UniTask.CompletedTask;
+                    throw new InvalidOperationException($"Mirror Match of {payload.CopiedCard} came without the copied action");
 
                 return _syncDispatcher.Dispatch(lifetime, payload.CopiedAction);
             }

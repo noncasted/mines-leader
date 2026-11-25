@@ -52,8 +52,9 @@ namespace GamePlay.Cards
         }
 
         /// <summary>
-        /// Превью подсвечивает ромб сразу на обеих досках: обмен идёт по одинаковым координатам,
-        /// поэтому в выборку попадают только позиции, существующие и у цели, и у владельца.
+        /// Превью подсвечивает ромб сразу на обеих досках: обмен идёт по одинаковым координатам.
+        /// Ромб обрезается по доске цели, а доски обоих игроков одного размера, поэтому позиция
+        /// без клетки у владельца — ошибка.
         /// </summary>
         public class Pattern : ICardDropPattern
         {
@@ -76,7 +77,10 @@ namespace GamePlay.Cards
                 foreach (var targetCell in targetCells)
                 {
                     if (_ownerBoard.Cells.TryGetValue(targetCell.BoardPosition, out var ownerCell) == false)
-                        continue;
+                    {
+                        throw new InvalidOperationException(
+                            $"Cell {targetCell.BoardPosition} of the target board is not on the board of the owner");
+                    }
 
                     selected.Add(targetCell);
                     selected.Add(ownerCell);

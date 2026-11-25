@@ -17,17 +17,13 @@ namespace GamePlay.Players.Buffs
 
         public void Setup(DurationalModifierOverview overview, Sprite icon)
         {
-            if (_icon != null)
-                _icon.sprite = icon;
+            _icon.sprite = icon;
 
             Refresh(overview);
         }
 
         public void Refresh(DurationalModifierOverview overview)
         {
-            if (_turnsText == null)
-                return;
-
             if (overview.TurnsToEnd < 0)
             {
                 _turnsText.gameObject.SetActive(false);

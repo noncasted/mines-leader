@@ -15,7 +15,6 @@ namespace GamePlay.Boards
 
         [SerializeField] private Vector2Int _size;
         [SerializeField] private float _cellSize;
-        [SerializeField] private float _cellsOffset;
 
         private BoardConstructionData _constructionData;
 
@@ -71,8 +70,8 @@ namespace GamePlay.Boards
         private Vector3 GetLocalPosition(Vector2Int position, Vector2 origin)
         {
             return new Vector3(
-                position.x * _cellSize + origin.x + position.x * _cellsOffset,
-                position.y * _cellSize + origin.y + position.y * _cellsOffset);
+                position.x * _cellSize + origin.x,
+                position.y * _cellSize + origin.y);
         }
 
         private void OnValidate()

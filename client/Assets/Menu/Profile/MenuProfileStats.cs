@@ -26,7 +26,8 @@ namespace Menu.Profile
 
         public void SetAvatar(Sprite sprite)
         {
-            if (_avatar == null || sprite == null)
+            // A character without a portrait keeps the default image of the prefab.
+            if (sprite == null)
                 return;
 
             _avatar.sprite = sprite;

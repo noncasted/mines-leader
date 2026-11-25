@@ -160,9 +160,10 @@ namespace Menu.Unlocks
             {
                 claimed = await _rewards.Claim(_tier, picked.Card);
             }
-            catch (Exception e)
+            catch (Exception e) when (e is NetworkRequestException || e is TimeoutException || e is OperationCanceledException)
             {
                 // Claim вызывается через Forget, и без перехвата окно навсегда осталось бы в "Unlocking...".
+                // Ловятся только сбои запроса, как в AchievementRewards.GetOptions: ошибка кода падает наверх.
                 _log.Error(e, "Claim failed");
             }
 

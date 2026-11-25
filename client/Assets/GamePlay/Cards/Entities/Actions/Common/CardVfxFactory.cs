@@ -1,4 +1,5 @@
-﻿using Internal;
+﻿using System;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -13,13 +14,11 @@ namespace GamePlay.Cards
     {
         private int _index;
         private IViewInjector _viewInjector;
-        private ILog _log;
 
         [Inject]
-        internal void Construct(IViewInjector viewInjector, ILog<CardVfxFactory> log)
+        internal void Construct(IViewInjector viewInjector)
         {
             _viewInjector = viewInjector;
-            _log = log;
         }
 
         public void Create(IScopeBuilder builder)
@@ -31,10 +30,7 @@ namespace GamePlay.Cards
         public T Create<T>(T prefab, Vector2 position, float angle = 0) where T : MonoBehaviour
         {
             if (prefab == null)
-            {
-                _log.Error("Prefab is null. Cannot create VFX.");
-                return null;
-            }
+                throw new ArgumentNullException(nameof(prefab), $"VFX prefab of type {typeof(T).Name} is not set");
 
             _index++;
 

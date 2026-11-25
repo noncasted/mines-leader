@@ -87,12 +87,7 @@ namespace GamePlay.Cards
                 var targets = new List<(Position Position, IBoardCell Cell)>();
 
                 foreach (var position in payload.TargetCells)
-                {
-                    if (board.Cells.TryGetValue(position.ToVector(), out var cell) == false)
-                        continue;
-
-                    targets.Add((position, cell));
-                }
+                    targets.Add((position, board.GetSyncedCell(payload.TargetPlayer, position)));
 
                 if (targets.Count > 0)
                 {

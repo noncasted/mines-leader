@@ -62,7 +62,6 @@ MonoBehaviour:
   _cellKind: 0
   _size: {x: 16, y: 16}
   _cellSize: 1
-  _cellsOffset: 0
 --- !u!1 &4902934891972163550
 GameObject:
   m_ObjectHideFlags: 0

@@ -90,18 +90,17 @@ namespace Menu.Profile
 
         private void BuildCards(IReadOnlyList<CardType> cards, RectTransform root)
         {
-            if (root == null || cards == null)
-                return;
-
             // All каждый раз собирает новый словарь, поэтому берём его один раз на раскладку.
-            var configs = _configs.Value?.All;
+            var configs = _configs.Value.All;
 
             foreach (var type in cards)
             {
+                // The history keeps the decks of old matches: a card removed from the game since has no definition
+                // and is not shown.
                 if (_cardsRegistry.Entries.TryGetValue(type, out var definition) == false)
                     continue;
 
-                var manaCost = configs != null && configs.TryGetValue(type, out var config) ? config.ManaCost : 0;
+                var manaCost = configs[type].ManaCost;
 
                 var view = Instantiate(MenuPrefabs.MenuProfileCard, root);
                 view.Setup(definition, _descriptions.GetDescription(type), manaCost);
@@ -112,10 +111,7 @@ namespace Menu.Profile
         private void ClearCards()
         {
             foreach (var card in _cards)
-            {
-                if (card != null)
-                    Destroy(card.gameObject);
-            }
+                Destroy(card.gameObject);
 
             _cards.Clear();
         }

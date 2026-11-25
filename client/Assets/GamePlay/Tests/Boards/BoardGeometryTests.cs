@@ -5,7 +5,8 @@ using UnityEngine;
 namespace GamePlay.Tests
 {
     // Reference of BoardExtensions before board_cells_performance: the world bounds come from the cells, IsInside is
-    // strict, WorldToBoardPosition counts cells from the lower left corner of the bounds.
+    // strict, WorldToBoardPosition counts cells from the lower left corner of the bounds and, since
+    // error_handling_consistency, gives no position on the upper and right edges.
     public class BoardGeometryTests
     {
         private static readonly Vector2Int _outside = new(-1, -1);
@@ -117,16 +118,25 @@ namespace GamePlay.Tests
             Assert.AreEqual(new Vector2Int(0, 7), board.WorldToBoardPosition(new Vector2(-8f, -0.5f)));
         }
 
-        // Current behaviour: the upper and right edges count as inside and give the position past the last cell, a
-        // position that has no cell (callers look it up in Cells and find nothing).
+        // The upper and right edges belong to no cell (a cell spans [start, start + size)): outside like any other
+        // point past the board, so the position past the last cell (16, y) never comes out.
         [Test]
-        public void WorldToBoardPosition_OnTheUpperRightEdge_PositionPastTheLastCell()
+        public void WorldToBoardPosition_OnTheUpperRightEdge_Outside()
         {
             var board = FakeBoard.Match(new Vector2(0f, 0f));
 
-            Assert.AreEqual(new Vector2Int(16, 16), board.WorldToBoardPosition(new Vector2(8f, 8f)));
-            Assert.AreEqual(new Vector2Int(16, 3), board.WorldToBoardPosition(new Vector2(8f, -4.5f)));
-            Assert.IsFalse(board.Cells.ContainsKey(new Vector2Int(16, 3)));
+            Assert.AreEqual(_outside, board.WorldToBoardPosition(new Vector2(8f, 8f)));
+            Assert.AreEqual(_outside, board.WorldToBoardPosition(new Vector2(8f, -4.5f)));
+            Assert.AreEqual(_outside, board.WorldToBoardPosition(new Vector2(-4.5f, 8f)));
+        }
+
+        [Test]
+        public void WorldToBoardPosition_JustInsideTheUpperRightEdge_LastCells()
+        {
+            var board = FakeBoard.Match(new Vector2(0f, 0f));
+
+            Assert.AreEqual(new Vector2Int(15, 15), board.WorldToBoardPosition(new Vector2(7.99f, 7.99f)));
+            Assert.AreEqual(new Vector2Int(15, 3), board.WorldToBoardPosition(new Vector2(7.99f, -4.5f)));
         }
 
         [Test]
