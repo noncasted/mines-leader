@@ -26,7 +26,7 @@ namespace GamePlay.UI
             builder.Register<CardDropTarget>()
                    .As<ICardDropTarget>()
                    .As<IScopeSetup>();
-            
+
             return builder;
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace MetaGateway.Matchmaking;
+namespace MetaGateway.Matchmaking;
 
 public record MatchmakingQueueStatsDto
 {

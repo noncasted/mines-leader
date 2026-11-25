@@ -165,10 +165,10 @@ namespace Menu.Play
             _searchView.SetTimer("00:00");
 
             _updater.RunUpdateAction(searchLifetime, delta => {
-                            _time += delta;
-                            var timeSpan = TimeSpan.FromSeconds(_time);
-                            _searchView.SetTimer($"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}");
-                        })
+                _time += delta;
+                var timeSpan = TimeSpan.FromSeconds(_time);
+                _searchView.SetTimer($"{timeSpan.Minutes:D2}:{timeSpan.Seconds:D2}");
+            })
                     .Forget();
 
             try

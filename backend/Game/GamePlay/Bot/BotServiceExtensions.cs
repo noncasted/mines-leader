@@ -1,4 +1,4 @@
-﻿using Game.GamePlay.Profiles;
+using Game.GamePlay.Profiles;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Game.GamePlay;

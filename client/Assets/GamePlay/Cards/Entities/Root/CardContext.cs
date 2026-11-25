@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GamePlay.Boards;
 using GamePlay.Loop;
 using GamePlay.Players;

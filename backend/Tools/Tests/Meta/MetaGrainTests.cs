@@ -108,7 +108,7 @@ public class UserRatingTests
         var grain = GetGrain<IUserRating>(id);
 
         await RunTransaction(() => grain.AddRecord(new UserRatingRecords.Loss
-            { Date = DateTime.UtcNow, Rating = 100 }));
+        { Date = DateTime.UtcNow, Rating = 100 }));
         var total = 0;
 
         await RunTransaction(async () => {
@@ -521,7 +521,7 @@ public class UserDeckTests(OrleansTestClusterFixture fixture) : IntegrationTestB
             { CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke, CardType.Smoke };
 
         var decks = new Dictionary<int, IReadOnlyList<CardType>>
-            { [0] = customCards, [1] = customCards, [2] = customCards };
+        { [0] = customCards, [1] = customCards, [2] = customCards };
         await RunTransaction(() => grain.Update(decks, 2));
         UserDeckState? state = null;
 

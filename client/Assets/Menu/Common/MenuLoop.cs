@@ -56,8 +56,7 @@ namespace Menu.Common
             _loadingScreen.Hide();
             _globalCamera.Disable();
             // The music comes in a bundle of its own after the start: it plays as soon as it is loaded.
-            _startupAssets.IsMusicLoaded.View(lifetime, isLoaded =>
-            {
+            _startupAssets.IsMusicLoaded.View(lifetime, isLoaded => {
                 if (isLoaded == true)
                     _audioPlayer.PlayLoopMusic(MusicAudio.GameMusic, 0f);
             });

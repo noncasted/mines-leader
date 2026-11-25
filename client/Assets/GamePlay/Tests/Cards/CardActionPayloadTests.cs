@@ -30,8 +30,7 @@ namespace GamePlay.Tests
         }
 
         [UnityTest]
-        public IEnumerator SelfCast_Dropped_PayloadOfTheCardType() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator SelfCast_Dropped_PayloadOfTheCardType() => UniTask.ToCoroutine(async () => {
             var action = new CardMedicAction(new FakeDropDetector(true), CardType.Medic);
 
             var result = await action.TryUse(_lifetime);
@@ -42,8 +41,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator SelfCast_NotDropped_NotSuccess() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator SelfCast_NotDropped_NotSuccess() => UniTask.ToCoroutine(async () => {
             var action = new CardMedicAction(new FakeDropDetector(false), CardType.Medic);
 
             var result = await action.TryUse(_lifetime);
@@ -52,8 +50,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator Board_Dropped_PayloadOfTheCardTypeAndPosition() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator Board_Dropped_PayloadOfTheCardTypeAndPosition() => UniTask.ToCoroutine(async () => {
             var dropArea = new FakeDropArea(new CardDropResult(true, new Vector2Int(2, 3)));
             var action = new CardFrostAction(
                 new FakeCardContext(CardType.Frost_Max),
@@ -70,8 +67,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator Board_Missed_NotSuccess() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator Board_Missed_NotSuccess() => UniTask.ToCoroutine(async () => {
             var action = new CardFrostAction(
                 new FakeCardContext(CardType.Frost),
                 new FakeDropArea(CardDropResult.Failed),

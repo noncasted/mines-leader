@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 
 namespace Meta.Users;
 

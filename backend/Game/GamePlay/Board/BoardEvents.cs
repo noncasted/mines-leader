@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using Shared;
 
 namespace Game.GamePlay;

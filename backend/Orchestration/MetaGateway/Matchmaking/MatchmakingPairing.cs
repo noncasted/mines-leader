@@ -1,4 +1,4 @@
-﻿using MetaGateway.UserFlow;
+using MetaGateway.UserFlow;
 using Shared;
 
 namespace MetaGateway.Matchmaking;

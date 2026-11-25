@@ -1,4 +1,4 @@
-﻿using Meta.Matches;
+using Meta.Matches;
 using Meta.Users;
 using Shared;
 

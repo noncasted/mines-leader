@@ -1,4 +1,4 @@
-﻿using Meta.Users;
+using Meta.Users;
 using Shared;
 
 namespace Meta.Matches;

@@ -55,28 +55,28 @@ namespace Internal.Tests
             switch (parts[0])
             {
                 case "type":
-                {
-                    var type = FindType(parts[1]);
-                    var bytes = FromHex(parts[2]);
-                    var restored = MemoryPackSerializer.Deserialize(type, bytes);
+                    {
+                        var type = FindType(parts[1]);
+                        var bytes = FromHex(parts[2]);
+                        var restored = MemoryPackSerializer.Deserialize(type, bytes);
 
-                    Assert.IsNotNull(restored);
-                    Assert.AreEqual(type, restored.GetType());
-                    AssertWrittenBack(type, bytes, restored);
-                    break;
-                }
+                        Assert.IsNotNull(restored);
+                        Assert.AreEqual(type, restored.GetType());
+                        AssertWrittenBack(type, bytes, restored);
+                        break;
+                    }
                 case "union":
-                {
-                    var unionBase = FindType(parts[1]);
-                    var type = FindType(parts[3]);
-                    var bytes = FromHex(parts[4]);
-                    var restored = MemoryPackSerializer.Deserialize(unionBase, bytes);
+                    {
+                        var unionBase = FindType(parts[1]);
+                        var type = FindType(parts[3]);
+                        var bytes = FromHex(parts[4]);
+                        var restored = MemoryPackSerializer.Deserialize(unionBase, bytes);
 
-                    Assert.IsNotNull(restored);
-                    Assert.AreEqual(type, restored.GetType(), $"tag {parts[2]}");
-                    AssertWrittenBack(unionBase, bytes, restored);
-                    break;
-                }
+                        Assert.IsNotNull(restored);
+                        Assert.AreEqual(type, restored.GetType(), $"tag {parts[2]}");
+                        AssertWrittenBack(unionBase, bytes, restored);
+                        break;
+                    }
                 default:
                     throw new InvalidOperationException($"Unknown line kind {parts[0]}");
             }

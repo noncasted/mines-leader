@@ -10,7 +10,7 @@ namespace GamePlay.UI
         Menu,
         Rematch
     }
-    
+
     public interface IGameResults
     {
         UniTask<GameEndMenuResult> Show(IReadOnlyLifetime lifetime, MatchCompletedData result);

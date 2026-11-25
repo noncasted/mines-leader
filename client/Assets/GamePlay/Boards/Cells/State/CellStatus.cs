@@ -1,4 +1,4 @@
-﻿namespace GamePlay.Boards
+namespace GamePlay.Boards
 {
     public enum CellStatus
     {

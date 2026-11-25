@@ -79,8 +79,7 @@ public class ErosionDozerStrategy : IBotCardStrategy
                 continue; // Prefer safe centers so the card isn't wasted on a mine
 
             var neighbours = board.NeighbourPositions(taken.Position);
-            var closedCount = neighbours.Count(n =>
-            {
+            var closedCount = neighbours.Count(n => {
                 if (board.Cells.TryGetValue(n, out var nc) == false)
                     return false;
 

@@ -43,8 +43,7 @@ namespace GamePlay.Players.Buffs
 
         public void Bind(IReadOnlyLifetime lifetime, IPlayerModifiers modifiers)
         {
-            modifiers.Overviews.View(lifetime, (itemLifetime, overview) =>
-            {
+            modifiers.Overviews.View(lifetime, (itemLifetime, overview) => {
                 if (_views.TryGetValue(overview.SourceId, out var existing))
                 {
                     existing.Refresh(overview);
@@ -65,8 +64,7 @@ namespace GamePlay.Players.Buffs
                 view.Setup(overview, definition?.Image);
                 _views[overview.SourceId] = view;
 
-                view.PointerHandler.IsHovered.View(itemLifetime, hovered =>
-                {
+                view.PointerHandler.IsHovered.View(itemLifetime, hovered => {
                     if (hovered == true)
                         ShowInfo(overview);
                     else if (_hoveredId == overview.SourceId)

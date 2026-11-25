@@ -1,4 +1,4 @@
-﻿using Infrastructure;
+using Infrastructure;
 using Meta.Users;
 using MetaGateway.UserFlow.Commands;
 using MetaGateway.UserFlow.Connection;

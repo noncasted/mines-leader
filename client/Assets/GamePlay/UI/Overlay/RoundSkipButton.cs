@@ -10,7 +10,7 @@ namespace GamePlay.UI
         public RoundSkipButton(IGameRound round, RoundOverlayUIBindings roundOverlay)
         {
             _round = round;
-            
+
             var bindings = roundOverlay.Center.Skip;
             _image = bindings.Image;
             _text = bindings.TextTMP.TextMeshProUGUI;

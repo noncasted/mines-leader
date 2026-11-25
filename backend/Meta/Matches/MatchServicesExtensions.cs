@@ -1,4 +1,4 @@
-﻿using Cluster.Discovery;
+using Cluster.Discovery;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

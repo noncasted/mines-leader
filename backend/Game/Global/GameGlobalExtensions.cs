@@ -1,4 +1,4 @@
-﻿using Common.Extensions;
+using Common.Extensions;
 using Game.GamePlay;
 using Infrastructure;
 using Microsoft.Extensions.Hosting;

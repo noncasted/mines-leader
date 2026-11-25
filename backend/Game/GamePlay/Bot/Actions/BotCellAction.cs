@@ -1,4 +1,4 @@
-﻿using Cluster.Configs;
+using Cluster.Configs;
 using Game.GamePlay.Snapshots;
 using Game.Session;
 using Shared;

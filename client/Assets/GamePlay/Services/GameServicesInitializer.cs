@@ -1,4 +1,4 @@
-﻿using GamePlay.Boards;
+using GamePlay.Boards;
 using GamePlay.UI;
 using Global.Cameras;
 using Global.UI;

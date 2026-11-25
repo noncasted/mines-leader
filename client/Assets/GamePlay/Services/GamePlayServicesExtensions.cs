@@ -8,7 +8,7 @@ namespace GamePlay.Services
         {
             builder.RequestSpriteGroup(Sprites.GameUI);
             builder.RequestPrefabGroup(GamePlayPrefabs.Group);
-            
+
             builder.Register<GameInput>()
                    .As<IGameInput>()
                    .As<IScopeSetup>();

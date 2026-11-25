@@ -1,4 +1,4 @@
-﻿using GamePlay.Cards;
+using GamePlay.Cards;
 using GamePlay.Loop;
 using Internal;
 using UnityEngine;
@@ -53,7 +53,7 @@ namespace GamePlay.UI
                 return point;
             }
         }
- 
+
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _round.Player.Advise(lifetime, ResetCount);

@@ -74,27 +74,27 @@ public class TestCleanup
         Track<MatchState>(matchId);
     }
 
-	public async Task Execute()
-	{
-		List<StateIdentity> snapshot;
-		lock (_lock)
-		{
-			if (_identities.Count == 0)
-				return;
+    public async Task Execute()
+    {
+        List<StateIdentity> snapshot;
+        lock (_lock)
+        {
+            if (_identities.Count == 0)
+                return;
 
-			snapshot = _identities.ToList();
-			_identities.Clear();
-		}
+            snapshot = _identities.ToList();
+            _identities.Clear();
+        }
 
-		_logger.LogInformation("[TestCleanup] Deleting {Count} state records", snapshot.Count);
+        _logger.LogInformation("[TestCleanup] Deleting {Count} state records", snapshot.Count);
 
-		const int batchSize = 1000;
-		for (var i = 0; i < snapshot.Count; i += batchSize)
-		{
-			var batch = snapshot.Skip(i).Take(batchSize).ToList();
-			await _stateStorage.Delete(batch);
-		}
+        const int batchSize = 1000;
+        for (var i = 0; i < snapshot.Count; i += batchSize)
+        {
+            var batch = snapshot.Skip(i).Take(batchSize).ToList();
+            await _stateStorage.Delete(batch);
+        }
 
-		_logger.LogInformation("[TestCleanup] Cleanup complete");
-	}
+        _logger.LogInformation("[TestCleanup] Cleanup complete");
+    }
 }

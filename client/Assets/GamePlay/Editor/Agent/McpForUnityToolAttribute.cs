@@ -1,13 +1,17 @@
 #if !MCP_FOR_UNITY
 using System;
 
-namespace MCPForUnity.Editor.Tools {
+namespace MCPForUnity.Editor.Tools
+{
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class McpForUnityToolAttribute : Attribute {
-        public McpForUnityToolAttribute() {
+    public sealed class McpForUnityToolAttribute : Attribute
+    {
+        public McpForUnityToolAttribute()
+        {
         }
 
-        public McpForUnityToolAttribute(string name) {
+        public McpForUnityToolAttribute(string name)
+        {
             Name = name;
         }
 
@@ -19,8 +23,10 @@ namespace MCPForUnity.Editor.Tools {
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public sealed class ToolParameterAttribute : Attribute {
-        public ToolParameterAttribute(string description) {
+    public sealed class ToolParameterAttribute : Attribute
+    {
+        public ToolParameterAttribute(string description)
+        {
             Description = description;
         }
 

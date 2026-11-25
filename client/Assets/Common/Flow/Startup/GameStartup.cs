@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Flow.Loop;
 using Global.Cameras;
 using Global.Setup;

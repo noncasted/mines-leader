@@ -1,35 +1,40 @@
-﻿using Internal;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
     public class HandPositionsOptions : ScriptableObject
     {
-        [SerializeField] [CurveRange] private AnimationCurve _evaluationCurve;
+        [SerializeField][CurveRange] private AnimationCurve _evaluationCurve;
 
-        [SerializeField] [CurveRange(-1, -1, 2, 2)]
+        [SerializeField]
+        [CurveRange(-1, -1, 2, 2)]
         private AnimationCurve _forceCurve;
 
-        [SerializeField] [CurveRange(-1, -1, 2, 2)]
+        [SerializeField]
+        [CurveRange(-1, -1, 2, 2)]
         private AnimationCurve _xCurve;
 
-        [SerializeField] [CurveRange(-1, -1, 2, 2)]
+        [SerializeField]
+        [CurveRange(-1, -1, 2, 2)]
         private AnimationCurve _yCurve;
 
-        [SerializeField] [CurveRange(-1, -2, 2, 3)]
+        [SerializeField]
+        [CurveRange(-1, -2, 2, 3)]
         private AnimationCurve _rotationCurve;
 
-        [SerializeField] [CurveRange(0, 0, 10, 1)]
+        [SerializeField]
+        [CurveRange(0, 0, 10, 1)]
         private AnimationCurve _xSizeCurve;
 
-        [SerializeField] [Min(0f)] private float _cardXSize;
-        [SerializeField] [Min(0f)] private float _magnitude;
+        [SerializeField][Min(0f)] private float _cardXSize;
+        [SerializeField][Min(0f)] private float _magnitude;
         [SerializeField] private float _angeRange;
-        [SerializeField] [Min(0f)] private float _moveSpeed;
+        [SerializeField][Min(0f)] private float _moveSpeed;
 
         [SerializeField] private bool _clampToScreen = true;
-        [SerializeField] [Min(0f)] private float _screenPadding;
-        [SerializeField] [Min(0f)] private float _maxWidth;
+        [SerializeField][Min(0f)] private float _screenPadding;
+        [SerializeField][Min(0f)] private float _maxWidth;
 
         public AnimationCurve EvaluationCurve => _evaluationCurve;
         public AnimationCurve ForceCurve => _forceCurve;

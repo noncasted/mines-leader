@@ -1,4 +1,4 @@
-﻿using Global.Audio;
+using Global.Audio;
 using Internal;
 
 namespace Global.Settings

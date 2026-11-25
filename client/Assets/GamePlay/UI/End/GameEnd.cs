@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Internal;
@@ -56,15 +56,15 @@ namespace GamePlay.UI
             switch (transition)
             {
                 case GameEndTransition.Exit:
-                {
-                    _ui.SetNotification("opponent declined");
-                    break;
-                }
+                    {
+                        _ui.SetNotification("opponent declined");
+                        break;
+                    }
                 case GameEndTransition.Rematch:
-                {
-                    _ui.SetNotification("opponent accepted");
-                    break;
-                }
+                    {
+                        _ui.SetNotification("opponent accepted");
+                        break;
+                    }
             }
 
             await UniTask.Delay(TimeSpan.FromSeconds(1));

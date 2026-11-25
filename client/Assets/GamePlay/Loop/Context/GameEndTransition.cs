@@ -1,4 +1,4 @@
-﻿using Meta;
+using Meta;
 
 namespace GamePlay.Loop
 {

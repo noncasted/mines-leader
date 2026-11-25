@@ -1,10 +1,13 @@
 using GamePlay.Cheats;
 using UnityEngine.UIElements;
 
-namespace GamePlay.Editor {
+namespace GamePlay.Editor
+{
     // Tab of the cheats window: current and max turns of the local player.
-    internal static class CheatsMovesTab {
-        public static void Build(VisualElement content) {
+    internal static class CheatsMovesTab
+    {
+        public static void Build(VisualElement content)
+        {
             content.Add(CheatsUi.SectionLabel("Current Turns"));
             content.Add(CheatsUi.ButtonRow(
                 ("Zero", () => GameCheatsAccess.Require().ChangeMoves(-10000), CheatsButtonColor.Red),

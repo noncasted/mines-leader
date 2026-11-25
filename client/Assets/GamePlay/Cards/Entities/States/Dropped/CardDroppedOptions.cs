@@ -7,7 +7,7 @@ namespace GamePlay.Cards
     {
         [SerializeField] private float _time;
 
-        [SerializeField] [CurveRange] private AnimationCurve _fadeCurve;
+        [SerializeField][CurveRange] private AnimationCurve _fadeCurve;
 
         [SerializeField] private Color _spritesColor = new(0.55f, 0.55f, 0.55f, 1f);
         [SerializeField] private Color _nameColor = new(0.55f, 0.55f, 0.55f, 1f);

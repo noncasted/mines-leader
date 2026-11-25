@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -7,13 +7,15 @@ namespace GamePlay.Cards
     {
         [SerializeField] private float _time;
 
-        [SerializeField] [MinMaxSlider(0f, 720f)]
+        [SerializeField]
+        [MinMaxSlider(0f, 720f)]
         private Vector2 _twistAngleRange = new(350f, 370f);
 
-        [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
-        [SerializeField] [CurveRange] private AnimationCurve _twistCurve;
+        [SerializeField][CurveRange] private AnimationCurve _moveCurve;
+        [SerializeField][CurveRange] private AnimationCurve _twistCurve;
 
-        [SerializeField] [CurveRange(0, 0, 1, 2)]
+        [SerializeField]
+        [CurveRange(0, 0, 1, 2)]
         private AnimationCurve _scaleCurve;
 
         public float Time => _time;

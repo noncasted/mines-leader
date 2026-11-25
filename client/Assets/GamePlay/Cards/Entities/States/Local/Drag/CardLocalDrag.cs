@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using GamePlay.Players;
 using GamePlay.Services;
@@ -122,9 +122,9 @@ namespace GamePlay.Cards
             // The return motion throws OperationCanceledException when the state lifetime ends: the card does not go
             // to Idle then.
             await _updater.RunUpdateAction(lifetime, () => {
-                    var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
-                    return distance > 0.1f;
-                },
+                var distance = Vector2.Distance(_transform.Position, positionHandle.SupposedPosition);
+                return distance > 0.1f;
+            },
                 _ => MoveTowards(positionHandle.SupposedPosition));
 
             idle.Enter();

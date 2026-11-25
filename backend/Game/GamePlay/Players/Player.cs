@@ -1,4 +1,4 @@
-﻿using Game.Session;
+using Game.Session;
 
 namespace Game.GamePlay;
 

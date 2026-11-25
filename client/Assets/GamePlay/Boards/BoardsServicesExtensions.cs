@@ -17,10 +17,10 @@ namespace GamePlay.Boards
 
             builder.Register<CellsSelection>()
                    .As<ICellsSelection>();
-            
+
             builder.Register<BoardCellsAnimator>()
                    .As<IBoardCellsAnimator>();
-            
+
             builder.Register<BoardsReveal>()
                    .As<IBoardsReveal>();
 

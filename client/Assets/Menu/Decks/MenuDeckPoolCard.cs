@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using Meta;
 using Shared;
 using TMPro;
@@ -77,7 +77,7 @@ namespace Menu.Decks
             _rectTransform.localPosition = Vector3.zero;
             gameObject.SetActive(true);
         }
-        
+
         private void UpdateOutline()
         {
             _outline.color = _cardDefinition.Group switch

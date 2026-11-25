@@ -1,4 +1,4 @@
-﻿using Common.Extensions;
+using Common.Extensions;
 using Game.GamePlay.CardPreviews;
 using Infrastructure;
 using MetaGateway.UserFlow.Commands;

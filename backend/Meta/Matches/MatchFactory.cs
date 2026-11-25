@@ -1,4 +1,4 @@
-﻿using Cluster.Coordination;
+using Cluster.Coordination;
 using Cluster.Discovery;
 using Common.Network;
 using Infrastructure;

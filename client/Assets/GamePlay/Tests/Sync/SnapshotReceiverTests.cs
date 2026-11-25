@@ -47,8 +47,7 @@ namespace GamePlay.Tests
             Handle<PlayerSnapshotRecord.ManaUpdate>(handled);
             Handle<TimeLimitedRoundRecord>(handled);
             Handle<LastManStandingRoundRecord>(handled);
-            _receiver.Add(typeof(PlayerSnapshotRecord.CardUse), record =>
-            {
+            _receiver.Add(typeof(PlayerSnapshotRecord.CardUse), record => {
                 handled.Add(Describe(record));
                 return cardAnimation.Play();
             });
@@ -77,8 +76,7 @@ namespace GamePlay.Tests
         }
 
         [UnityTest]
-        public IEnumerator BoardFlags_AtOnce_TheRestOfTheBoardQueuedInOrder() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator BoardFlags_AtOnce_TheRestOfTheBoardQueuedInOrder() => UniTask.ToCoroutine(async () => {
             Push(Snapshot(Board(_a, Free(1, 1), Flag(2, 2, true), Mines(1, 1, 2), Flag(3, 3, false))));
 
             CollectionAssert.AreEqual(new[] { "board A: flag 2,2 True", "board A: flag 3,3 False" }, _handled);
@@ -89,8 +87,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator BoardFlags_WhileAnAnimationPlays_BeforeTheQueuedBoardRecords() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator BoardFlags_WhileAnAnimationPlays_BeforeTheQueuedBoardRecords() => UniTask.ToCoroutine(async () => {
             var animation = HoldCardAnimation();
             Push(Snapshot(Card()));
             await WaitHandled(1);
@@ -109,8 +106,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator Queue_EveryRecordWaitsForTheOnesBefore_InTheOrderReceived() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator Queue_EveryRecordWaitsForTheOnesBefore_InTheOrderReceived() => UniTask.ToCoroutine(async () => {
             var animation = HoldCardAnimation();
 
             Push(Snapshot(Card(), Board(_a, Free(4, 4))));
@@ -127,8 +123,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator Mana_AfterTheCardAnimation() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator Mana_AfterTheCardAnimation() => UniTask.ToCoroutine(async () => {
             var animation = HoldCardAnimation();
 
             Push(Snapshot(Card(), Mana(2)));
@@ -157,8 +152,7 @@ namespace GamePlay.Tests
             UniTask.ToCoroutine(() => AnotherPlayer_AfterTheQueue(LastManStanding));
 
         [UnityTest]
-        public IEnumerator LifetimeTerminatedWhileARecordIsShown_LoopEndsWithoutAnError() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator LifetimeTerminatedWhileARecordIsShown_LoopEndsWithoutAnError() => UniTask.ToCoroutine(async () => {
             _cardAnimation.Set(() => UniTask.Delay(TimeSpan.FromMinutes(1), cancellationToken: _lifetime.Token));
 
             Push(Snapshot(Card()));
@@ -174,8 +168,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator RecordsQueuedBeforeTheEnd_NotHandledAfterIt() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator RecordsQueuedBeforeTheEnd_NotHandledAfterIt() => UniTask.ToCoroutine(async () => {
             Push(Snapshot(Mana(1), Board(_a, Free(0, 0))));
             _lifetime.Terminate();
             await Frames(5);
@@ -189,8 +182,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator TheRestOfTheQueue_AfterTheEndWhileARecordIsShown_NotHandled() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator TheRestOfTheQueue_AfterTheEndWhileARecordIsShown_NotHandled() => UniTask.ToCoroutine(async () => {
             var animation = HoldCardAnimation();
 
             Push(Snapshot(Card(), Mana(1)));
@@ -205,8 +197,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator QueuedHandlerFails_MatchFailsWithTheError_NothingIsHandledAfterIt() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator QueuedHandlerFails_MatchFailsWithTheError_NothingIsHandledAfterIt() => UniTask.ToCoroutine(async () => {
             _cardAnimation.Set(() => UniTask.FromException(new InvalidOperationException("broken card")));
 
             Push(Snapshot(Card(), Mana(5)));
@@ -219,8 +210,7 @@ namespace GamePlay.Tests
         });
 
         [UnityTest]
-        public IEnumerator QueuedRecordWithoutHandler_MatchFails() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator QueuedRecordWithoutHandler_MatchFails() => UniTask.ToCoroutine(async () => {
             Push(Snapshot(new PlayerSnapshotRecord.HealthUpdate { PlayerId = _a, Current = 1 }, Mana(4)));
             await WaitFailures(1);
             await Frames(5);
@@ -272,8 +262,7 @@ namespace GamePlay.Tests
         }
 
         [UnityTest]
-        public IEnumerator SameRoundPlayer_HandlerFails_MatchFails() => UniTask.ToCoroutine(async () =>
-        {
+        public IEnumerator SameRoundPlayer_HandlerFails_MatchFails() => UniTask.ToCoroutine(async () => {
             Push(Snapshot(LastManStanding(_a)));
             await WaitHandled(1);
             _receiver.Add(typeof(LastManStandingRoundRecord), _ => UniTask.FromException(new InvalidOperationException("broken round")));
@@ -338,8 +327,7 @@ namespace GamePlay.Tests
 
         private void Handle<T>(List<string> handled) where T : IMoveSnapshotRecord
         {
-            _receiver.Add(typeof(T), record =>
-            {
+            _receiver.Add(typeof(T), record => {
                 handled.Add(Describe(record));
                 return UniTask.CompletedTask;
             });

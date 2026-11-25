@@ -1,4 +1,4 @@
-﻿using Game.ClientTelemetry;
+using Game.ClientTelemetry;
 using MetaGateway.UserFlow.Connection;
 using Shared;
 

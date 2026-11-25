@@ -1,13 +1,13 @@
-﻿using Internal;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
 {
     public class CardRemoteSpawnOptions : EnvAsset
     {
-        [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
-        [SerializeField] [CurveRange] private AnimationCurve _heightCurve;
-        [SerializeField] [CurveRange] private AnimationCurve _rotationCurve;
+        [SerializeField][CurveRange] private AnimationCurve _moveCurve;
+        [SerializeField][CurveRange] private AnimationCurve _heightCurve;
+        [SerializeField][CurveRange] private AnimationCurve _rotationCurve;
 
         [SerializeField] private float _time;
         [SerializeField] private float _addHeight;

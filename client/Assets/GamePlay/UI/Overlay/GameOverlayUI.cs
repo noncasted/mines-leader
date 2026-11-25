@@ -1,4 +1,4 @@
-﻿using GamePlay.Services;
+using GamePlay.Services;
 using Internal;
 using UnityEngine.UI;
 
@@ -28,9 +28,9 @@ namespace GamePlay.UI
         }
 
         private readonly IGamePause _pause;
-        
+
         private readonly Button _pauseButton;
-        
+
         private readonly PlayersOverlayUIBindings _playersOverlay;
         private readonly RoundOverlayUIBindings _roundOverlay;
 

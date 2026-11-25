@@ -1,10 +1,13 @@
 using GamePlay.Cheats;
 using UnityEngine.UIElements;
 
-namespace GamePlay.Editor {
+namespace GamePlay.Editor
+{
     // Tab of the cheats window: current and max mana of the local player.
-    internal static class CheatsManaTab {
-        public static void Build(VisualElement content) {
+    internal static class CheatsManaTab
+    {
+        public static void Build(VisualElement content)
+        {
             content.Add(CheatsUi.SectionLabel("Current Mana"));
             content.Add(CheatsUi.ButtonRow(
                 ("Zero", () => GameCheatsAccess.Require().ChangeMana(-10000), CheatsButtonColor.Red),

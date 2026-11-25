@@ -9,9 +9,9 @@ namespace Menu.Decks
     /// </summary>
     public sealed class PreviewBoardActions : IBoardActions
     {
-        public void Flag(Vector2Int position) {}
-        public void Unflag(Vector2Int position) {}
-        public void Open(Vector2Int position) {}
-        public void OpenMultiple(Vector2Int position) {}
+        public void Flag(Vector2Int position) { }
+        public void Unflag(Vector2Int position) { }
+        public void Open(Vector2Int position) { }
+        public void OpenMultiple(Vector2Int position) { }
     }
 }

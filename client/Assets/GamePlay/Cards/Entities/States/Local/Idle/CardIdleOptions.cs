@@ -1,4 +1,4 @@
-﻿using Internal;
+using Internal;
 using UnityEngine;
 
 namespace GamePlay.Cards
@@ -7,7 +7,8 @@ namespace GamePlay.Cards
     {
         [SerializeField] private Curve _selectionCurve;
 
-        [SerializeField] [CurveRange(0, 1, 1, 2)]
+        [SerializeField]
+        [CurveRange(0, 1, 1, 2)]
         private AnimationCurve _scaleCurve;
 
         [SerializeField] private float _selectionDistance;

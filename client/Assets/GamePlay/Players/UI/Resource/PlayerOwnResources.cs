@@ -20,7 +20,7 @@ namespace GamePlay.Players.Resource
             builder.RegisterComponent(this)
                    .As<ILocalPlayerCreated>();
         }
-        
+
         public void OnLocalPlayer(IReadOnlyLifetime lifetime, IGamePlayer player)
         {
             var manaOptions = new PlayerResourceOptions(

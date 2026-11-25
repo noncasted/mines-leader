@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Global.MatchMetrics;
 using Global.Setup;
 using Global.Telemetry;

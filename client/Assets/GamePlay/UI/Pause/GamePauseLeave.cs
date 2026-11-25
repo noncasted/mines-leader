@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
 using UnityEngine.UI;

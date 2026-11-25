@@ -20,7 +20,7 @@ namespace Menu.Unlocks
         [SerializeField] private UIElementPointerHandler _pointerHandler;
 
         private bool _isLocked;
-        
+
         public CardType Card { get; private set; }
 
         public void Setup(ICardDefinition definition, string description, int manaCost)

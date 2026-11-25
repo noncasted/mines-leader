@@ -3,8 +3,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace GamePlay.Editor {
-    public class GameCheatsEditorWindow : EditorWindow {
+namespace GamePlay.Editor
+{
+    public class GameCheatsEditorWindow : EditorWindow
+    {
         private int _activeTab;
         private VisualElement _tabContent;
         private Button[] _tabButtons;
@@ -12,10 +14,12 @@ namespace GamePlay.Editor {
         private static readonly string[] TabNames = { "Health", "Mana", "Turns", "Cards" };
 
         [MenuItem("Tools/Game Cheats %t")]
-        public static void ToggleWindow() {
+        public static void ToggleWindow()
+        {
             var existing = Resources.FindObjectsOfTypeAll<GameCheatsEditorWindow>();
 
-            if (existing.Length > 0) {
+            if (existing.Length > 0)
+            {
                 existing[0].Close();
                 return;
             }
@@ -25,7 +29,8 @@ namespace GamePlay.Editor {
             window.minSize = new Vector2(380, 300);
         }
 
-        public void CreateGUI() {
+        public void CreateGUI()
+        {
             var root = new VisualElement();
             root.style.flexGrow = 1;
             root.style.overflow = Overflow.Hidden;
@@ -51,7 +56,8 @@ namespace GamePlay.Editor {
 
         // --- Header ---
 
-        private VisualElement BuildHeader() {
+        private VisualElement BuildHeader()
+        {
             var header = new VisualElement();
             header.style.flexShrink = 0;
             header.style.flexDirection = FlexDirection.Row;
@@ -86,7 +92,8 @@ namespace GamePlay.Editor {
 
         // --- Tabs ---
 
-        private VisualElement BuildTabs() {
+        private VisualElement BuildTabs()
+        {
             var tabs = new VisualElement();
             tabs.style.flexShrink = 0;
             tabs.style.flexDirection = FlexDirection.Row;
@@ -96,7 +103,8 @@ namespace GamePlay.Editor {
 
             _tabButtons = new Button[TabNames.Length];
 
-            for (var i = 0; i < TabNames.Length; i++) {
+            for (var i = 0; i < TabNames.Length; i++)
+            {
                 var index = i;
                 var btn = new Button(() => SwitchTab(index)) { text = TabNames[i] };
                 btn.style.flexGrow = 1;
@@ -118,11 +126,13 @@ namespace GamePlay.Editor {
             return tabs;
         }
 
-        private void SwitchTab(int index) {
+        private void SwitchTab(int index)
+        {
             _activeTab = index;
             _tabContent.Clear();
 
-            for (var i = 0; i < _tabButtons.Length; i++) {
+            for (var i = 0; i < _tabButtons.Length; i++)
+            {
                 var active = i == index;
                 _tabButtons[i].style.backgroundColor = active
                     ? new Color(0.25f, 0.25f, 0.25f)
@@ -135,7 +145,8 @@ namespace GamePlay.Editor {
                     : new Color(0.14f, 0.14f, 0.14f);
             }
 
-            switch (index) {
+            switch (index)
+            {
                 case 0: CheatsHealthTab.Build(_tabContent); break;
                 case 1: CheatsManaTab.Build(_tabContent); break;
                 case 2: CheatsMovesTab.Build(_tabContent); break;

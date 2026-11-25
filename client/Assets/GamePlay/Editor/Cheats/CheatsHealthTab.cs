@@ -1,10 +1,13 @@
 using GamePlay.Cheats;
 using UnityEngine.UIElements;
 
-namespace GamePlay.Editor {
+namespace GamePlay.Editor
+{
     // Tab of the cheats window: current and max health of the local player, the end of the match.
-    internal static class CheatsHealthTab {
-        public static void Build(VisualElement content) {
+    internal static class CheatsHealthTab
+    {
+        public static void Build(VisualElement content)
+        {
             content.Add(CheatsUi.SectionLabel("Current Health"));
             content.Add(CheatsUi.ButtonRow(
                 ("Zero", () => GameCheatsAccess.Require().ChangeHealth(-10000), CheatsButtonColor.Red),

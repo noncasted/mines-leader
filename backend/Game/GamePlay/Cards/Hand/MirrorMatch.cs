@@ -1,4 +1,4 @@
-﻿using Cluster.Configs;
+using Cluster.Configs;
 using Shared;
 
 namespace Game.GamePlay;

@@ -68,7 +68,7 @@ namespace GamePlay.Loop
                 (l, lt) => l.OnPlayersCreated(lt, localPlayer, remotePlayer));
 
             _eventLoop.RunCustom<IGameStarted>(lifetime, static (l, lt) => l.OnGameStarted(lt));
-            
+
             _servicesInitializer.Init(lifetime);
 
             _log.Info("All players connected. Starting the match...");

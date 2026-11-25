@@ -1,4 +1,4 @@
-﻿namespace GamePlay.Cards
+namespace GamePlay.Cards
 {
     public interface IRemoteCard : ICard
     {

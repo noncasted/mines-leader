@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Game.Global;
+
 public static class SessionDefaultsExtensions
 {
     public static void PassSessionDefaults(this ServiceCollection collection, IServiceProvider serviceProvider)

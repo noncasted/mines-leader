@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GamePlay.Loop;
 using Global.Cameras;
 using Global.Telemetry;
@@ -69,26 +69,26 @@ namespace Flow.Loop
                 switch (transition)
                 {
                     case GameEndTransition.Exit exit:
-                    {
-                        _globalCamera.Enable();
-                        await _loadingScreen.Show();
-                        Menu().Forget();
-                        break;
-                    }
-                    case GameEndTransition.Rematch rematch:
-                    {
-                        var result = new SharedMatchmaking.MatchResult()
                         {
-                            ServerUrl = rematch.NewSession.ServerUrl,
-                            SessionId = rematch.NewSession.SessionId,
-                            Ticket = rematch.NewSession.Ticket,
-                            Type = loadData.Result.Type
-                        };
+                            _globalCamera.Enable();
+                            await _loadingScreen.Show();
+                            Menu().Forget();
+                            break;
+                        }
+                    case GameEndTransition.Rematch rematch:
+                        {
+                            var result = new SharedMatchmaking.MatchResult()
+                            {
+                                ServerUrl = rematch.NewSession.ServerUrl,
+                                SessionId = rematch.NewSession.SessionId,
+                                Ticket = rematch.NewSession.Ticket,
+                                Type = loadData.Result.Type
+                            };
 
-                        Game(new GameLoadData(result)).Forget();
+                            Game(new GameLoadData(result)).Forget();
 
-                        break;
-                    }
+                            break;
+                        }
                 }
             }
         }

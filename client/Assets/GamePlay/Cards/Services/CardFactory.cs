@@ -59,7 +59,7 @@ namespace GamePlay.Cards
             }
 
             return;
-            
+
             [ContainerScopeParent(typeof(GamePlayScopeExtensions), nameof(GamePlayScopeExtensions.Construct))]
             void BuildLocal(IEntityBuilder builder)
             {

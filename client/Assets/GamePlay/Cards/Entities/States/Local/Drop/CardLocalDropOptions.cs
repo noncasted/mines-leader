@@ -7,13 +7,15 @@ namespace GamePlay.Cards
     {
         [SerializeField] private float _time;
 
-        [SerializeField] [MinMaxSlider(300, 400)]
+        [SerializeField]
+        [MinMaxSlider(300, 400)]
         private Vector2 _twistAngleRange = new(350f, 370f);
 
-        [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
-        [SerializeField] [CurveRange] private AnimationCurve _twistCurve;
+        [SerializeField][CurveRange] private AnimationCurve _moveCurve;
+        [SerializeField][CurveRange] private AnimationCurve _twistCurve;
 
-        [SerializeField] [CurveRange(0, 0, 1, 2)]
+        [SerializeField]
+        [CurveRange(0, 0, 1, 2)]
         private AnimationCurve _scaleCurve;
 
         public float Time => _time;

@@ -1,4 +1,4 @@
-﻿namespace Game.GamePlay;
+namespace Game.GamePlay;
 
 public enum MatchTransitionResult
 {

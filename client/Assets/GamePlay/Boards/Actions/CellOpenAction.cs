@@ -1,4 +1,4 @@
-﻿using GamePlay.Loop;
+using GamePlay.Loop;
 using GamePlay.Players;
 using GamePlay.Services;
 using Internal;

@@ -1,4 +1,4 @@
-﻿using Common.Extensions;
+using Common.Extensions;
 using Infrastructure;
 using MetaGateway.UserFlow;
 

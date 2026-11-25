@@ -1,4 +1,4 @@
-﻿using Game.Session;
+using Game.Session;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Game.GamePlay;

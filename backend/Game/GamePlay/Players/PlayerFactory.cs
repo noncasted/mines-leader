@@ -1,4 +1,4 @@
-﻿using Game.Session;
+using Game.Session;
 using Infrastructure;
 using Meta.Users;
 using Microsoft.Extensions.Options;

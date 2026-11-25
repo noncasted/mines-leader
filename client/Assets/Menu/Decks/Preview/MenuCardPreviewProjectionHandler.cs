@@ -23,8 +23,7 @@ namespace Menu.Decks
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            _projection.View(lifetime, value =>
-            {
+            _projection.View(lifetime, value => {
                 // The projection is viewed before the backend sent it.
                 if (value == null)
                     return;

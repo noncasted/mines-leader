@@ -100,6 +100,6 @@ namespace GamePlay.UI
             _isDragging.Set(false);
         }
 
-        public void OnDrag(PointerEventData eventData) {}
+        public void OnDrag(PointerEventData eventData) { }
     }
 }

@@ -2,10 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace GamePlay.Editor {
+namespace GamePlay.Editor
+{
     // Shared elements of the tabs of the cheats window: coloured buttons, rows, labels, separators.
-    internal static class CheatsUi {
-        private static Color GetBg(CheatsButtonColor c) => c switch {
+    internal static class CheatsUi
+    {
+        private static Color GetBg(CheatsButtonColor c) => c switch
+        {
             CheatsButtonColor.Red => new Color(0.6f, 0.2f, 0.2f),
             CheatsButtonColor.Orange => new Color(0.55f, 0.35f, 0.15f),
             CheatsButtonColor.Green => new Color(0.2f, 0.5f, 0.2f),
@@ -13,7 +16,8 @@ namespace GamePlay.Editor {
             _ => new Color(0.3f, 0.3f, 0.3f)
         };
 
-        private static Color GetHover(CheatsButtonColor c) => c switch {
+        private static Color GetHover(CheatsButtonColor c) => c switch
+        {
             CheatsButtonColor.Red => new Color(0.7f, 0.25f, 0.25f),
             CheatsButtonColor.Orange => new Color(0.65f, 0.42f, 0.2f),
             CheatsButtonColor.Green => new Color(0.25f, 0.6f, 0.25f),
@@ -21,7 +25,8 @@ namespace GamePlay.Editor {
             _ => new Color(0.4f, 0.4f, 0.4f)
         };
 
-        private static Button ColorButton(string text, Action onClick, CheatsButtonColor color) {
+        private static Button ColorButton(string text, Action onClick, CheatsButtonColor color)
+        {
             var btn = new Button(onClick) { text = text };
             var bg = GetBg(color);
             var hover = GetHover(color);
@@ -44,12 +49,14 @@ namespace GamePlay.Editor {
             return btn;
         }
 
-        public static VisualElement ButtonRow(params (string text, Action action, CheatsButtonColor color)[] buttons) {
+        public static VisualElement ButtonRow(params (string text, Action action, CheatsButtonColor color)[] buttons)
+        {
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
             row.style.marginBottom = 4;
 
-            foreach (var (text, action, color) in buttons) {
+            foreach (var (text, action, color) in buttons)
+            {
                 var btn = ColorButton(text, action, color);
                 btn.style.flexGrow = 1;
                 btn.style.marginLeft = 2;
@@ -60,7 +67,8 @@ namespace GamePlay.Editor {
             return row;
         }
 
-        public static Label SectionLabel(string text) {
+        public static Label SectionLabel(string text)
+        {
             var label = new Label(text);
             label.style.color = new Color(0.7f, 0.7f, 0.7f);
             label.style.fontSize = 12;
@@ -69,7 +77,8 @@ namespace GamePlay.Editor {
             return label;
         }
 
-        public static VisualElement Separator() {
+        public static VisualElement Separator()
+        {
             var sep = new VisualElement();
             sep.style.height = 1;
             sep.style.backgroundColor = new Color(0.14f, 0.14f, 0.14f);

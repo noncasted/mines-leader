@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MemoryPack;
 
 namespace Shared

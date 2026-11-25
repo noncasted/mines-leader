@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Global.Cameras;
 using Internal;
 using UnityEngine;
@@ -56,9 +56,9 @@ namespace GamePlay.Services
             var start = _camera.orthographicSize;
 
             _updater.Progression(this.GetObjectLifetime(), time, progress => {
-                                var newSize = Mathf.Lerp(start, size, progress);
-                                _camera.orthographicSize = newSize;
-                            }
+                var newSize = Mathf.Lerp(start, size, progress);
+                _camera.orthographicSize = newSize;
+            }
                         )
                     .Forget();
         }

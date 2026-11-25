@@ -94,7 +94,7 @@ namespace GamePlay.Cards
 
                 var isOwned = _context.Self.Id == payload.TargetPlayer;
                 await _random.PlayDiceRoll(lifetime, payload.ActualLength, isOwned);
-                
+
                 // 2. Action animation
                 if (payload.OpenedCells.Count > 0)
                 {

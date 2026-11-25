@@ -18,13 +18,11 @@ namespace Global.Audio
             // The shared sounds are downloaded in parallel with the startup: the buttons are silent until they are.
             ButtonSounds.Bind(
                 lifetime,
-                () =>
-                {
+                () => {
                     if (GlobalAudio.IsLoaded == true)
                         _player.PlayRandomFromGroup(GlobalAudio.UIButtonClick);
                 },
-                () =>
-                {
+                () => {
                     if (GlobalAudio.IsLoaded == true)
                         _player.PlayRandomFromGroup(GlobalAudio.UIElementHover);
                 });

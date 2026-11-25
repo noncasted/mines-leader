@@ -31,7 +31,7 @@ namespace Menu.Navigation
             _unlocks = unlocksScreen;
             _decks = decks;
             _play = play;
-            
+
             _unlocksButton = canvasBindings.Navigation.Unlocks.MenuNavigationButton;
             _deckButton = canvasBindings.Navigation.Deck.MenuNavigationButton;
             _playButton = canvasBindings.Navigation.Play.MenuNavigationButton;
@@ -52,7 +52,7 @@ namespace Menu.Navigation
         private readonly IUIStateMachine _stateMachine;
         private readonly IMenuSettings _settings;
         private readonly MenuCanvasBindings _canvasBindings;
-        
+
         private IUIStateHandle _current;
 
         public void OnSetup(IReadOnlyLifetime lifetime)

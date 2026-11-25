@@ -1,4 +1,4 @@
-﻿using GamePlay.Cards;
+using GamePlay.Cards;
 using Internal;
 using Shared;
 

@@ -266,8 +266,7 @@ public class UserConnectionEntryPointTests(OrleansTestClusterFixture fixture)
         {
             return _written
                    .Select(context => ((SharedBackendProjection)context).Context)
-                   .Select(context => context switch
-                   {
+                   .Select(context => context switch {
                        SharedBackendUser.ProfileProjection profile => profile.Name,
                        InitialCardPreviews => Previews,
                        _ => null

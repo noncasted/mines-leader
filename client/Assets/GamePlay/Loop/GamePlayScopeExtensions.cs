@@ -51,7 +51,7 @@ namespace GamePlay.Loop
             builder.RequestPrefabGroup(GamePlayPrefabs.Group);
             builder.RequestAudioGroup(GamePlayAudio.Group);
             builder.RequestEnvAssetGroup(GamePlayAssets.Group);
-            
+
             builder
                 .AddGamePlayServices()
                 .AddGameOverlayServices()
@@ -68,7 +68,7 @@ namespace GamePlay.Loop
 
             // CardVfxFactory injects VFX created at runtime.
             builder.Injectable<ZipZapLine>();
-            
+
             builder.AddGameEndServices();
 
             builder.Register<GameServicesInitializer>();

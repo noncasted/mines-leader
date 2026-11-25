@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Internal;
 using UnityEngine;
 
@@ -20,10 +20,11 @@ namespace GamePlay.Services
         [SerializeField] private float _distance = 1f;
         [SerializeField] private float _scale = 1f;
         [SerializeField] private Vector3 _direction = Vector3.up;
-        [SerializeField] [CurveRange] private AnimationCurve _move = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-        [SerializeField] [CurveRange] private AnimationCurve _fade = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+        [SerializeField][CurveRange] private AnimationCurve _move = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+        [SerializeField][CurveRange] private AnimationCurve _fade = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
 
-        [SerializeField] [CurveRange(0, 0, 1, 2)]
+        [SerializeField]
+        [CurveRange(0, 0, 1, 2)]
         private AnimationCurve _size = AnimationCurve.Constant(0f, 1f, 1f);
 
         private IUpdater _updater;

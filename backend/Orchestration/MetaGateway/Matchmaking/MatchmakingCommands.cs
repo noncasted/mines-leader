@@ -1,4 +1,4 @@
-﻿using MetaGateway.UserFlow.Commands;
+using MetaGateway.UserFlow.Commands;
 using MetaGateway.UserFlow.Connection;
 using Shared;
 

@@ -80,7 +80,7 @@ namespace GamePlay.Cards
                     var positions = payload.OpenedCells.Select(o => o.Position).ToList();
                     await _animator.PlayActionAnimation(lifetime, payload.TargetPlayer, positions);
                 }
-                
+
                 var board = _context.GetPlayer(payload.TargetPlayer).Board;
                 var targets = new List<(Position Position, IBoardCell Cell)>();
 

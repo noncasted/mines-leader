@@ -4,11 +4,15 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace GamePlay.Editor {
+namespace GamePlay.Editor
+{
     // Tab of the cheats window: every card by name with a search, a click adds the card to the hand.
-    internal static class CheatsCardsTab {
-        public static void Build(VisualElement content) {
-            if (GameCheatsAccess.IsActive == false) {
+    internal static class CheatsCardsTab
+    {
+        public static void Build(VisualElement content)
+        {
+            if (GameCheatsAccess.IsActive == false)
+            {
                 content.Add(CheatsUi.SectionLabel("Not in game - cards unavailable"));
                 return;
             }
@@ -26,17 +30,20 @@ namespace GamePlay.Editor {
             scroll.style.minHeight = 0;
             content.Add(scroll);
 
-            void Rebuild(string filter) {
+            void Rebuild(string filter)
+            {
                 scroll.Clear();
 
                 VisualElement currentRow = null;
                 var col = 0;
 
-                foreach (var card in cards) {
+                foreach (var card in cards)
+                {
                     if (!Matches(card, filter))
                         continue;
 
-                    if (col % 4 == 0) {
+                    if (col % 4 == 0)
+                    {
                         currentRow = new VisualElement();
                         currentRow.style.flexDirection = FlexDirection.Row;
                         currentRow.style.marginBottom = 4;
@@ -55,7 +62,8 @@ namespace GamePlay.Editor {
             Rebuild(string.Empty);
         }
 
-        private static bool Matches(CheatCardInfo card, string filter) {
+        private static bool Matches(CheatCardInfo card, string filter)
+        {
             if (string.IsNullOrWhiteSpace(filter))
                 return true;
 
@@ -63,7 +71,8 @@ namespace GamePlay.Editor {
                    && card.Name.IndexOf(filter.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static Button BuildCardTile(CheatCardInfo card) {
+        private static Button BuildCardTile(CheatCardInfo card)
+        {
             var typeId = card.TypeId;
             var tile = new Button(() => GameCheatsAccess.Require().AddCard(typeId));
             tile.style.flexGrow = 0;

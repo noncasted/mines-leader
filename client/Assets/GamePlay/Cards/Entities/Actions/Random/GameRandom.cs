@@ -165,8 +165,8 @@ namespace GamePlay.Cards
         {
             [SerializeField] private Transform _from;
             [SerializeField] private Transform _to;
-            [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
-            [SerializeField] [CurveRange] private AnimationCurve _heightCurve;
+            [SerializeField][CurveRange] private AnimationCurve _moveCurve;
+            [SerializeField][CurveRange] private AnimationCurve _heightCurve;
             [SerializeField] private float _maxHeight;
 
             public Transform From => _from;

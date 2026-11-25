@@ -236,10 +236,10 @@ public static class BenchmarkEndpoints
             RegressionPercent = state.RegressionPercent,
             IsRegression = state.IsRegression,
             Samples = state.Records.Select(r => new BenchmarkSampleDto
-                           {
-                               Count = r.Count,
-                               TimeMs = (long)r.Time.TotalMilliseconds
-                           })
+            {
+                Count = r.Count,
+                TimeMs = (long)r.Time.TotalMilliseconds
+            })
                            .ToList()
         };
     }

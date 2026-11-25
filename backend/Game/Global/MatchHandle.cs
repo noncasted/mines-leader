@@ -1,4 +1,4 @@
-﻿using Cluster.Discovery;
+using Cluster.Discovery;
 using Common.Network;
 using Game.GamePlay;
 using Game.Session;

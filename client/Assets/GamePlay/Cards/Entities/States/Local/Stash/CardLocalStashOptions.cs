@@ -7,8 +7,8 @@ namespace GamePlay.Cards
     {
         [SerializeField] private float _time = 0.6f;
 
-        [SerializeField] [CurveRange] private AnimationCurve _moveCurve;
-        [SerializeField] [CurveRange(0, 0, 1, 2)] private AnimationCurve _scaleCurve;
+        [SerializeField][CurveRange] private AnimationCurve _moveCurve;
+        [SerializeField][CurveRange(0, 0, 1, 2)] private AnimationCurve _scaleCurve;
 
         public float Time => _time;
         public Curve MoveCurve => new(_time, _moveCurve);

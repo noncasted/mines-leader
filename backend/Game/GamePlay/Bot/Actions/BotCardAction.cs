@@ -1,4 +1,4 @@
-﻿using Cluster.Configs;
+using Cluster.Configs;
 using Common.Extensions;
 using Internal;
 using Game.Session;

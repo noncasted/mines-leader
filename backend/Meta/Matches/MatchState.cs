@@ -13,20 +13,20 @@ namespace Meta.Matches;
 [GrainEventState(State = "match_entity", Lookup = "Match", Key = GrainKeyType.Guid)]
 public class MatchState : IEventStateValue
 {
-    [Id(0)] [JsonProperty] public string Id { get; private set; } = string.Empty;
-    [Id(1)] [JsonProperty] public GameMatchType Type { get; private set; }
-    [Id(2)] [JsonProperty] public Guid Winner { get; private set; }
-    [Id(3)] [JsonProperty] public TimeSpan Time { get; private set; }
-    [Id(4)] [JsonProperty] public DateTime StartDate { get; private set; }
-    [Id(5)] [JsonProperty] public IReadOnlyList<Guid> Participants { get; private set; } = new List<Guid>();
-    [Id(6)] [JsonProperty] public Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks { get; private set; } = new();
-    [Id(7)] [JsonProperty] public Dictionary<Guid, int> RatingChanges { get; private set; } = new();
+    [Id(0)][JsonProperty] public string Id { get; private set; } = string.Empty;
+    [Id(1)][JsonProperty] public GameMatchType Type { get; private set; }
+    [Id(2)][JsonProperty] public Guid Winner { get; private set; }
+    [Id(3)][JsonProperty] public TimeSpan Time { get; private set; }
+    [Id(4)][JsonProperty] public DateTime StartDate { get; private set; }
+    [Id(5)][JsonProperty] public IReadOnlyList<Guid> Participants { get; private set; } = new List<Guid>();
+    [Id(6)][JsonProperty] public Dictionary<Guid, IReadOnlyList<CardType>> ParticipantDecks { get; private set; } = new();
+    [Id(7)][JsonProperty] public Dictionary<Guid, int> RatingChanges { get; private set; } = new();
 
     // The names of the participants at the setup; a participant renamed later keeps its old name here.
-    [Id(8)] [JsonProperty] public Dictionary<Guid, string> Nicknames { get; private set; } = new();
+    [Id(8)][JsonProperty] public Dictionary<Guid, string> Nicknames { get; private set; } = new();
 
     // Null while the match runs.
-    [Id(9)] [JsonProperty] public DateTime? ClosedAt { get; private set; }
+    [Id(9)][JsonProperty] public DateTime? ClosedAt { get; private set; }
 
     public int Version => 0;
 
