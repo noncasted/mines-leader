@@ -19,7 +19,7 @@ namespace GamePlay.Tests
         }
 
         private readonly ViewableProperty<ICellState> _state = new(null);
-        private readonly FakeCellEffects _effects = new();
+        private readonly CellEffectsState _effects = new();
         private readonly FakeBoard _board;
 
         public Vector2Int BoardPosition { get; }
@@ -29,7 +29,7 @@ namespace GamePlay.Tests
         public IBoard Source => _board;
 
         public IViewableProperty<ICellState> State => _state;
-        public ICellEffects Effects => _effects;
+        public ICellEffectsState Effects => _effects;
         public CellExplosionType? Exploded { get; private set; }
 
         public ICellSelectionView Selection => throw new NotSupportedException();

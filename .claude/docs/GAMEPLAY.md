@@ -524,6 +524,7 @@ BoardParser.AssertBoard(board, """
 | `client/Assets/GamePlay/Loop/Context/MatchEventLoop.cs` | Listens for match updates |
 | `client/Assets/GamePlay/Boards/Root/Board.cs` | Client board representation |
 | `client/Assets/GamePlay/Boards/Cells/CellView.cs` | Cell visual component |
+| `client/Assets/GamePlay/Boards/Cells/Effects/CellEffectsState.cs` | Effects of a cell by effect id (`IBoardCell.Effects`, a `ViewableDictionary`); sync and animators write here, a status change clears it, the `CellEffects` view shows an effect for the lifetime of its entry |
 | `client/Assets/GamePlay/Boards/Cells/CellAnimator.cs` | Cell reveal/flag animations |
 | `client/Assets/GamePlay/Boards/Cells/IBoardCellsAnimator.cs` | Card-driven cell animations (`PlayTargetAnimation` / `PlayActionAnimation`) |
 | `client/Assets/GamePlay/Cards/Services/CardFactory.cs` | Creates card visuals |

@@ -137,12 +137,12 @@ namespace GamePlay.Tests
 
             _resolver.Resolve(new BoardSnapshotRecord.EffectAdded { Position = new Position(3, 1), EffectId = id, Type = CellEffectType.Smoke });
 
-            CollectionAssert.AreEqual(new[] { CellEffectType.Smoke }, cell.Effects.Active);
-            Assert.IsEmpty(_board.Cell(1, 3).Effects.Active);
+            CollectionAssert.AreEqual(new[] { CellEffectType.Smoke }, cell.Effects.Active.Values);
+            Assert.IsEmpty(_board.Cell(1, 3).Effects.Active.Values);
 
             _resolver.Resolve(new BoardSnapshotRecord.EffectRemoved { Position = new Position(3, 1), EffectId = id });
 
-            Assert.IsEmpty(cell.Effects.Active);
+            Assert.IsEmpty(cell.Effects.Active.Values);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace GamePlay.Tests
             _resolver.Resolve(new BoardSnapshotRecord.EffectAdded { Position = new Position(0, 0), EffectId = Guid.NewGuid(), Type = CellEffectType.Fog });
             _resolver.Resolve(new BoardSnapshotRecord.EffectAdded { Position = new Position(0, 0), EffectId = Guid.NewGuid(), Type = CellEffectType.MineHighlight });
 
-            CollectionAssert.AreEquivalent(new[] { CellEffectType.Fog, CellEffectType.MineHighlight }, cell.Effects.Active);
+            CollectionAssert.AreEquivalent(new[] { CellEffectType.Fog, CellEffectType.MineHighlight }, cell.Effects.Active.Values);
         }
 
         [Test]

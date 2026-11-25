@@ -22,6 +22,7 @@ namespace GamePlay.Boards
         [SerializeField] private CellEffects _effects;
 
         private readonly ViewableProperty<ICellState> _state = new(null);
+        private readonly CellEffectsState _effectsState = new();
         private IBoardActions _actions;
 
         public Vector2Int BoardPosition => _boardPosition;
@@ -31,7 +32,7 @@ namespace GamePlay.Boards
         public IBoard Source => _board;
         public ICellSelectionView Selection => _selection;
         public ICellVisuals Visuals => _visuals;
-        public ICellEffects Effects => _effects;
+        public ICellEffectsState Effects => _effectsState;
 
         public string PlayingAnimation
         {
@@ -54,6 +55,12 @@ namespace GamePlay.Boards
             _board = board;
         }
 
+        // The lifetime of the board: the view of the effects follows their state while it lives.
+        public void OnSetup(IReadOnlyLifetime lifetime)
+        {
+            _effects.View(lifetime, _effectsState);
+        }
+
         public void Setup(IUpdater updater, IBoardActions actions)
         {
             _actions = actions;
@@ -69,7 +76,7 @@ namespace GamePlay.Boards
         {
             if (_state.Value is not CellTakenState)
             {
-                _effects.Clear();
+                _effectsState.Clear();
 
                 var taken = new CellTakenState(this, _takenView, _actions);
                 _state.Set(taken);
@@ -83,7 +90,7 @@ namespace GamePlay.Boards
         {
             if (_state.Value is not CellFreeState)
             {
-                _effects.Clear();
+                _effectsState.Clear();
 
                 _cellAnimator.PlayOpen(this.GetObjectLifetime()).Forget();
                 var free = new CellFreeState(_boardPosition, _freeView);
@@ -108,7 +115,7 @@ namespace GamePlay.Boards
 
         public void ResetState()
         {
-            _effects.Clear();
+            _effectsState.Clear();
             _state.Set(null);
         }
 

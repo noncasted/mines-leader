@@ -14,7 +14,7 @@ namespace GamePlay.Boards
         IBoard Source { get; }
         ICellSelectionView Selection { get; }
         ICellVisuals Visuals { get; }
-        ICellEffects Effects { get; }
+        ICellEffectsState Effects { get; }
 
         // The kind of the animation the cell plays now, null when it is idle.
         string PlayingAnimation { get; }

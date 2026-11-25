@@ -25,7 +25,7 @@ namespace GamePlay.Agent
             if (player.Board.Cells.TryGetValue(new Vector2Int(x, y), out var cell) == false)
                 return CellInspect.Missing(x, y);
 
-            var effects = cell.Effects.Active.Select(type => type.ToString()).ToList();
+            var effects = cell.Effects.Active.Values.Select(type => type.ToString()).ToList();
 
             return cell.State.Value switch
             {

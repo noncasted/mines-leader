@@ -95,8 +95,9 @@ namespace Menu.Decks
             // Comprehensive reset between preview cards. Three-prong:
             //  1) Directly disable every CellEffect prefab under the board (Smoke/Frost/Blackout
             //     /Fog/ThermalVision/MineHighlight overlays) — most direct kill.
-            //  2) Toggle each CellEffects host off/on and call ForceTerminate on its
-            //     GameObjectLifetime so child lifetimes & their Listen callbacks get wiped.
+            //  2) Toggle each GameObjectLifetime host off/on and call ForceTerminate on it
+            //     so child lifetimes & their Listen callbacks get wiped. The cell effects
+            //     end with ResetState below: it clears their state.
             //  3) Disable every CellVisuals target/action reticle overlay (can freeze on a
             //     mid-animation frame if the previous lifetime was cancelled).
             var lifetimes = _board.GetComponentsInChildren<GameObjectLifetime>(includeInactive: true);

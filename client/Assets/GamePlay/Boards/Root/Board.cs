@@ -59,7 +59,10 @@ namespace GamePlay.Boards
             _cellsDictionary.Clear();
 
             foreach (var cell in _cells)
+            {
                 _cellsDictionary.Add(cell.BoardPosition, cell);
+                cell.OnSetup(lifetime);
+            }
         }
 
         // The cells are children of the board: BoardConstructor lays them out in its local space.
