@@ -8,7 +8,7 @@ Competitive multiplayer minesweeper. Three codebases in one repo:
 
 ## Build and test
 
-- `tools/scripts/run-tests.sh` is the only full run (there is no CI): backend (needs Docker), the container generator
+- `tools/scripts/run-tests.sh` is the only full run (GitHub CI builds and tests only the backend): backend (needs Docker), the container generator
   and Unity EditMode, all in a snapshot of the working tree, so the open editor and a running cluster stay untouched;
   `--skip-unity`, `--skip-backend`. One class and the test logs: `.claude/docs/TESTING.md`.
 - Backend build: `dotnet build backend/backend.slnx`.

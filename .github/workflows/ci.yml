@@ -1,7 +1,10 @@
 name: CI
 
-# Builds and tests the backend (unit + Orleans test cluster). Unity tests are not run here; the container source
-# generator is checked by the CI of the framework (tools/framework).
+# Builds and tests the backend (unit + Orleans test cluster). The container source generator is checked by the CI of
+# the framework (tools/framework). The Unity EditMode tests run locally in tools/scripts/run-tests.sh (backend,
+# generator, Unity in batchmode on a snapshot of the tree, report in <logs>/report.md); /deploy-client runs it before
+# every WebGL upload, so they gate each deploy. Why not here: docs/decisions/0007-unity-tests-local-gate.md (no GameCI
+# image of Unity 7000.0.0a10, licence, cold import on a runner).
 
 on:
   push:
