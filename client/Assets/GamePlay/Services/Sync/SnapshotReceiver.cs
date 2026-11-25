@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using GamePlay.Loop;
 using Internal;
 using Shared;
-using UnityEngine;
 
 namespace GamePlay.Services
 {
@@ -12,19 +12,26 @@ namespace GamePlay.Services
         void Add(Type type, Func<IMoveSnapshotRecord, UniTask> handler);
     }
 
+    // Applies the records of the move snapshots: most of them one after another through a queue (a record waits for the
+    // animation of the one before it), a few at once. A handler that throws breaks the synced state: the match ends
+    // with an error (IGameState.OnFailed), the error goes to the log and with it to the client telemetry.
     public class SnapshotReceiver : OneWayCommand<SharedMoveSnapshot>, ISnapshotReceiver, IReceivedSnapshots, IScopeSetup
     {
-        public SnapshotReceiver(ILog<SnapshotReceiver> log)
+        public SnapshotReceiver(IGameState gameState, ILog<SnapshotReceiver> log)
         {
+            _gameState = gameState;
             _log = log;
         }
 
+        private readonly IGameState _gameState;
         private readonly ILog _log;
         private readonly Dictionary<Type, Func<IMoveSnapshotRecord, UniTask>> _handlers = new();
         private readonly EventSource<SharedMoveSnapshot> _received = new();
         private readonly Queue<IMoveSnapshotRecord> _queue = new();
+        private readonly EventSource _enqueued = new();
 
         private Guid _roundPlayerId;
+        private bool _isFailed;
 
         public IEventSource<SharedMoveSnapshot> Received => _received;
 
@@ -35,18 +42,36 @@ namespace GamePlay.Services
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            Loop(lifetime).Forget();
+            Loop(lifetime).NoAwait();
         }
 
         protected override void Execute(IReadOnlyLifetime lifetime, SharedMoveSnapshot context)
         {
+            // The match is ending with an error: the snapshots after it are not applied to the broken state.
+            if (_isFailed == true)
+                return;
+
             _received.Invoke(context);
 
+            // The boundary of the records applied at once: their failure ends the match as one in the queue does,
+            // instead of the log of the network dispatcher and a match that goes on out of sync.
+            try
+            {
+                Dispatch(context);
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
+        }
+
+        private void Dispatch(SharedMoveSnapshot context)
+        {
             foreach (var record in context.Records)
             {
                 if (record is SharedBoardSnapshot boardSnapshot)
                 {
-                    ProcessBoardSnapshot(boardSnapshot);
+                    DispatchBoardSnapshot(boardSnapshot);
                     continue;
                 }
 
@@ -62,9 +87,8 @@ namespace GamePlay.Services
                     continue;
                 }
 
-                // Ресурсы игрока идут через очередь наравне со всем остальным: сервер
-                // присылает их после записи о действии, и счётчики обязаны меняться
-                // только когда анимация карты или вскрытия уже отыграла.
+                // The resources of a player go through the queue with everything else: the server sends them after the
+                // record of the action, and the counters change only when the card or the reveal animation has played.
                 Enqueue(record);
             }
         }
@@ -73,7 +97,8 @@ namespace GamePlay.Services
         {
             if (currentPlayer == _roundPlayerId)
             {
-                HandleRecordImmediately(record);
+                HandleNow(record);
+                RememberRoundPlayer(record);
                 return;
             }
 
@@ -81,21 +106,7 @@ namespace GamePlay.Services
             Enqueue(record);
         }
 
-        private void Enqueue(IMoveSnapshotRecord record)
-        {
-            _queue.Enqueue(record);
-        }
-
-        private void HandleRecordImmediately(IMoveSnapshotRecord record)
-        {
-            if (_handlers.TryGetValue(record.GetType(), out var handler) == false)
-                return;
-
-            handler.Invoke(record);
-            RememberRoundPlayer(record);
-        }
-
-        private void ProcessBoardSnapshot(SharedBoardSnapshot boardSnapshot)
+        private void DispatchBoardSnapshot(SharedBoardSnapshot boardSnapshot)
         {
             List<IBoardSnapshotRecord> queued = null;
 
@@ -103,7 +114,12 @@ namespace GamePlay.Services
             {
                 if (record is BoardSnapshotRecord.Flag)
                 {
-                    HandleBoardRecordImmediately(boardSnapshot.BoardOwnerId, record);
+                    HandleNow(new SharedBoardSnapshot
+                    {
+                        BoardOwnerId = boardSnapshot.BoardOwnerId,
+                        Records = new List<IBoardSnapshotRecord> { record }
+                    });
+
                     continue;
                 }
 
@@ -121,50 +137,77 @@ namespace GamePlay.Services
             }
         }
 
-        private void HandleBoardRecordImmediately(Guid boardOwnerId, IBoardSnapshotRecord record)
+        // A record applied at once has a synchronous handler (Resolver.Handle returns the task of BoardSnapshotHandler or
+        // of a round handler, both complete): a pending one would apply after the records queued behind it and lose its
+        // exception, so it is an error, and a faulted one rethrows here.
+        private void HandleNow(IMoveSnapshotRecord record)
         {
-            if (_handlers.TryGetValue(typeof(SharedBoardSnapshot), out var handler) == false)
-                return;
+            var handling = HandlerOf(record).Invoke(record);
 
-            var snapshot = new SharedBoardSnapshot
+            if (handling.Status == UniTaskStatus.Pending)
             {
-                BoardOwnerId = boardOwnerId,
-                Records = new List<IBoardSnapshotRecord> { record }
-            };
+                throw new InvalidOperationException(
+                    $"[Snapshot] The handler of {record.GetType().Name} is applied at once and must complete synchronously.");
+            }
 
-            handler.Invoke(snapshot);
+            handling.GetAwaiter().GetResult();
+        }
+
+        private void Enqueue(IMoveSnapshotRecord record)
+        {
+            _queue.Enqueue(record);
+            _enqueued.Invoke();
         }
 
         private async UniTask Loop(IReadOnlyLifetime lifetime)
         {
-            while (lifetime.IsTerminated == false)
+            try
             {
-                if (_queue.Count == 0)
-                    await UniTask.Yield();
-
-                try
+                while (lifetime.IsTerminated == false && _isFailed == false)
                 {
-                    while (_queue.TryDequeue(out var record) == true)
-                    {
-                        var type = record.GetType();
+                    if (_queue.Count == 0)
+                        await WaitEnqueued(lifetime);
 
-                        if (_handlers.TryGetValue(type, out var handler) == false)
-                            throw new ArgumentException($"No handler found for record type {type.Name}.");
+                    var record = _queue.Dequeue();
 
-                        await handler.Invoke(record);
-                        RememberRoundPlayer(record);
-                    }
-                }
-                catch (OperationCanceledException) when (lifetime.IsTerminated == true)
-                {
-                    // The match scope is torn down while a record is shown (a card flies): its waits are canceled.
-                    return;
-                }
-                catch (Exception e)
-                {
-                    _log.Error(e, "Exception occurred while processing move snapshot records");
+                    await HandlerOf(record).Invoke(record);
+                    RememberRoundPlayer(record);
                 }
             }
+            catch (OperationCanceledException) when (lifetime.IsTerminated == true)
+            {
+                // The match scope is torn down while the queue is empty or a record is shown (a card flies): its waits
+                // are canceled, the records left in the queue are not applied.
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+            }
+        }
+
+        // The wake comes inside Execute: the queue starts on the next player loop, after every record of the received
+        // snapshot is dispatched, so the records applied at once come before the queued ones of the same snapshot.
+        private async UniTask WaitEnqueued(IReadOnlyLifetime lifetime)
+        {
+            await _enqueued.WaitInvoke(lifetime);
+            await UniTask.Yield(lifetime.Token);
+        }
+
+        private Func<IMoveSnapshotRecord, UniTask> HandlerOf(IMoveSnapshotRecord record)
+        {
+            var type = record.GetType();
+
+            if (_handlers.TryGetValue(type, out var handler) == false)
+                throw new ArgumentException($"[Snapshot] No handler for the record type {type.Name}.");
+
+            return handler;
+        }
+
+        private void Fail(Exception exception)
+        {
+            _isFailed = true;
+            _log.Error(exception, "[Snapshot] A record failed to apply: the match ends with an error");
+            _gameState.OnFailed();
         }
 
         private void RememberRoundPlayer(IMoveSnapshotRecord record)

@@ -30,8 +30,8 @@ namespace GamePlay.Boards
 
         public async UniTask Play(IReadOnlyLifetime lifetime, MatchCompletedData data)
         {
-            // The player left the match: there are no results and no boards to reveal.
-            if (data.Type == MatchResultType.Leave)
+            // The player left the match or it failed: there are no results and no boards to reveal.
+            if (data.Type is MatchResultType.Leave or MatchResultType.Failed)
                 return;
 
             List<IBoardCell> mines = null;

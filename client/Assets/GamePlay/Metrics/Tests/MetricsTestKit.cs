@@ -121,6 +121,7 @@ namespace GamePlay.Metrics.Tests
             public void SetWinner(GameCompletedRecord record) => throw new NotSupportedException();
             public UniTask<MatchCompletedData> WaitCompletion(IReadOnlyLifetime lifetime) => throw new NotSupportedException();
             public void OnLeave() => throw new NotSupportedException();
+            public void OnFailed() => throw new NotSupportedException();
         }
     }
 }

@@ -137,7 +137,7 @@ Series and events of a player (the client of the player writes only its own play
 | `turns` | counter | - | turns started (turn-based mode) |
 | `turn.end` | event | `number`, `seconds` (length of the turn), `cells`, `cards` | end of the own turn |
 | `card.play` | event | `card`, `board` (`own` / `enemy`), `cells` (the touched cells, when known) | a card played |
-| `match.end` | event | `result` = `win` / `lose` / `leave`, `seconds` | the outcome on the client (no draw in the game) |
+| `match.end` | event | `result` = `win` / `lose` / `leave` / `failed` (a snapshot failed to apply, `SnapshotReceiver`), `seconds` | the outcome on the client (no draw in the game) |
 
 `card` is the name of `CardType` in lower case (`Trebuchet_Max` -> `trebuchet_max`). A field the client does not know is
 left out; the name stays.

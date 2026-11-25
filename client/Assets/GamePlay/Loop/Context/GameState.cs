@@ -23,6 +23,7 @@ namespace GamePlay.Loop
         void SetWinner(GameCompletedRecord record);
         UniTask<MatchCompletedData> WaitCompletion(IReadOnlyLifetime lifetime);
         void OnLeave();
+        void OnFailed();
     }
 
     public class GameState : IGameState
@@ -86,6 +87,14 @@ namespace GamePlay.Loop
             _completion.TrySetResult(new MatchCompletedData()
             {
                 Type = MatchResultType.Leave
+            });
+        }
+
+        public void OnFailed()
+        {
+            _completion.TrySetResult(new MatchCompletedData()
+            {
+                Type = MatchResultType.Failed
             });
         }
     }

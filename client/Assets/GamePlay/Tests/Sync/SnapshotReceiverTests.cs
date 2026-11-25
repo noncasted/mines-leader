@@ -11,9 +11,10 @@ using UnityEngine.TestTools;
 
 namespace GamePlay.Tests
 {
-    // Reference of the queue of SnapshotReceiver before snapshot_receiver.md: board flags at once, the rest of the board
-    // and the resources of a player after the records before them, a round of the same player at once and a switch of the
-    // player after the queue, the end of the match while a record is shown ends the loop quietly.
+    // The queue of SnapshotReceiver: board flags at once, the rest of the board and the resources of a player after the
+    // records before them, a round of the same player at once and a switch of the player after the queue, the end of the
+    // match stops the queue quietly; a failed record (a throwing or missing handler, in the queue or at once) ends the match
+    // with an error and nothing is applied after it.
     // The card handler stands for an animation: it does not complete until the test lets it.
     public class SnapshotReceiverTests
     {
@@ -24,6 +25,7 @@ namespace GamePlay.Tests
 
         private Lifetime _lifetime;
         private FakeLog<SnapshotReceiver> _log;
+        private FakeGameState _gameState;
         private SnapshotReceiver _receiver;
         private List<string> _handled;
         private CardAnimation _cardAnimation;
@@ -33,10 +35,9 @@ namespace GamePlay.Tests
         {
             _lifetime = new Lifetime();
             _log = new FakeLog<SnapshotReceiver>();
-            _receiver = new SnapshotReceiver(_log);
+            _gameState = new FakeGameState();
+            _receiver = new SnapshotReceiver(_gameState, _log);
 
-            // The handlers write to the objects of this test only: the loop of an ended test may still run a record
-            // (see RecordsQueuedBeforeTheEnd_HandledOnceAfterIt).
             var handled = new List<string>();
             var cardAnimation = new CardAnimation();
             _handled = handled;
@@ -172,63 +173,115 @@ namespace GamePlay.Tests
             Assert.IsEmpty(_log.Entries);
         });
 
-        // Current behaviour: the loop checks the lifetime only before it waits for a frame, so the records queued before
-        // the end of the match are still handled once after it.
         [UnityTest]
-        public IEnumerator RecordsQueuedBeforeTheEnd_HandledOnceAfterIt() => UniTask.ToCoroutine(async () =>
+        public IEnumerator RecordsQueuedBeforeTheEnd_NotHandledAfterIt() => UniTask.ToCoroutine(async () =>
         {
             Push(Snapshot(Mana(1), Board(_a, Free(0, 0))));
             _lifetime.Terminate();
             await Frames(5);
 
-            CollectionAssert.AreEqual(new[] { "mana 1", "board A: free 0,0" }, _handled);
-
             Push(Snapshot(Mana(2)));
             await Frames(5);
 
-            Assert.AreEqual(2, _handled.Count);
+            Assert.IsEmpty(_handled);
+            Assert.IsEmpty(_log.Entries);
+            Assert.AreEqual(0, _gameState.Failures);
+        });
+
+        [UnityTest]
+        public IEnumerator TheRestOfTheQueue_AfterTheEndWhileARecordIsShown_NotHandled() => UniTask.ToCoroutine(async () =>
+        {
+            var animation = HoldCardAnimation();
+
+            Push(Snapshot(Card(), Mana(1)));
+            await WaitHandled(1);
+
+            _lifetime.Terminate();
+            animation.TrySetResult();
+            await Frames(5);
+
+            CollectionAssert.AreEqual(new[] { "card" }, _handled);
             Assert.IsEmpty(_log.Entries);
         });
 
-        // Current behaviour, snapshot_receiver.md step 3 decides its policy: the error is logged and the loop goes on.
         [UnityTest]
-        public IEnumerator HandlerFails_ErrorLogged_TheNextRecordIsHandled() => UniTask.ToCoroutine(async () =>
+        public IEnumerator QueuedHandlerFails_MatchFailsWithTheError_NothingIsHandledAfterIt() => UniTask.ToCoroutine(async () =>
         {
             _cardAnimation.Set(() => UniTask.FromException(new InvalidOperationException("broken card")));
 
             Push(Snapshot(Card(), Mana(5)));
-            await WaitHandled(2);
+            await WaitFailures(1);
+            Push(Snapshot(Board(_a, Flag(1, 1, true)), Mana(6)));
+            await Frames(5);
 
-            CollectionAssert.AreEqual(new[] { "card", "mana 5" }, _handled);
-            Assert.AreEqual(1, _log.Entries.Count);
-            Assert.AreEqual(LogLevel.Error, _log.Entries[0].Level);
-            Assert.IsInstanceOf<InvalidOperationException>(_log.Entries[0].Exception);
+            CollectionAssert.AreEqual(new[] { "card" }, _handled);
+            AssertFailedWith<InvalidOperationException>();
         });
 
-        // Current behaviour: a queued record without a handler is a logged error, the loop goes on.
         [UnityTest]
-        public IEnumerator QueuedRecordWithoutHandler_ErrorLogged_TheNextRecordIsHandled() => UniTask.ToCoroutine(async () =>
+        public IEnumerator QueuedRecordWithoutHandler_MatchFails() => UniTask.ToCoroutine(async () =>
         {
             Push(Snapshot(new PlayerSnapshotRecord.HealthUpdate { PlayerId = _a, Current = 1 }, Mana(4)));
-            await WaitHandled(1);
+            await WaitFailures(1);
+            await Frames(5);
 
-            CollectionAssert.AreEqual(new[] { "mana 4" }, _handled);
-            Assert.AreEqual(1, _log.Entries.Count);
-            Assert.IsInstanceOf<ArgumentException>(_log.Entries[0].Exception);
+            Assert.IsEmpty(_handled);
+            AssertFailedWith<ArgumentException>();
         });
 
-        // Current behaviour, snapshot_receiver.md step 4.2 turns it into an error: the immediate path skips a record
-        // without a handler.
         [Test]
-        public void ImmediateRecordWithoutHandler_Skipped()
+        public void ImmediateRecordWithoutHandler_MatchFails()
         {
             var log = new FakeLog<SnapshotReceiver>();
-            var receiver = new SnapshotReceiver(log);
+            var gameState = new FakeGameState();
+            var receiver = new SnapshotReceiver(gameState, log);
 
-            ((INetworkCommand)receiver).Execute(_lifetime, Snapshot(Board(_a, Flag(0, 0, true)), TimeLimited(Guid.Empty)));
+            ((INetworkCommand)receiver).Execute(_lifetime, Snapshot(Board(_a, Flag(0, 0, true))));
 
-            Assert.IsEmpty(log.Entries);
+            Assert.AreEqual(1, gameState.Failures);
+            Assert.AreEqual(1, log.Entries.Count);
+            Assert.AreEqual(LogLevel.Error, log.Entries[0].Level);
+            Assert.IsInstanceOf<ArgumentException>(log.Entries[0].Exception);
         }
+
+        [Test]
+        public void ImmediateHandlerFails_MatchFails_TheSnapshotsAfterItAreNotApplied()
+        {
+            var received = new List<SharedMoveSnapshot>();
+            ((IReceivedSnapshots)_receiver).Received.Advise(_lifetime, snapshot => received.Add(snapshot));
+            _receiver.Add(typeof(SharedBoardSnapshot), _ => UniTask.FromException(new InvalidOperationException("broken flag")));
+            var failed = Snapshot(Board(_a, Flag(0, 0, true)));
+
+            Push(failed);
+            Push(Snapshot(Board(_a, Flag(1, 1, true))));
+
+            CollectionAssert.AreEqual(new[] { failed }, received);
+            AssertFailedWith<InvalidOperationException>();
+        }
+
+        [Test]
+        public void ImmediateHandlerPending_MatchFails()
+        {
+            var pending = new UniTaskCompletionSource();
+            _receiver.Add(typeof(SharedBoardSnapshot), _ => pending.Task);
+
+            Push(Snapshot(Board(_a, Flag(0, 0, true))));
+
+            AssertFailedWith<InvalidOperationException>();
+            pending.TrySetResult();
+        }
+
+        [UnityTest]
+        public IEnumerator SameRoundPlayer_HandlerFails_MatchFails() => UniTask.ToCoroutine(async () =>
+        {
+            Push(Snapshot(LastManStanding(_a)));
+            await WaitHandled(1);
+            _receiver.Add(typeof(LastManStandingRoundRecord), _ => UniTask.FromException(new InvalidOperationException("broken round")));
+
+            Push(Snapshot(LastManStanding(_a)));
+
+            AssertFailedWith<InvalidOperationException>();
+        });
 
         private async UniTask SamePlayer_AtOnce(Func<Guid, IMoveSnapshotRecord> round)
         {
@@ -295,6 +348,25 @@ namespace GamePlay.Tests
         private void Push(SharedMoveSnapshot snapshot)
         {
             ((INetworkCommand)_receiver).Execute(_lifetime, snapshot);
+        }
+
+        private void AssertFailedWith<TException>() where TException : Exception
+        {
+            Assert.AreEqual(1, _gameState.Failures);
+            Assert.AreEqual(1, _log.Entries.Count);
+            Assert.AreEqual(LogLevel.Error, _log.Entries[0].Level);
+            Assert.IsInstanceOf<TException>(_log.Entries[0].Exception);
+        }
+
+        private async UniTask WaitFailures(int count)
+        {
+            for (var frame = 0; _gameState.Failures < count; frame++)
+            {
+                if (frame >= _waitFrames)
+                    Assert.Fail($"Waited {_waitFrames} frames for {count} failures of the match, got {_gameState.Failures}");
+
+                await UniTask.Yield();
+            }
         }
 
         private async UniTask WaitHandled(int count)

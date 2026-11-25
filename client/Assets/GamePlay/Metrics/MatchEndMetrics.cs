@@ -5,7 +5,7 @@ using Internal;
 
 namespace GamePlay.Metrics
 {
-    // The result of the match for the local player: the event match.end {result = win / lose / leave, seconds - the clock
+    // The result of the match for the local player: the event match.end {result = win / lose / leave / failed, seconds - the clock
     // of the match at the end}. The game has no draw.
     public class MatchEndMetrics : IScopeSetup
     {
@@ -39,6 +39,7 @@ namespace GamePlay.Metrics
                 MatchResultType.Win => "win",
                 MatchResultType.Lose => "lose",
                 MatchResultType.Leave => "leave",
+                MatchResultType.Failed => "failed",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }

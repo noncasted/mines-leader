@@ -9,6 +9,9 @@ namespace GamePlay.UI
             builder.Register<GameEnd>()
                    .As<IGameEnd>();
 
+            builder.Register<GameFailureNotice>()
+                   .As<IGameFailureNotice>();
+
             builder.Register<RematchAwaiter>()
                    .As<IRematchAwaiter>();
 

@@ -272,11 +272,21 @@ only `GameMock` starts.
 
 ### Snapshot Handlers (Client)
 
-`SnapshotReceiver` plays most records through an animation queue. These records skip the queue and apply immediately:
+`SnapshotReceiver` plays most records through an animation queue: a record waits for the one before it (a card
+animation), the player resources (mana, moves, health) included. The queue is woken by `Enqueue` (no per-frame poll) and
+starts on the next player loop, after the whole received snapshot is dispatched. These records skip the queue:
 
-- `TimeLimitedRoundRecord` / `LastManStandingRoundRecord` — turn owner and timer
-- `PlayerSnapshotRecord.MovesUpdate` — move counter (round start Restore must not wait for leftover opponent animations)
-- `BoardSnapshotRecord.Flag` — flag toggle
+- `BoardSnapshotRecord.Flag` — flag toggle, at once (the rest of the board snapshot is queued)
+- `TimeLimitedRoundRecord` / `LastManStandingRoundRecord` of the same player — at once; a switch of the player waits for
+  the queue so the pile is not reset mid-turn
+
+A handler of a record applied at once must complete synchronously (a pending `UniTask` is an error). The end of the match
+scope stops the queue: the records left in it are not applied, an animation canceled by it is not an error. Any other
+failure - a handler throws (in the queue or at once), a record has no handler - ends the match with an error:
+`[Snapshot] A record failed to apply` is logged through `ILog` (so it reaches the client telemetry as an exception of
+`GamePlay.Services.SnapshotReceiver`), `IGameState.OnFailed()` completes the match as `MatchResultType.Failed` (no boards
+reveal, `match.end` result `failed`), `GameFailureNotice` shows the attention plate of the pause with "Match error" and
+one Menu button, then the loop goes to the menu. Snapshots after the failure are not applied.
 
 | Handler | Triggers on |
 |---------|------------|

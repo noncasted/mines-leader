@@ -99,6 +99,7 @@ namespace GamePlay.Metrics.Tests
         [TestCase(MatchResultType.Win, "win")]
         [TestCase(MatchResultType.Lose, "lose")]
         [TestCase(MatchResultType.Leave, "leave")]
+        [TestCase(MatchResultType.Failed, "failed")]
         public void TheResultOfTheMatch(MatchResultType type, string result)
         {
             using var kit = new MetricsTestKit();

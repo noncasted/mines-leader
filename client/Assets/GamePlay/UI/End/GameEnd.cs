@@ -13,14 +13,20 @@ namespace GamePlay.UI
 
     public class GameEnd : IGameEnd
     {
-        public GameEnd(IGameResults ui, IRematchAwaiter rematchAwaiter, INetworkConnection connection)
+        public GameEnd(
+            IGameResults ui,
+            IGameFailureNotice failureNotice,
+            IRematchAwaiter rematchAwaiter,
+            INetworkConnection connection)
         {
             _ui = ui;
+            _failureNotice = failureNotice;
             _rematchAwaiter = rematchAwaiter;
             _connection = connection;
         }
 
         private readonly IGameResults _ui;
+        private readonly IGameFailureNotice _failureNotice;
         private readonly IRematchAwaiter _rematchAwaiter;
         private readonly INetworkConnection _connection;
 
@@ -28,6 +34,12 @@ namespace GamePlay.UI
         {
             if (matchData.Type == MatchResultType.Leave)
                 return new GameEndTransition.Exit();
+
+            if (matchData.Type == MatchResultType.Failed)
+            {
+                await _failureNotice.Show(lifetime);
+                return new GameEndTransition.Exit();
+            }
 
             var selectedType = await _ui.Show(lifetime, matchData);
 
