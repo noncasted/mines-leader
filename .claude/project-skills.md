@@ -65,9 +65,8 @@ The same section gives the address and the token to the skill `match-history`.
 
 ## start-cluster, control
 
-The ports of the local cluster are the framework defaults of the table of `start-cluster` + 200, so it runs next to the
-clusters of the other games on the machine (storytale-workshop takes the defaults, gamejam-autobattler +100,
-neon-dodge +300). Health of `control`: `.claude/control.json` (`http://localhost:7303/api/benchmarks`).
+The local cluster has its own ports (the table below), so it runs next to the clusters of the other games on the
+machine. Health of `control`: `.claude/control.json` (`http://localhost:7303/api/benchmarks`).
 
 | Service | Port | Where it is set |
 |---------|------|-----------------|
