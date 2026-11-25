@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Run every test suite of the repo locally: backend, container generator, Unity EditMode.
 #
-# There is no CI: this script is the only full run. Unity tests need the local alpha editor.
-# /deploy-client runs this script before it builds the WebGL client and stops on any failure.
+# This script is the only full run. The CI of GitHub (.github/workflows/ci.yml) builds and tests only the backend; the
+# container generator and the Unity EditMode tests run here alone (Unity tests stay out of CI by the decision of the user).
+# /deploy-client runs this script before it builds the WebGL client and stops on any failure: the EditMode tests are the
+# gate of every deploy.
 #
 # Everything runs in a snapshot of the working tree, made with `cp -a --reflink=always` on btrfs
 # (the copy, Library included, costs almost nothing and takes seconds):
@@ -17,14 +19,15 @@
 #              (Postgres comes from Testcontainers - Docker must be running)
 #   generator  dotnet build tools/framework/client/core/Source~/ContainerGenerator -c Release + ContainerGenerator.Verify
 #   unity      Unity -batchmode -nographics -runTests -testPlatform EditMode on the copied client
-#              (all EditMode test assemblies of the project: Internal.Content.Tests and the tests of the packages in
-#              "testables" of the manifest: core, network); a watchdog kills the run when a script compilation is
+#              (all EditMode test assemblies of the project: GamePlay.Tests, GamePlay.Metrics.Tests, Flow.Tests,
+#              Internal.Content.Tests and the tests of the packages in "testables" of the manifest: core,
+#              match-metrics, network); a watchdog kills the run when a script compilation is
 #              requested after the start of the tests (the UniTask waits would stop until the limit)
 #
 # Environment (all optional):
 #   TEST_COPY_DIR=/var/tmp          # parent of the snapshot; must be on the same btrfs as the repo
 #                                   # (/tmp is tmpfs here - reflink is impossible there)
-#   TEST_LOG_DIR=<dir>              # where logs and the Unity XML go; default /tmp/mines-leader-tests/<time>
+#   TEST_LOG_DIR=<dir>              # where logs, the Unity XML and report.md go; default /tmp/mines-leader-tests/<time>
 #   UNITY_EDITOR=<path>             # Unity binary; default: version from ProjectVersion.txt under
 #                                   # /tools/unity/<ver>/Editor/Unity or ~/Unity/Hub/Editor/<ver>/Editor/Unity
 #   UNITY_MIN_FREE_GB=8             # refuse to start Unity when MemAvailable is below this
@@ -37,6 +40,9 @@
 #   tools/scripts/run-tests.sh                   # all steps
 #   tools/scripts/run-tests.sh --skip-unity      # backend + generator
 #   tools/scripts/run-tests.sh --skip-backend    # generator + unity
+#
+# Report: <TEST_LOG_DIR>/report.md - the steps with their result and time, the Unity tests per assembly (total, passed,
+# failed, skipped, seconds) and the failed tests; written on every run that reaches the summary.
 #
 # Exit code: 0 when every step that ran passed, 1 otherwise, 2 on bad arguments.
 set -euo pipefail
@@ -300,6 +306,33 @@ for case in root.iter("test-case"):
 PY
 }
 
+# Markdown rows "| <assembly> | total | passed | failed | skipped | seconds |" of an NUnit 3 XML, then the failed tests as
+# a list.
+unity_assembly_rows() {
+    python3 -I - "$1" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+root = ET.parse(sys.argv[1]).getroot()
+for suite in root.iter("test-suite"):
+    if suite.get("type") != "Assembly":
+        continue
+    a = suite.attrib
+    name = a.get("name", "?").removesuffix(".dll")
+    seconds = float(a.get("duration", "0"))
+    print(f"| {name} | {a.get('total', '?')} | {a.get('passed', '?')} | {a.get('failed', '?')} | {a.get('skipped', '?')} | {seconds:.1f} |")
+failed = [case for case in root.iter("test-case") if case.get("result") == "Failed"]
+if failed:
+    print()
+    print("Failed tests:")
+    print()
+    for case in failed:
+        message = case.findtext("failure/message") or ""
+        first = next((line.strip() for line in message.splitlines() if line.strip()), "")
+        print(f"- `{case.get('fullname')}`: {first[:200]}")
+PY
+}
+
 # Watchdog of the Unity run: "<log>" "<found>" "<pid>". A script compilation requested after the start of the tests cannot
 # run before their end (the test runner locks the reload), and while it is pending EditorApplication.isCompiling stays
 # true: the UniTask loop of the editor stops, every test that awaits a frame or a timeout waits for the 180 s timeout of
@@ -441,7 +474,32 @@ for row in "${SUMMARY[@]}"; do
     IFS='|' read -r step status seconds details <<<"$row"
     printf '%-10s %-5s %5ss  %s\n' "$step" "$status" "$seconds" "$details"
 done
+
+# The short report next to the logs; a run of /deploy-client leaves it in <its logs>/tests/report.md.
+REPORT="$LOG_DIR/report.md"
+{
+    echo "# Tests $(date '+%Y-%m-%d %H:%M:%S')"
+    echo
+    echo "Result: $([[ "$FAILED" == "1" ]] && echo FAILED || echo PASSED), $SECONDS s"
+    echo
+    echo "| Step | Result | Seconds | Details |"
+    echo "|------|--------|---------|---------|"
+    for row in "${SUMMARY[@]}"; do
+        IFS='|' read -r step status seconds details <<<"$row"
+        echo "| $step | $status | $seconds | $details |"
+    done
+    if [[ -s "$LOG_DIR/unity-results.xml" ]]; then
+        echo
+        echo "Unity EditMode by assembly:"
+        echo
+        echo "| Assembly | Total | Passed | Failed | Skipped | Seconds |"
+        echo "|----------|-------|--------|--------|---------|---------|"
+        unity_assembly_rows "$LOG_DIR/unity-results.xml" || echo "(the XML could not be parsed)"
+    fi
+} >"$REPORT"
+
 echo "Logs: $LOG_DIR"
+echo "Report: $REPORT"
 
 if [[ "$FAILED" == "1" ]]; then
     echo "TESTS FAILED"

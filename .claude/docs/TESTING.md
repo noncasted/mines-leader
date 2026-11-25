@@ -85,8 +85,10 @@ xUnit v3 DROPPED the old `--filter "FullyQualifiedName~..."` syntax — it is si
 
 ## Running everything locally
 
-There is no CI. The full local run is one script, and `/deploy-client` runs it before every WebGL
-build (step 1b; a failure stops the deploy, `skip-tests` skips it only when the user passes it):
+GitHub CI (`.github/workflows/ci.yml`) builds and tests only the backend, on pushes and pull requests that touch
+`backend/`, `shared/` or the framework pointer. The container generator and the Unity EditMode tests run only
+locally (Unity stays out of CI by the decision of the user). The full local run is one script, and `/deploy-client`
+runs it before every WebGL build (a failure stops the deploy, `skip-tests` skips it only when the user passes it):
 
 ```bash
 tools/scripts/run-tests.sh                  # backend + generator + Unity EditMode
@@ -116,8 +118,14 @@ What it does:
 
 A failing step does not stop the next one. The end is a summary table (step, PASS/FAIL/SKIP, seconds,
 totals), `Logs: <dir>` (default `/tmp/mines-leader-tests/<time>`, `TEST_LOG_DIR` overrides: build/test logs,
-`unity.log`, `unity-results.xml`, converted backend `TestResults`) and `ALL TESTS PASSED` / `TESTS FAILED`;
-exit code 1 on any failure.
+`unity.log`, `unity-results.xml`, converted backend `TestResults`), `Report: <dir>/report.md` and
+`ALL TESTS PASSED` / `TESTS FAILED`; exit code 1 on any failure. `report.md` is the short report of the run: the steps
+with result and seconds, the Unity tests per assembly (total, passed, failed, skipped, seconds) and the failed tests;
+a run of `/deploy-client` leaves it in `<its logs>/tests/report.md`.
+
+Client gameplay tests: the EditMode assembly `GamePlay.Tests` (`client/Assets/GamePlay/Tests`) checks the board
+geometry, the card shapes, the board records and the queue of `SnapshotReceiver` on fakes of `IBoard` / `IBoardCell`
+(no MonoBehaviour); `GamePlay.Metrics.Tests` checks the match metrics writers.
 
 ---
 

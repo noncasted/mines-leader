@@ -67,3 +67,12 @@ tools/framework/  framework submodule: client core, modules and forked packages,
 tools/scripts/    cluster, tests, deploy and agent scripts
 docs/             design notes (Obsidian, Russian) and media
 ```
+
+## Tests
+
+GitHub CI (`.github/workflows/ci.yml`) builds and tests the backend on every push that touches `backend/`, `shared/` or
+the framework. The client has about 850 Unity EditMode tests (the gameplay ones in `client/Assets/GamePlay/Tests`: board
+geometry, card shapes, board snapshots and the snapshot queue). They are not in CI and run locally with
+`tools/scripts/run-tests.sh`, together with the backend tests and the container generator; `/deploy-client` runs that
+script before every WebGL build, so the tests gate each deploy. The run writes a short report per assembly to
+`report.md` next to its logs.
