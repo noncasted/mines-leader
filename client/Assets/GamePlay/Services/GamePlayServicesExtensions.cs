@@ -18,8 +18,6 @@ namespace GamePlay.Services
                    .As<IReceivedSnapshots>()
                    .As<IScopeSetup>();
 
-            builder.RegisterCommand<AgentObservationHandler>();
-
             return builder;
         }
     }

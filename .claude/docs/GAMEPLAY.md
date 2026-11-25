@@ -260,6 +260,16 @@ not an unknown command. The Coordinator turns the flag on at start in Developmen
 The oracle of the agent observation (`HasMine` of closed cells, the opponent hand) needs the same `ICheatsAccess` and a
 match against a bot (`AgentObservationPublisher`); a PvP observation never carries hidden state.
 
+The client side of both is dev only: `AddGameAgent` (`client/Assets/GamePlay/Agent`) and `AddGameCheats`
+(`client/Assets/GamePlay/Cheats`) register their services and compile their classes under
+`UNITY_EDITOR || DEVELOPMENT_BUILD`; a release build has neither. The match state of the agent lives in scope services
+(`GameAgent`, `AgentObservations`); the only static is one field per feature, `GameAgentAccess.Current` /
+`GameCheatsAccess.Current`, set on the scope lifetime: MCP for Unity calls a tool through a `public static
+HandleCommand(JObject)` found by reflection, and the cheats window is an `EditorWindow`, both outside every container
+(why not the live container: `docs/tasks/plan/agent_bridges.md` § Result). A release client that got a
+`SharedAgentObservation` would log `No command for ...`; the server sends it only in `LastManStandingTurnBased`, which
+only `GameMock` starts.
+
 ### Snapshot Handlers (Client)
 
 `SnapshotReceiver` plays most records through an animation queue. These records skip the queue and apply immediately:

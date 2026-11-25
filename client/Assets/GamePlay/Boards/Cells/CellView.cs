@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards.Effects;
 using Internal;
@@ -36,48 +35,18 @@ namespace GamePlay.Boards
         public ICellVisuals Visuals => _visuals;
         public ICellEffects Effects => _effects;
 
-        public bool IsAnimating => AnimatorKind != null;
-
-        public string AnimatorKind
+        public string PlayingAnimation
         {
             get
             {
-                if (_cellAnimator != null && _cellAnimator.IsPlaying)
+                if (_cellAnimator.IsPlaying)
                     return _cellAnimator.PlayingKind;
 
-                if (_takenView != null && _takenView.FlagAnimator != null && _takenView.FlagAnimator.IsPlaying)
+                if (_takenView.FlagAnimator.IsPlaying)
                     return "flag";
 
                 return null;
             }
-        }
-
-        public CellInspect Inspect()
-        {
-            var inspect = new CellInspect
-            {
-                X = _boardPosition.x,
-                Y = _boardPosition.y,
-                Exists = true,
-                Active = isActiveAndEnabled,
-                Flagged = false,
-                MinesAround = null,
-                Effects = _effects.Active.Select(type => type.ToString()).ToList(),
-                Animator = AnimatorKind
-            };
-
-            if (_state.Value is ICellFreeState free)
-            {
-                inspect.State = "free";
-                inspect.MinesAround = free.MinesAround.Value;
-                return inspect;
-            }
-
-            inspect.State = "taken";
-            if (_state.Value is ICellTakenState taken)
-                inspect.Flagged = taken.IsFlagged.Value;
-
-            return inspect;
         }
 
         [Inject]

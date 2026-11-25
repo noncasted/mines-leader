@@ -65,7 +65,7 @@ python3 tools/scripts/game-agent.py start --scenario cross_vs_hard # or --hand .
 python3 tools/scripts/game-agent.py turn
 ```
 
-`start` runs preflight, then `ensure-play`: load `Assets/GamePlay/Assets/Scenes/Game_Field.unity` if needed, set `GameMock._mode` to `LastManStandingTurnBased` (31) if it is not, write the fixture JSON into `EditorPrefs` (`GameMock.FixturePrefsKey`, read once and deleted by `GameMock`), `manage_editor play` (stop + replay if already playing with the wrong mode). Then it waits for `GameAgentBridge` and prints `active: true` plus the `fixture` it wrote. `start` returns before the round starts; `turn` brings the first observation. `match_active=yes` in preflight means a match is already running: `start` attaches to it; `stop` first only when a fixture was requested.
+`start` runs preflight, then `ensure-play`: load `Assets/GamePlay/Assets/Scenes/Game_Field.unity` if needed, set `GameMock._mode` to `LastManStandingTurnBased` (31) if it is not, write the fixture JSON into `EditorPrefs` (`GameMock.FixturePrefsKey`, read once and deleted by `GameMock`), `manage_editor play` (stop + replay if already playing with the wrong mode). Then it waits for the agent match (`GameAgentAccess`) and prints `active: true` plus the `fixture` it wrote. `start` returns before the round starts; `turn` brings the first observation. `match_active=yes` in preflight means a match is already running: `start` attaches to it; `stop` first only when a fixture was requested.
 
 Fixture rules:
 
@@ -234,4 +234,4 @@ Do not dump full `Cells` arrays or raw JSON. `BoardAscii` plus a short action li
 - Pipe script output through your own JSON filters, or call `state` / `legal-plays` / solver repeatedly without an action in between.
 - Play a card by id: use `--type`.
 - Golden screenshots / pixel diff. `inspect` is semantic Unity cell state.
-- Wrap `GameCheatsBridge`.
+- Wrap the cheats (`GameCheatsAccess`).

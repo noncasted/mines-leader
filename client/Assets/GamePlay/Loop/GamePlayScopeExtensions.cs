@@ -1,7 +1,9 @@
 using System;
 using Cysharp.Threading.Tasks;
+using GamePlay.Agent;
 using GamePlay.Boards;
 using GamePlay.Cards;
+using GamePlay.Cheats;
 using GamePlay.Metrics;
 using GamePlay.Players;
 using GamePlay.Services;
@@ -104,11 +106,9 @@ namespace GamePlay.Loop
             builder.AddSnapshotHandler<TimeLimitedRoundSnapshotHandler, TimeLimitedRoundRecord>();
             builder.AddSnapshotHandler<LastManStandingRoundSnapshotHandler, LastManStandingRoundRecord>();
 
-            builder.Register<GameCheatsService>()
-                   .As<IScopeSetup>();
-
-            builder.Register<GameAgentService>()
-                   .As<IScopeSetup>();
+            builder
+                .AddGameCheats()
+                .AddGameAgent();
 
             builder.Register<MatchTelemetryMark>()
                    .As<IGameStarted>();

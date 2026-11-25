@@ -1,5 +1,5 @@
 using System;
-using GamePlay.Services;
+using GamePlay.Cheats;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -76,8 +76,8 @@ namespace GamePlay.Editor {
             var status = new Label();
             status.style.fontSize = 11;
             status.schedule.Execute(() => {
-                status.text = GameCheatsBridge.IsActive ? "Connected" : "Not in game";
-                status.style.color = GameCheatsBridge.IsActive
+                status.text = GameCheatsAccess.IsActive ? "Connected" : "Not in game";
+                status.style.color = GameCheatsAccess.IsActive
                     ? new Color(0.4f, 0.8f, 0.4f)
                     : new Color(0.5f, 0.5f, 0.5f);
             }).Every(500);
@@ -150,25 +150,25 @@ namespace GamePlay.Editor {
         private void BuildHealthTab() {
             _tabContent.Add(SectionLabel("Current Health"));
             _tabContent.Add(ButtonRow(
-                ("Zero", () => GameCheatsBridge.ChangeHealth(-10000), BtnColor.Red),
-                ("-1", () => GameCheatsBridge.ChangeHealth(-1), BtnColor.Orange),
-                ("+1", () => GameCheatsBridge.ChangeHealth(1), BtnColor.Green),
-                ("Full", GameCheatsBridge.RestoreHealth, BtnColor.Blue)));
+                ("Zero", () => GameCheatsAccess.Require().ChangeHealth(-10000), BtnColor.Red),
+                ("-1", () => GameCheatsAccess.Require().ChangeHealth(-1), BtnColor.Orange),
+                ("+1", () => GameCheatsAccess.Require().ChangeHealth(1), BtnColor.Green),
+                ("Full", () => GameCheatsAccess.Require().RestoreHealth(), BtnColor.Blue)));
 
             _tabContent.Add(Separator());
             _tabContent.Add(SectionLabel("Max Health"));
             _tabContent.Add(ButtonRow(
-                ("-1", () => GameCheatsBridge.ChangeMaxHealth(-1), BtnColor.Orange),
-                ("+1", () => GameCheatsBridge.ChangeMaxHealth(1), BtnColor.Green),
-                ("= 5", () => GameCheatsBridge.SetMaxHealth(5), BtnColor.Blue),
-                ("= 10", () => GameCheatsBridge.SetMaxHealth(10), BtnColor.Blue),
-                ("= 20", () => GameCheatsBridge.SetMaxHealth(20), BtnColor.Blue)));
+                ("-1", () => GameCheatsAccess.Require().ChangeMaxHealth(-1), BtnColor.Orange),
+                ("+1", () => GameCheatsAccess.Require().ChangeMaxHealth(1), BtnColor.Green),
+                ("= 5", () => GameCheatsAccess.Require().SetMaxHealth(5), BtnColor.Blue),
+                ("= 10", () => GameCheatsAccess.Require().SetMaxHealth(10), BtnColor.Blue),
+                ("= 20", () => GameCheatsAccess.Require().SetMaxHealth(20), BtnColor.Blue)));
 
             _tabContent.Add(Separator());
             _tabContent.Add(SectionLabel("Match"));
             _tabContent.Add(ButtonRow(
-                ("Win", () => GameCheatsBridge.EndMatch(true), BtnColor.Green),
-                ("Lose", () => GameCheatsBridge.EndMatch(false), BtnColor.Red)));
+                ("Win", () => GameCheatsAccess.Require().EndMatch(true), BtnColor.Green),
+                ("Lose", () => GameCheatsAccess.Require().EndMatch(false), BtnColor.Red)));
         }
 
         // --- Mana Tab ---
@@ -176,19 +176,19 @@ namespace GamePlay.Editor {
         private void BuildManaTab() {
             _tabContent.Add(SectionLabel("Current Mana"));
             _tabContent.Add(ButtonRow(
-                ("Zero", () => GameCheatsBridge.ChangeMana(-10000), BtnColor.Red),
-                ("-1", () => GameCheatsBridge.ChangeMana(-1), BtnColor.Orange),
-                ("+1", () => GameCheatsBridge.ChangeMana(1), BtnColor.Green),
-                ("Full", GameCheatsBridge.RestoreMana, BtnColor.Blue)));
+                ("Zero", () => GameCheatsAccess.Require().ChangeMana(-10000), BtnColor.Red),
+                ("-1", () => GameCheatsAccess.Require().ChangeMana(-1), BtnColor.Orange),
+                ("+1", () => GameCheatsAccess.Require().ChangeMana(1), BtnColor.Green),
+                ("Full", () => GameCheatsAccess.Require().RestoreMana(), BtnColor.Blue)));
 
             _tabContent.Add(Separator());
             _tabContent.Add(SectionLabel("Max Mana"));
             _tabContent.Add(ButtonRow(
-                ("-1", () => GameCheatsBridge.ChangeMaxMana(-1), BtnColor.Orange),
-                ("+1", () => GameCheatsBridge.ChangeMaxMana(1), BtnColor.Green),
-                ("= 5", () => GameCheatsBridge.SetMaxMana(5), BtnColor.Blue),
-                ("= 10", () => GameCheatsBridge.SetMaxMana(10), BtnColor.Blue),
-                ("= 20", () => GameCheatsBridge.SetMaxMana(20), BtnColor.Blue)));
+                ("-1", () => GameCheatsAccess.Require().ChangeMaxMana(-1), BtnColor.Orange),
+                ("+1", () => GameCheatsAccess.Require().ChangeMaxMana(1), BtnColor.Green),
+                ("= 5", () => GameCheatsAccess.Require().SetMaxMana(5), BtnColor.Blue),
+                ("= 10", () => GameCheatsAccess.Require().SetMaxMana(10), BtnColor.Blue),
+                ("= 20", () => GameCheatsAccess.Require().SetMaxMana(20), BtnColor.Blue)));
         }
 
         // --- Turns Tab ---
@@ -196,30 +196,30 @@ namespace GamePlay.Editor {
         private void BuildMovesTab() {
             _tabContent.Add(SectionLabel("Current Turns"));
             _tabContent.Add(ButtonRow(
-                ("Zero", () => GameCheatsBridge.ChangeMoves(-10000), BtnColor.Red),
-                ("-1", () => GameCheatsBridge.ChangeMoves(-1), BtnColor.Orange),
-                ("+1", () => GameCheatsBridge.ChangeMoves(1), BtnColor.Green),
-                ("Full", GameCheatsBridge.RestoreMoves, BtnColor.Blue)));
+                ("Zero", () => GameCheatsAccess.Require().ChangeMoves(-10000), BtnColor.Red),
+                ("-1", () => GameCheatsAccess.Require().ChangeMoves(-1), BtnColor.Orange),
+                ("+1", () => GameCheatsAccess.Require().ChangeMoves(1), BtnColor.Green),
+                ("Full", () => GameCheatsAccess.Require().RestoreMoves(), BtnColor.Blue)));
 
             _tabContent.Add(Separator());
             _tabContent.Add(SectionLabel("Max Turns"));
             _tabContent.Add(ButtonRow(
-                ("-1", () => GameCheatsBridge.ChangeMaxMoves(-1), BtnColor.Orange),
-                ("+1", () => GameCheatsBridge.ChangeMaxMoves(1), BtnColor.Green),
-                ("= 5", () => GameCheatsBridge.SetMaxMoves(5), BtnColor.Blue),
-                ("= 10", () => GameCheatsBridge.SetMaxMoves(10), BtnColor.Blue),
-                ("= 20", () => GameCheatsBridge.SetMaxMoves(20), BtnColor.Blue)));
+                ("-1", () => GameCheatsAccess.Require().ChangeMaxMoves(-1), BtnColor.Orange),
+                ("+1", () => GameCheatsAccess.Require().ChangeMaxMoves(1), BtnColor.Green),
+                ("= 5", () => GameCheatsAccess.Require().SetMaxMoves(5), BtnColor.Blue),
+                ("= 10", () => GameCheatsAccess.Require().SetMaxMoves(10), BtnColor.Blue),
+                ("= 20", () => GameCheatsAccess.Require().SetMaxMoves(20), BtnColor.Blue)));
         }
 
         // --- Cards Tab ---
 
         private void BuildCardsTab() {
-            var cards = GameCheatsBridge.GetCards();
-
-            if (cards.Count == 0) {
+            if (GameCheatsAccess.IsActive == false) {
                 _tabContent.Add(SectionLabel("Not in game - cards unavailable"));
                 return;
             }
+
+            var cards = GameCheatsAccess.Current.GetCards();
 
             var search = new ToolbarSearchField();
             search.style.flexShrink = 0;
@@ -271,7 +271,7 @@ namespace GamePlay.Editor {
 
         private static Button BuildCardTile(CheatCardInfo card) {
             var typeId = card.TypeId;
-            var tile = new Button(() => GameCheatsBridge.AddCard(typeId));
+            var tile = new Button(() => GameCheatsAccess.Require().AddCard(typeId));
             tile.style.flexGrow = 0;
             tile.style.width = new StyleLength(new Length(25f, LengthUnit.Percent));
             tile.style.height = 72;

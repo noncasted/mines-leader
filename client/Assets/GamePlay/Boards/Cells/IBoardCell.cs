@@ -17,6 +17,9 @@ namespace GamePlay.Boards
         ICellVisuals Visuals { get; }
         ICellEffects Effects { get; }
 
+        // The kind of the animation the cell plays now, null when it is idle.
+        string PlayingAnimation { get; }
+
         ICellTakenState EnsureTaken();
         ICellFreeState EnsureFree();
         UniTask Explode(CellExplosionType type);
