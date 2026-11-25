@@ -13,12 +13,16 @@ on:
       - 'backend/**'
       - 'shared/**'
       - 'tools/framework'
+      - 'tools/scripts/check-format.sh'
+      - '.editorconfig'
       - '.github/workflows/ci.yml'
   pull_request:
     paths:
       - 'backend/**'
       - 'shared/**'
       - 'tools/framework'
+      - 'tools/scripts/check-format.sh'
+      - '.editorconfig'
       - '.github/workflows/ci.yml'
   workflow_dispatch:
 
@@ -49,6 +53,13 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      # Whitespace formatting of backend + shared against .editorconfig (the client part is checked by
+      # tools/scripts/run-tests.sh: its sources are outside the paths of this workflow).
+      - name: Check formatting
+        run: tools/scripts/check-format.sh --backend
+
+      # Fails on the Framework.Analyzers rules with severity error in .editorconfig (FWR004, FWR005): the
+      # analyzer dll comes from the submodule checked out above (backend/Directory.Build.props).
       - name: Build backend
         run: dotnet build backend/backend.slnx
 

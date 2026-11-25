@@ -38,7 +38,23 @@ Read these only if relevant files are found:
 - `tools/framework/.claude/docs/COMMON_REACTIVE_BASICS.md` — if any file uses `EventSource`, `ViewableProperty`, `ViewableList`
 - `tools/framework/.claude/docs/API_DESIGN_FULL.md` — if any file has `UniTask`, `async`, collection return types
 
-### Step 3 — Validate each file
+### Step 3 — Run the tools
+
+Both run over the whole tree; report only the findings in the changed files of Step 1 (and the exit codes).
+
+1. Formatting: `tools/scripts/check-format.sh` (whitespace against `.editorconfig`: braces on a new line, indents,
+   UTF-8 without BOM). Every listed changed file is a `❌` with the fix `tools/scripts/check-format.sh --fix`.
+2. Analyzers (Framework.Analyzers, `FWR001`-`FWR006`): build what the changed files belong to and keep the FWR lines
+   of the changed files:
+   ```
+   dotnet build backend/backend.slnx --no-incremental 2>&1 | grep -E "(warning|error) FWR" | sort -u   # backend, shared
+   dotnet build client/client.sln --no-incremental 2>&1 | grep -E "(warning|error) FWR" | sort -u      # client, shared
+   ```
+   `error FWR` (severity error in `.editorconfig`, now `FWR004`, `FWR005`) and any build error are `❌`; `warning FWR`
+   in a changed file is `⚠️` (a rule still being cleaned up). The Unity console shows every FWR rule as a warning:
+   it reads no `.editorconfig`, only `dotnet build` applies the severities (`.claude/docs/TESTING.md`).
+
+### Step 4 — Validate each file
 
 Read each `.cs` file in full. Check every applicable rule:
 
@@ -67,7 +83,7 @@ Read each `.cs` file in full. Check every applicable rule:
 - [ ] Field names: `_camelCase`, no abbreviations (`_hp` → `_health`, `_ab` → `_abilities`)
 - [ ] Collections initialized inline: `private List<X> _items = new();`
 - [ ] Dictionary lookup: `TryGetValue` not `ContainsKey + []`
-- [ ] Braces on same line (`{` never on its own line)
+- [ ] Braces on a new line (Allman, `.editorconfig`); `check-format.sh` of Step 3 reports it
 - [ ] Fire-and-forget `UniTask` calls use `.NoAwait()`
 
 **API Design**:
@@ -77,9 +93,9 @@ Read each `.cs` file in full. Check every applicable rule:
 - [ ] File I/O wrapped in `try/catch` with `Debug.LogError` and return `null`
 
 **Comments**:
-- [ ] Comments in `.cs` are English only: Cyrillic in `//`, `///`, `/* */` is a violation (`❌`). String literals (UI texts, messages, test data) are content, not comments. Check: `grep -nP '//.*[\x{0400}-\x{04FF}]'` over the changed files, plus `/* */` blocks. The framework analyzer FWR004 (CommentLanguage) reports the same at build once it is connected.
+- [ ] Comments in `.cs` are English only: Cyrillic in `//`, `///`, `/* */` is a violation (`❌`). String literals (UI texts, messages, test data) are content, not comments. The analyzer FWR004 of Step 3 reports it as a build error.
 
-### Step 4 — Output the report
+### Step 5 — Output the report
 
 ---
 

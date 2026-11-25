@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Run every test suite of the repo locally: backend, container generator, Unity EditMode.
+# Run every test suite of the repo locally: the code gate (formatting, analyzers), backend, container generator, Unity
+# EditMode.
 #
 # This script is the only full run. The CI of GitHub (.github/workflows/ci.yml) builds and tests only the backend; the
 # container generator and the Unity EditMode tests run here alone (Unity tests stay out of CI by the decision of the user).
@@ -15,14 +16,22 @@
 # The copy is deleted on exit (KEEP_COPY=1 keeps it for a post-mortem).
 #
 # Steps, in this order (a failing step does not stop the next one; the summary lists all):
-#   backend    dotnet build backend/backend.slnx + backend/Tools/Tests/bin/Debug/net10.0/Tests
-#              (Postgres comes from Testcontainers - Docker must be running)
+#   format     tools/scripts/check-format.sh: the whitespace formatting of client/Assets, shared and backend against
+#              .editorconfig (fails on any violation)
+#   backend    dotnet build backend/backend.slnx --no-incremental + backend/Tools/Tests/bin/Debug/net10.0/Tests
+#              (Postgres comes from Testcontainers - Docker must be running); the build fails on the Framework.Analyzers
+#              rules with severity error in .editorconfig (FWR004, FWR005), the FWR warnings are counted
 #   generator  dotnet build tools/framework/client/core/Source~/ContainerGenerator -c Release + ContainerGenerator.Verify
 #   unity      Unity -batchmode -nographics -runTests -testPlatform EditMode on the copied client
 #              (all EditMode test assemblies of the project: GamePlay.Tests, GamePlay.Metrics.Tests, Flow.Tests,
 #              Global.Tests, Internal.Content.Tests and the tests of the packages in "testables" of the manifest: core,
 #              match-metrics, network); a watchdog kills the run when a script compilation is
 #              requested after the start of the tests (the UniTask waits would stop until the limit)
+#   client     dotnet build client/client.sln --no-incremental on the copied client, after the Unity run (its obj and
+#              Temp/Bin stay out of the tested tree): fails on compile errors, broken container registrations (CINGR)
+#              and the FWR rules with severity error in client/.editorconfig, counts the FWR warnings. Needs the
+#              Unity-generated csproj of the client (the open editor writes them); their absolute paths of the source
+#              tree are rewritten to the snapshot. The Unity compile itself reports every FWR rule as a warning.
 #
 # Environment (all optional):
 #   TEST_COPY_DIR=/var/tmp          # parent of the snapshot; must be on the same btrfs as the repo
@@ -38,11 +47,13 @@
 #
 # Usage:
 #   tools/scripts/run-tests.sh                   # all steps
-#   tools/scripts/run-tests.sh --skip-unity      # backend + generator
-#   tools/scripts/run-tests.sh --skip-backend    # generator + unity
+#   tools/scripts/run-tests.sh --skip-unity      # format + backend + generator + client
+#   tools/scripts/run-tests.sh --skip-backend    # format + generator + unity + client
+# The gate (format, client and the FWR errors of the backend build) is never skipped: it takes seconds to a minute.
 #
-# Report: <TEST_LOG_DIR>/report.md - the steps with their result and time, the Unity tests per assembly (total, passed,
-# failed, skipped, seconds) and the failed tests; written on every run that reaches the summary.
+# Report: <TEST_LOG_DIR>/report.md - the steps with their result and time, the FWR warnings per rule of the client and
+# backend builds (code of the game / of tools/framework), the Unity tests per assembly (total, passed, failed, skipped,
+# seconds) and the failed tests; written on every run that reaches the summary.
 #
 # Exit code: 0 when every step that ran passed, 1 otherwise, 2 on bad arguments.
 set -euo pipefail
@@ -149,6 +160,8 @@ for f in .editorconfig .gitattributes; do
     snap "$f"
 done
 snap shared
+# The gate scripts (check-format.sh).
+snap tools/scripts
 # The framework submodule: backend projects and Unity packages reference it.
 snap tools/framework
 
@@ -170,17 +183,17 @@ for entry in "$ROOT"/client/*; do
     case "$name" in
         Temp|Logs|build|Build|Builds|MemoryCaptures|ProfilerCaptures|Recordings|traces|obj) continue ;;
     esac
-    if [[ "$SKIP_UNITY" == "1" ]]; then
-        continue
-    fi
     if [[ "$name" == "Library" ]]; then
         continue
     fi
     snap "client/$name"
 done
 # Library minus the caches of player builds (WebGL builds, stripping backups): gigabytes in tens
-# of thousands of files that EditMode tests never read.
-if [[ "$SKIP_UNITY" != "1" ]]; then
+# of thousands of files that EditMode tests never read. Without Unity only what the csproj of the client build reference.
+if [[ "$SKIP_UNITY" == "1" ]]; then
+    snap client/Library/PackageCache
+    snap client/Library/ScriptAssemblies
+else
     for entry in "$ROOT"/client/Library/*; do
         name="$(basename "$entry")"
         case "$name" in
@@ -192,6 +205,34 @@ fi
 shopt -u dotglob nullglob
 
 echo "Snapshot ready in $((SECONDS - SNAP_START)) s, logs in $LOG_DIR"
+
+# --- Code gate: formatting and analyzers --------------------------------------------------------
+
+run_format() {
+    section "Formatting"
+    local start=$SECONDS
+    local log="$LOG_DIR/format.log"
+    echo "tools/scripts/check-format.sh (log: $log)"
+    if ! "$COPY/tools/scripts/check-format.sh" >"$log" 2>&1; then
+        head -50 "$log"
+        record format FAIL $((SECONDS - start)) "$(head -1 "$log"); fix: tools/scripts/check-format.sh --fix"
+        return
+    fi
+    record format PASS $((SECONDS - start)) "$(tail -1 "$log")"
+}
+
+# The unique FWR warnings of a build log as "<rule> <game|framework> <count>" lines. dotnet build prints a warning once
+# per project that compiles the file and again in its summary: the key is "<file>(<line>,<col>): <rule>".
+fwr_counts() {
+    grep -oE "^[^ ]+\([0-9]+,[0-9]+\): warning FWR[0-9]+" "$1" | sed -E "s|^$COPY/||; s|: warning |: |" | sort -u \
+        | awk '{ rule = $NF; area = ($1 ~ /^tools\/framework\//) ? "framework" : "game"; n[rule " " area]++ }
+               END { for (k in n) print k, n[k] }' | sort || true
+}
+
+# "<game> game, <framework> framework" of a file of fwr_counts.
+fwr_total() {
+    awk '{ t[$2] += $3 } END { printf "FWR warnings: %d game, %d framework", t["game"], t["framework"] }' "$1"
+}
 
 # --- Backend -------------------------------------------------------------------------------------
 
@@ -208,11 +249,13 @@ run_backend() {
     fi
 
     echo "Building backend/backend.slnx (log: $build_log)"
-    if ! (cd "$COPY" && dotnet build backend/backend.slnx) >"$build_log" 2>&1; then
-        grep -E ": error " "$build_log" | sort -u | head -30 || true
+    if ! (cd "$COPY" && dotnet build backend/backend.slnx --no-incremental) >"$build_log" 2>&1; then
+        grep -E ": error " "$build_log" | sed -E 's/ \[[^]]*\]$//' | sort -u | head -30 || true
+        fwr_counts "$build_log" >"$LOG_DIR/fwr-backend.txt"
         record backend FAIL $((SECONDS - start)) "build failed, see $build_log"
         return
     fi
+    fwr_counts "$build_log" >"$LOG_DIR/fwr-backend.txt"
 
     echo "Running backend tests (log: $test_log)"
     local code=0
@@ -241,7 +284,7 @@ run_backend() {
         record backend FAIL $((SECONDS - start)) "exit $code; ${totals:-no summary}; see $test_log"
         return
     fi
-    record backend PASS $((SECONDS - start)) "${totals:-no summary}"
+    record backend PASS $((SECONDS - start)) "${totals:-no summary}; $(fwr_total "$LOG_DIR/fwr-backend.txt")"
 }
 
 # --- Container generator -------------------------------------------------------------------------
@@ -453,7 +496,57 @@ run_unity() {
     record unity PASS $((SECONDS - start)) "$details"
 }
 
+# --- Client build (analyzers) -------------------------------------------------------------------
+
+run_client() {
+    section "Client build"
+    local start=$SECONDS
+    local log="$LOG_DIR/client-build.log"
+    local client="$COPY/client"
+
+    if [[ ! -f "$client/client.sln" ]]; then
+        record client FAIL $((SECONDS - start)) "no client/client.sln: open the project in the Unity editor once to generate it"
+        return
+    fi
+    # The editor writes absolute paths of its tree into the csproj (packages, Library, analyzers); the copies point to
+    # the snapshot. The source tree is the prefix of the Framework.Analyzers reference.
+    local source
+    source="$(grep -ohm1 -E '"[^"]*/tools/framework/client/core/Analyzers/Framework\.Analyzers\.dll"' "$client"/*.csproj \
+        | sed -E 's|^"(.*)/tools/framework/client/core/Analyzers/Framework\.Analyzers\.dll"$|\1|' | sort -u || true)"
+    if [[ -z "$source" || "$source" == *$'\n'* ]]; then
+        record client FAIL $((SECONDS - start)) "expected one source tree in the Framework.Analyzers references of the csproj, got: '${source//$'\n'/, }'"
+        return
+    fi
+    if [[ "$source" != "$COPY" ]]; then
+        sed -i "s#$source/#$COPY/#g" "$client"/*.csproj
+    fi
+
+    echo "Building client/client.sln (log: $log)"
+    if ! (cd "$client" && dotnet build client.sln --no-incremental) >"$log" 2>&1; then
+        grep -E ": error " "$log" | sed -E 's/ \[[^]]*\]$//' | sort -u | head -30 || true
+        fwr_counts "$log" >"$LOG_DIR/fwr-client.txt"
+        record client FAIL $((SECONDS - start)) "build failed, see $log"
+        return
+    fi
+    fwr_counts "$log" >"$LOG_DIR/fwr-client.txt"
+    record client PASS $((SECONDS - start)) "$(fwr_total "$LOG_DIR/fwr-client.txt")"
+}
+
+# "| <rule> | client game | client framework | backend game | backend framework |" rows of the fwr files of the run.
+fwr_rows() {
+    awk 'FNR == 1 { build = (FILENAME ~ /fwr-client/) ? "client" : "backend" }
+         { n[$1 " " build " " $2] = $3; rules[$1] = 1 }
+         END {
+             for (r in rules) {
+                 printf "| %s | %d | %d | %d | %d |\n", r, n[r " client game"], n[r " client framework"],
+                     n[r " backend game"], n[r " backend framework"]
+             }
+         }' "$@" | sort
+}
+
 # --- Run -----------------------------------------------------------------------------------------
+
+run_format
 
 if [[ "$SKIP_BACKEND" == "1" ]]; then
     record backend SKIP 0 "--skip-backend"
@@ -468,6 +561,8 @@ if [[ "$SKIP_UNITY" == "1" ]]; then
 else
     run_unity
 fi
+
+run_client
 
 section "Summary"
 for row in "${SUMMARY[@]}"; do
@@ -488,6 +583,21 @@ REPORT="$LOG_DIR/report.md"
         IFS='|' read -r step status seconds details <<<"$row"
         echo "| $step | $status | $seconds | $details |"
     done
+    fwr_files=()
+    for f in "$LOG_DIR/fwr-client.txt" "$LOG_DIR/fwr-backend.txt"; do
+        if [[ -f "$f" ]]; then
+            fwr_files+=("$f")
+        fi
+    done
+    if [[ ${#fwr_files[@]} -gt 0 ]]; then
+        echo
+        echo "Framework.Analyzers warnings (unique findings; game = client/Assets, shared, backend; a build that did not run"
+        echo "shows 0). Errors fail the build of their step."
+        echo
+        echo "| Rule | client.sln game | client.sln framework | backend.slnx game | backend.slnx framework |"
+        echo "|------|-----------------|----------------------|-------------------|------------------------|"
+        fwr_rows "${fwr_files[@]}"
+    fi
     if [[ -s "$LOG_DIR/unity-results.xml" ]]; then
         echo
         echo "Unity EditMode by assembly:"
