@@ -19,7 +19,7 @@ MonoBehaviour:
   _backend:
     _environment: 1
     _productionApiUrl: https://meta.minesleader.xyz
-    _localApiUrl: http://localhost:7101
+    _localApiUrl: http://localhost:7301
   _platform:
     _platform: 110
   _logs:

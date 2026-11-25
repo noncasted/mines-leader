@@ -206,7 +206,7 @@ OTEL_API_KEY                                   # services → dashboard OTLP hea
 ASPIRE_API_KEY                                 # dashboard telemetry API key (x-api-key), console reads startup backend traces
 ```
 
-`CONSOLE_TOKEN` (`ConsoleAccess`, `Orchestration/Extensions/ConsoleAccess.cs`): empty or `local-dev-token` turns console auth and the internal endpoint check off, which is allowed only in Development; console, meta and game fail at startup with such a value in any other environment. Locally the dev token comes from `Aspire/appsettings.json`, so `curl http://localhost:7102/api/sessions` works without a header; in prod it needs `-H "Authorization: Bearer $CONSOLE_TOKEN"`.
+`CONSOLE_TOKEN` (`ConsoleAccess`, `Orchestration/Extensions/ConsoleAccess.cs`): empty or `local-dev-token` turns console auth and the internal endpoint check off, which is allowed only in Development; console, meta and game fail at startup with such a value in any other environment. Locally the dev token comes from `Aspire/appsettings.json`, so `curl http://localhost:7302/api/sessions` works without a header; in prod it needs `-H "Authorization: Bearer $CONSOLE_TOKEN"`.
 
 `Cors:AllowedOrigins` (`AllowedOrigins`, `Common/Extensions/CorsExtensions.cs`) is checked by CORS and by the WebSocket handshake of meta / game (`UseAllowedOrigins`); a handshake without `Origin` (Unity editor, native) passes. Development adds any loopback origin; outside Development an empty list fails startup. A new domain for the client must be added to `CORS_ALLOWED_ORIGINS` before players use it.
 

@@ -22,7 +22,7 @@ H="python3 .claude/skills/match-history/history.py"    # from the root of the pr
 - Read only. The token (`CONSOLE_TOKEN`) is read from the env file of the section `## client-telemetry` of
   `.claude/project-skills.md` (the same meta, the same token): never print it, never pass it as an argument, never `cat`
   the env file. The script cuts it from its output; redirects are refused, plain http only to localhost.
-- Another meta: `--url <u> --env-file <f>` after the subcommand (the local cluster: `--url http://localhost:7101`, see the
+- Another meta: `--url <u> --env-file <f>` after the subcommand (the local cluster: `--url http://localhost:7301`, see the
   section `client-telemetry` of `.claude/project-skills.md`).
 - The cards come as the backend has them: a deck by the C# name of `CardType` (`Trebuchet_Max`), the metrics by the tag
   `card` - the same name in lower case (`trebuchet_max`).

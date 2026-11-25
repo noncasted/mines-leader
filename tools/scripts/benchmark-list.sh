@@ -7,7 +7,7 @@
 GROUP="$1"
 
 if [ -z "$GROUP" ]; then
-  curl -s ${CONSOLE_URL:-http://localhost:7103}/api/benchmarks
+  curl -s ${CONSOLE_URL:-http://localhost:7303}/api/benchmarks
 else
-  curl -s "${CONSOLE_URL:-http://localhost:7103}/api/benchmarks/group/${GROUP}"
+  curl -s "${CONSOLE_URL:-http://localhost:7303}/api/benchmarks/group/${GROUP}"
 fi

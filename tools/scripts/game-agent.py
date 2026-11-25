@@ -33,7 +33,7 @@ JSON into EditorPrefs (GameMock.FixturePrefsKey) before Play; GameMock reads
 and deletes the key once. A running match is never restarted silently: `stop`
 first, then `start` again with the fixture.
 MCP URL: $GAME_AGENT_MCP_URL or http://127.0.0.1:8080/mcp
-Cluster health: $GAME_AGENT_CLUSTER_URL or http://localhost:7103/api/benchmarks
+Cluster health: $GAME_AGENT_CLUSTER_URL or http://localhost:7303/api/benchmarks
 
 `preflight` (also run by `start`) checks the cluster answers 200, MCP answers,
 and no file under backend/ or shared/ changed after the Silo process started;
@@ -75,7 +75,7 @@ from pathlib import Path
 SCENARIOS_DIR = Path(__file__).resolve().parent / "agent-scenarios"
 
 DEFAULT_URL = os.environ.get("GAME_AGENT_MCP_URL", "http://127.0.0.1:8080/mcp")
-CLUSTER_HEALTH_URL = os.environ.get("GAME_AGENT_CLUSTER_URL", "http://localhost:7103/api/benchmarks")
+CLUSTER_HEALTH_URL = os.environ.get("GAME_AGENT_CLUSTER_URL", "http://localhost:7303/api/benchmarks")
 REPO_ROOT = Path(__file__).resolve().parents[2]
 STALE_DIRS = ("backend", "shared")
 GAME_FIELD_SCENE = "Assets/GamePlay/Assets/Scenes/Game_Field.unity"

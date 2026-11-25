@@ -16,7 +16,7 @@ public static class GrafanaFactory
         if (!configuration.GetSection("Grafana").GetValue<bool>("Enabled"))
             return;
 
-        // Next to the Postgres (9432) and PgBouncer (9433) ports of this AppHost.
+        // Next to the Postgres (9632) and PgBouncer (9633) ports of this AppHost.
         var port = db.HostPort + 2;
         var provisioning = Path.Combine(builder.AppHostDirectory, "ContainersData/Grafana/provisioning");
 

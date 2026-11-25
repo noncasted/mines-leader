@@ -1,9 +1,7 @@
 #!/bin/bash
-# Stop all Aspire/dotnet processes
-pkill -f "dotnet.*Aspire" 2>/dev/null
-pkill -f "ConsoleGateway" 2>/dev/null
-pkill -f "MetaGateway" 2>/dev/null
-pkill -f "GameGateway" 2>/dev/null
-pkill -f "Coordinator" 2>/dev/null
-pkill -f "Silo" 2>/dev/null
+# Stop the Aspire cluster of this checkout. Other games on the framework run processes with the same names
+# (Aspire.AppHost, Silo, MetaGateway, ...), so only the executables built under backend/Orchestration of this
+# checkout are stopped; their `dotnet run` parents exit with them.
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+pkill -f "^$ROOT/backend/Orchestration/[^/]+/bin/" 2>/dev/null
 echo "Aspire stopped"

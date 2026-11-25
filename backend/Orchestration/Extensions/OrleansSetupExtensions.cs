@@ -15,9 +15,10 @@ public static class OrleansSetupExtensions
 
     // Dev-only localhost clustering ports. Orleans' defaults are 11111/30000, but 30000 is
     // routinely taken by Rider's embedded JCEF browser (cef_server), which kills the silo's
-    // gateway listener on startup — keep the gateway well clear of it.
-    public const int LocalSiloPort = 11111;
-    public const int LocalGatewayPort = 30010;
+    // gateway listener on startup — keep the gateway well clear of it. The local ports of this game are the
+    // framework defaults + 200 (11311 / 30210), so its cluster runs next to the clusters of the other games.
+    public const int LocalSiloPort = 11311;
+    public const int LocalGatewayPort = 30210;
 
     // Required: two games (or two environments) on one Postgres must not share the membership table rows.
     // Dev values come from the Aspire AppHost, production values from docker-compose.yaml.

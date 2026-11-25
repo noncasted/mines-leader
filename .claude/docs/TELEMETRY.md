@@ -69,10 +69,10 @@ Three kinds of data live on the backend, not in `backend/.telemetry`; an agent r
 - Production: `https://meta.minesleader.xyz`, the token in `~/.config/mines-leader/deploy.env` (`CONSOLE_TOKEN=...`). Both
   are the section `## client-telemetry` of `.claude/project-skills.md`; the two skills read it. The scripts read only the line
   of the token and send it only in the header: never print, source or pass the env file yourself.
-- Local cluster (Aspire): MetaGateway `http://localhost:7101`, the token `local-dev-token` (`ConsoleToken` of
+- Local cluster (Aspire): MetaGateway `http://localhost:7301`, the token `local-dev-token` (`ConsoleToken` of
   `backend/Orchestration/Aspire/appsettings.json`); in Development the development token turns the check off
   (`backend/Orchestration/Extensions/ConsoleAccess.cs`), so a 401 is seen only on prod. The skills take
-  `--url http://localhost:7101 --env-file <file with CONSOLE_TOKEN=local-dev-token>` after the subcommand.
+  `--url http://localhost:7301 --env-file <file with CONSOLE_TOKEN=local-dev-token>` after the subcommand.
 
 ## Client telemetry
 
@@ -100,7 +100,7 @@ Reading: skill `client-telemetry` (`.claude/skills/client-telemetry/SKILL.md`).
   `AddConsoleBackendTraces(builder.Configuration.GetSection("AspireDashboard"))` in `ConsoleGateway/Program.cs`. Prod: `http://aspire-dashboard:18888` and the
   secret `ASPIRE_API_KEY` (the same value is `DASHBOARD__API__PRIMARYAPIKEY` of the dashboard, `docker-compose.yaml`).
   Locally the AppHost passes both (`SetupDashboardApi` in `Aspire/Program.cs`): the URL is its `ASPNETCORE_URLS`
-  (`http://localhost:7100`), the key is `AppHost:DashboardApiKey` that Aspire generates once into the user secrets of the
+  (`http://localhost:7300`), the key is `AppHost:DashboardApiKey` that Aspire generates once into the user secrets of the
   AppHost and gives the dashboard itself. The dashboard keeps telemetry only in memory: after its restart or past its
   limits the trace is gone, while the startup record lives 7 days.
 - Frame: `enableFrameTimingStats` is on in `ProjectSettings.asset` and in the build profile `web_dev - Desktop - Development`
@@ -202,7 +202,7 @@ The local cluster (Aspire) starts a `grafana` container (`backend/Orchestration/
 same Postgres as the tables `match_metric_*`. Never deployed; off by `"Grafana": { "Enabled": false }` in
 `backend/Orchestration/Aspire/appsettings.json` (on by default locally).
 
-- Open `http://localhost:9434` (the Postgres port 9432 + 2): the home dashboard is `Match metrics`; anonymous view without a
+- Open `http://localhost:9634` (the Postgres port 9632 + 2): the home dashboard is `Match metrics`; anonymous view without a
   password, `admin` / `admin` to edit.
 - Provisioning in `backend/Orchestration/Aspire/ContainersData/Grafana/provisioning`: the datasource `Postgres` (address and
   password from the env set by the AppHost) and `dashboards/match_metrics.json` (change the file, the container rereads it).

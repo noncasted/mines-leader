@@ -356,13 +356,13 @@ docker rm -f postgres-<dcp-id> pgbouncer-<dcp-id>
 
 **Symptom.** `aspire run` fails to start Postgres: `Ports=map[] ExposedPorts=...` — container is alive but no host-port binding. All downstream services time out.
 
-**Cause.** Someone left `ml-pg` (a standalone `docker run postgres -p 9432:5432`) running on the host. Aspire's `DbUpstreamFactory` also tries to bind host port 9432 (from `ConnectionStrings:db` in `appsettings.json`). The second bind silently fails with `isProxied: false`, leaving the container unrouted, and dcp then also does not attach it to the aspire bridge.
+**Cause.** Someone left `ml-pg` (a standalone `docker run postgres -p 9632:5432`) running on the host. Aspire's `DbUpstreamFactory` also tries to bind host port 9632 (from `ConnectionStrings:db` in `appsettings.json`). The second bind silently fails with `isProxied: false`, leaving the container unrouted, and dcp then also does not attach it to the aspire bridge.
 
 **Fix.** Before `aspire run`:
 ```bash
 docker stop ml-pg
 ```
-Symmetric hygiene before the reverse: when switching from local compose testing to `aspire run`, stop whatever container was bound to 9432.
+Symmetric hygiene before the reverse: when switching from local compose testing to `aspire run`, stop whatever container was bound to 9632.
 
 Long-term option: change `ConnectionStrings:db` port to something unlikely to collide (e.g. 15432) in `appsettings.json`, so dev never fights other Postgres-like containers.
 
@@ -524,7 +524,7 @@ Done in `ConsoleGateway/Program.cs`. Apply the same change to any other Web SDK 
 | Service unreachable via HTTPS | `coolify-proxy` access logs for the host | Traefik routers API for stale entries |
 | Dashboard Resources / Console Logs tab empty | expected — no resource service is deployed | use `docker ps` / `docker logs` on the VPS |
 | Dev: pgbouncer `DNS lookup failed: postgres` | `docker ps` persistent postgres/pgbouncer still around? | `docker rm -f` them, rerun `aspire run` |
-| Dev: Aspire postgres `Ports=map[]` | other Postgres on 9432? | `docker stop ml-pg` before `aspire run` |
+| Dev: Aspire postgres `Ports=map[]` | other Postgres on 9632? | `docker stop ml-pg` before `aspire run` |
 | RAM blew up after deploy | `docker stats --no-stream` filtered by project prefix | a service stuck in restart loop |
 | Blazor `_framework/blazor.web.js` 404 | `Microsoft.AspNetCore.App.Internal.Assets` in csproj? | version matches SDK pack `Microsoft.AspNetCore.App.Ref/<ver>` |
 | Blazor buttons silently dead | server logs for `AntiforgeryValidationException` | persistent DataProtection volume + `user: root` |

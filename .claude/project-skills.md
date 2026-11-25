@@ -31,7 +31,7 @@ Hooks of `.claude/deploy-client.json`:
 
 Backend of a build: a player always talks to `_productionApiUrl` of `OptionsContainer.asset` (`BackendOptions.Url`:
 `_environment` counts only in the editor), so every build of the profile goes to `https://meta.minesleader.xyz`. A build
-for the local cluster: put `http://localhost:7101` into `_productionApiUrl` for the moment of the snapshot (the line
+for the local cluster: put `http://localhost:7301` into `_productionApiUrl` for the moment of the snapshot (the line
 `Snapshot ready` of the run), then restore it; never commit it. Such a build is checked on `http://localhost:<port>/`
 (a secure context, the Cache API works) with nginx of `client/deploy/nginx.conf`.
 
@@ -56,12 +56,31 @@ before the menu loads) and `match` (before the scope of a match loads; the mark 
 wait for the players from the play). A rematch opens a new `match` session. The startup trace is sent after every
 authorization of the meta socket. Details: `.claude/docs/TELEMETRY.md`.
 
-The local cluster (Aspire): `--url http://localhost:7101` (MetaGateway) and an env file with
+The local cluster (Aspire): `--url http://localhost:7301` (MetaGateway) and an env file with
 `CONSOLE_TOKEN=local-dev-token` (`ConsoleToken` of `backend/Orchestration/Aspire/appsettings.json`; in Development the
 check is off for the development token, any line works); a local `backend/Orchestration/Aspire/appsettings.local.json` may override `ConsoleToken`, then the
 check is on and the env file takes that value). The telemetry is off in the editor by default
 (`ClientTelemetryOptions`): a local check needs a WebGL build or the option turned on for the time of the check.
 The same section gives the address and the token to the skill `match-history`.
+
+## start-cluster, control
+
+The ports of the local cluster are the framework defaults of the table of `start-cluster` + 200, so it runs next to the
+clusters of the other games on the machine (storytale-workshop takes the defaults, gamejam-autobattler +100,
+neon-dodge +300). Health of `control`: `.claude/control.json` (`http://localhost:7303/api/benchmarks`).
+
+| Service | Port | Where it is set |
+|---------|------|-----------------|
+| Aspire dashboard (OTLP / resource service) | 7300 (19270 / 20469) | `backend/Orchestration/Aspire/Properties/launchSettings.json` |
+| MetaGateway | 7301 | `MetaGateway/Properties/launchSettings.json`, `_localApiUrl` of `OptionsContainer.asset` |
+| GameGateway | 7302 | `GameGateway/Properties/launchSettings.json`, `LocalGameServerUrl` of `Aspire/appsettings.json` |
+| ConsoleGateway (API + UI) | 7303 | `ConsoleGateway/Properties/launchSettings.json`, `tools/scripts/*.sh`, `game-agent.py` |
+| Coordinator / Silo (HTTP) | 6201 / 6202 | their `Properties/launchSettings.json` |
+| Postgres / PgBouncer / Grafana | 9632 / 9633 / 9634 | `db` of `Aspire/appsettings.json`, the next two from it |
+| Orleans silo / gateway | 11311 / 30210 | `OrleansSetupExtensions.LocalSiloPort` / `LocalGatewayPort` |
+
+The backend tests (`backend/Tools/Tests`) take free ports: the in-process test cluster allocates them and Testcontainers
+publishes Postgres on a random port.
 
 ## commit
 

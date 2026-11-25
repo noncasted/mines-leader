@@ -5,6 +5,6 @@
   "cluster": {
     "project": "backend/Orchestration/Aspire/Aspire.csproj",
     "profile": "http",
-    "health": "http://localhost:7103/api/benchmarks"
+    "health": "http://localhost:7303/api/benchmarks"
   }
 }
