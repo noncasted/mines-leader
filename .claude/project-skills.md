@@ -72,8 +72,7 @@ mechanic and bot strategy, console config, client action), as in `[Cards] Add Lo
 ## workflow
 
 The docs of this game for the keyword table of the task brief are in the table "Keyword -> Documentation" of `CLAUDE.md`:
-`.claude/docs/GAMEPLAY.md` (game flow, board, cards, bots, matchmaking), `.claude/docs/PREFAB_CODEGEN.md` (PrefabBuilder),
-`.claude/docs/CARD_EFFECTS.md` (card effects).
+`.claude/docs/GAMEPLAY.md` (game flow, board, cards, bots, matchmaking), `.claude/docs/CARD_EFFECTS.md` (card effects).
 
 ## device-lab
 
