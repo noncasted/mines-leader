@@ -75,9 +75,9 @@ namespace GamePlay.Cards
             private readonly IBoard _board;
             private readonly IPattenShape _shape;
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            public void GetDropData(Vector2Int pointer, List<IBoardCell> result)
             {
-                return _shape.SelectTaken(_board, pointer);
+                _shape.SelectTaken(_board, pointer, result);
             }
         }
     }

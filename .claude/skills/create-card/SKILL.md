@@ -485,8 +485,9 @@ namespace GamePlay.Cards
             private readonly IBoard _board;
             private readonly IPattenShape _shape;
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer) {
-                return _shape.SelectTaken(_board, pointer);
+            // Called only when the cell under the pointer changes; adds to the buffer of CardDropArea, no allocations.
+            public void GetDropData(Vector2Int pointer, List<IBoardCell> result) {
+                _shape.SelectTaken(_board, pointer, result);
             }
         }
     }

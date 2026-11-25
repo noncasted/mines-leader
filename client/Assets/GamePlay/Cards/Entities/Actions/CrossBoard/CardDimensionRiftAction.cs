@@ -68,13 +68,14 @@ namespace GamePlay.Cards
             private readonly IBoard _targetBoard;
             private readonly IBoard _ownerBoard;
             private readonly IPattenShape _shape;
+            private readonly List<IBoardCell> _targetCells = new();
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            public void GetDropData(Vector2Int pointer, List<IBoardCell> result)
             {
-                var targetCells = _shape.All(_targetBoard, pointer);
-                var selected = new List<IBoardCell>(targetCells.Count * 2);
+                _targetCells.Clear();
+                _shape.All(_targetBoard, pointer, _targetCells);
 
-                foreach (var targetCell in targetCells)
+                foreach (var targetCell in _targetCells)
                 {
                     if (_ownerBoard.Cells.TryGetValue(targetCell.BoardPosition, out var ownerCell) == false)
                     {
@@ -82,11 +83,9 @@ namespace GamePlay.Cards
                             $"Cell {targetCell.BoardPosition} of the target board is not on the board of the owner");
                     }
 
-                    selected.Add(targetCell);
-                    selected.Add(ownerCell);
+                    result.Add(targetCell);
+                    result.Add(ownerCell);
                 }
-
-                return selected;
             }
         }
 

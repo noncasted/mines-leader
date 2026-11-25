@@ -31,7 +31,6 @@ namespace GamePlay.Boards
         public CellView[] Build()
         {
             var cellPrefab = GetCellPrefab(_cellKind);
-            var origin = GetOrigin();
             var cells = new CellView[_size.x * _size.y];
             var index = 0;
 
@@ -42,7 +41,7 @@ namespace GamePlay.Boards
                     var cell = Instantiate(cellPrefab, transform);
                     var position = new Vector2Int(x, y);
 
-                    cell.transform.localPosition = GetLocalPosition(position, origin);
+                    cell.transform.localPosition = ConstructionData.GetLocalPosition(position);
                     cell.name = $"Cell_{x}_{y}";
                     cell.Construct(position, _board);
 
@@ -52,26 +51,6 @@ namespace GamePlay.Boards
             }
 
             return cells;
-        }
-
-        private Vector2 GetOrigin()
-        {
-            var origin = new Vector2(_size.x * _cellSize / 2, _size.y * _cellSize / 2) * -1f;
-
-            if (_size.x % 2 == 0)
-                origin.x += _cellSize / 2;
-
-            if (_size.y % 2 == 0)
-                origin.y += _cellSize / 2;
-
-            return origin;
-        }
-
-        private Vector3 GetLocalPosition(Vector2Int position, Vector2 origin)
-        {
-            return new Vector3(
-                position.x * _cellSize + origin.x,
-                position.y * _cellSize + origin.y);
         }
 
         private void OnValidate()
@@ -89,7 +68,6 @@ namespace GamePlay.Boards
             Clear();
 
             var cellPrefab = LoadEditorCellPrefab(_cellKind);
-            var origin = GetOrigin();
 
             for (var x = 0; x < _size.x; x++)
             {
@@ -98,7 +76,7 @@ namespace GamePlay.Boards
                     var cell = (CellView)PrefabUtility.InstantiatePrefab(cellPrefab, transform);
                     var position = new Vector2Int(x, y);
 
-                    cell.transform.localPosition = GetLocalPosition(position, origin);
+                    cell.transform.localPosition = ConstructionData.GetLocalPosition(position);
                     cell.name = $"Cell_{x}_{y}";
                     cell.Construct(position, _board);
                 }
@@ -133,8 +111,6 @@ namespace GamePlay.Boards
             if (_size.x <= 0 || _size.y <= 0)
                 return;
 
-            var origin = GetOrigin();
-
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.color = Color.yellow;
 
@@ -142,7 +118,7 @@ namespace GamePlay.Boards
             {
                 for (var y = 0; y < _size.y; y++)
                 {
-                    var center = GetLocalPosition(new Vector2Int(x, y), origin);
+                    var center = ConstructionData.GetLocalPosition(new Vector2Int(x, y));
                     Gizmos.DrawWireCube(center, new Vector3(_cellSize, _cellSize, 0f));
                 }
             }

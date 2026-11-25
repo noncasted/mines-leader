@@ -11,7 +11,6 @@ namespace GamePlay.Boards
         Vector2 WorldPosition { get; }
 
         IViewableProperty<ICellState> State { get; }
-        ICellPointerHandler PointerHandler { get; }
         IBoard Source { get; }
         ICellSelectionView Selection { get; }
         ICellVisuals Visuals { get; }

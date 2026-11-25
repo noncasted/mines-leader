@@ -16,56 +16,64 @@ namespace GamePlay.Cards
         public static LineShape Line(int length, bool horizontal) => new(length, horizontal);
         public static CrossShape Cross(int size) => new(size);
 
-        public static IReadOnlyList<IBoardCell> SelectTaken(this IPattenShape shape, IBoard board, Vector2Int center)
-        {
-            return shape.Select(board, center, cell => cell.IsTaken());
-        }
-
-        public static IReadOnlyList<IBoardCell> SelectFree(this IPattenShape shape, IBoard board, Vector2Int center)
-        {
-            return shape.Select(board, center, cell => cell.IsFree());
-        }
-
-        public static IReadOnlyList<IBoardCell> All(this IPattenShape shape, IBoard board, Vector2Int center)
-        {
-            return shape.Select(board, center, _ => true);
-        }
-
-        public static IReadOnlyList<IBoardCell> Select(
+        // The selections add the cells of the shape centred on center to result: the caller owns and clears the
+        // buffer, so aiming allocates nothing per frame.
+        public static void SelectTaken(
             this IPattenShape shape,
             IBoard board,
             Vector2Int center,
-            Func<IBoardCell, bool> filter)
+            List<IBoardCell> result)
         {
-            if (center == new Vector2Int(-1, -1))
-                return Array.Empty<IBoardCell>();
+            shape.Select(board, center, cell => cell.IsTaken(), result);
+        }
+
+        public static void SelectFree(
+            this IPattenShape shape,
+            IBoard board,
+            Vector2Int center,
+            List<IBoardCell> result)
+        {
+            shape.Select(board, center, cell => cell.IsFree(), result);
+        }
+
+        public static void All(this IPattenShape shape, IBoard board, Vector2Int center, List<IBoardCell> result)
+        {
+            shape.Select(board, center, _ => true, result);
+        }
+
+        public static void Select(
+            this IPattenShape shape,
+            IBoard board,
+            Vector2Int center,
+            Func<IBoardCell, bool> filter,
+            List<IBoardCell> result)
+        {
+            if (center == BoardExtensions.Outside)
+                return;
 
             var size = shape.Positions.Count;
             var halfSize = size / 2;
             var start = center - new Vector2Int(halfSize, halfSize);
-
-            var selected = new List<IBoardCell>();
+            var cells = board.Cells;
 
             for (var y = 0; y < size; y++)
             {
+                var row = shape.Positions[y];
+
                 for (var x = 0; x < size; x++)
                 {
-                    if (shape.Positions[y][x] == false)
+                    if (row[x] == false)
                         continue;
 
-                    var position = start + new Vector2Int(x, y);
-
-                    if (board.Cells.TryGetValue(position, out var cell) == false)
+                    if (cells.TryGetValue(start + new Vector2Int(x, y), out var cell) == false)
                         continue;
 
                     if (filter(cell) == false)
                         continue;
 
-                    selected.Add(board.Cells[position]);
+                    result.Add(cell);
                 }
             }
-
-            return selected;
         }
     }
 

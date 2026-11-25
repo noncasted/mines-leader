@@ -4,33 +4,99 @@ using UnityEngine;
 
 namespace GamePlay.Tests
 {
-    // Reference of BoardExtensions before board_cells_performance: the world bounds come from the cells, IsInside is
-    // strict, WorldToBoardPosition counts cells from the lower left corner of the bounds and, since
-    // error_handling_consistency, gives no position on the upper and right edges.
+    // Reference of BoardExtensions taken before board_cells_performance and kept since: IsInside is strict,
+    // WorldToBoardPosition counts cells from the lower left corner of the bounds and, since error_handling_consistency,
+    // gives no position on the upper and right edges. Since board_cells_performance the bounds are the layout of
+    // BoardConstructionData in the local space of the board, computed once, not from the cells on every call.
     public class BoardGeometryTests
     {
         private static readonly Vector2Int _outside = new(-1, -1);
 
         [Test]
-        public void WorldBounds_MatchBoard_HalfACellAroundTheCentresOfTheCells()
+        public void LocalBounds_MatchBoard_HalfACellAroundTheCentresOfTheCells()
         {
-            var board = FakeBoard.Match(new Vector2(0f, 0f));
+            var data = new BoardConstructionData(new Vector2Int(16, 16), 1f);
 
-            var (min, max) = board.GetBoardWorldBounds();
+            Assert.AreEqual(new Vector2(-8f, -8f), data.LocalBounds.min);
+            Assert.AreEqual(new Vector2(8f, 8f), data.LocalBounds.max);
+            Assert.AreEqual(new Vector2(-7.5f, -7.5f), data.GetLocalPosition(new Vector2Int(0, 0)));
+            Assert.AreEqual(new Vector2(7.5f, 7.5f), data.GetLocalPosition(new Vector2Int(15, 15)));
+        }
 
-            Assert.AreEqual(new Vector2(-8f, -8f), min);
-            Assert.AreEqual(new Vector2(8f, 8f), max);
+        // The layout of BoardConstructor: an odd side is shifted by half a cell from the centre of the board.
+        [Test]
+        public void LocalBounds_OddSideWithSmallCells_TheLayoutOfTheConstructor()
+        {
+            var data = new BoardConstructionData(new Vector2Int(4, 3), 0.5f);
+
+            Assert.AreEqual(new Vector2(-1f, -1f), data.LocalBounds.min);
+            Assert.AreEqual(new Vector2(1f, 0.5f), data.LocalBounds.max);
+            Assert.AreEqual(new Vector2(-0.75f, -0.75f), data.GetLocalPosition(new Vector2Int(0, 0)));
         }
 
         [Test]
-        public void WorldBounds_ShiftedBoardWithSmallCells_FollowTheCells()
+        public void IsInside_ShiftedBoardWithSmallCells_TheBoundsOfItsCells()
         {
             var board = new FakeBoard(new Vector2Int(4, 3), 0.5f, new Vector2(2.5f, -3.5f));
 
-            var (min, max) = board.GetBoardWorldBounds();
+            Assert.IsTrue(board.IsInside(new Vector2(2.26f, -3.74f)));
+            Assert.IsTrue(board.IsInside(new Vector2(4.24f, -2.26f)));
+            Assert.IsFalse(board.IsInside(new Vector2(2.25f, -3f)));
+            Assert.IsFalse(board.IsInside(new Vector2(4.25f, -3f)));
+            Assert.IsFalse(board.IsInside(new Vector2(3f, -3.75f)));
+            Assert.IsFalse(board.IsInside(new Vector2(3f, -2.25f)));
+        }
 
-            Assert.AreEqual(new Vector2(2.25f, -3.75f), min);
-            Assert.AreEqual(new Vector2(4.25f, -2.25f), max);
+        // The bounds are kept in the local space of the board: a moved board is found where it is now.
+        [Test]
+        public void MovedBoard_PositionsFollowTheBoard()
+        {
+            var board = FakeBoard.Match(new Vector2(0f, 0f));
+            var cell = board.Cell(3, 5);
+
+            board.MoveTo(new Vector2(20f, -4f));
+
+            Assert.IsFalse(board.IsInside(new Vector2(0f, 0f)));
+            Assert.IsTrue(board.IsInside(new Vector2(20f, -4f)));
+            Assert.AreEqual(new Vector2Int(3, 5), board.WorldToBoardPosition(cell.WorldPosition));
+            Assert.AreEqual(new Vector2(15.5f, -6.5f), cell.WorldPosition);
+        }
+
+        [Test]
+        public void TryGetCellAt_CentreOfEveryCell_ThatCell()
+        {
+            var board = FakeBoard.Match(new Vector2(10f, 2f));
+
+            foreach (var (position, cell) in board.Cells)
+            {
+                Assert.IsTrue(board.TryGetCellAt(cell.WorldPosition, out var found), $"cell {position}");
+                Assert.AreSame(cell, found, $"cell {position}");
+            }
+        }
+
+        [Test]
+        public void TryGetCellAt_OutsideAndOnTheUpperRightEdge_NoCell()
+        {
+            var board = FakeBoard.Match(new Vector2(0f, 0f));
+
+            Assert.IsFalse(board.TryGetCellAt(new Vector2(8.01f, 0f), out var outside));
+            Assert.IsNull(outside);
+            Assert.IsFalse(board.TryGetCellAt(new Vector2(8f, 8f), out _));
+            Assert.IsTrue(board.TryGetCellAt(new Vector2(-8f, -8f), out var corner));
+            Assert.AreSame(board.Cell(0, 0), corner);
+        }
+
+        // Two boards of a match: the cell under the pointer is on the board the pointer is over.
+        [Test]
+        public void TryGetCellAt_TwoBoards_OnlyTheBoardUnderThePointer()
+        {
+            var own = FakeBoard.Match(new Vector2(0f, -9f));
+            var other = FakeBoard.Match(new Vector2(0f, 9f));
+            var point = new Vector2(3.3f, 5f);
+
+            Assert.IsFalse(own.TryGetCellAt(point, out _));
+            Assert.IsTrue(other.TryGetCellAt(point, out var cell));
+            Assert.AreEqual(new Vector2Int(11, 4), cell.BoardPosition);
         }
 
         [Test]

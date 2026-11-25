@@ -62,6 +62,12 @@ namespace GamePlay.Boards
                 _cellsDictionary.Add(cell.BoardPosition, cell);
         }
 
+        // The cells are children of the board: BoardConstructor lays them out in its local space.
+        public Vector2 WorldToLocal(Vector2 world)
+        {
+            return transform.InverseTransformPoint(world);
+        }
+
         public void Setup(bool isMine)
         {
             _isMine = isMine;

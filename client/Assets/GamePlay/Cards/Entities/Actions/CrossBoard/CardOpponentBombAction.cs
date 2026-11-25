@@ -89,9 +89,9 @@ namespace GamePlay.Cards
 
             private readonly IBoard _board;
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            public void GetDropData(Vector2Int pointer, List<IBoardCell> result)
             {
-                return new[] { _board.Cells[pointer] };
+                result.Add(_board.Cells[pointer]);
             }
         }
     }

@@ -4,7 +4,6 @@ using Internal;
 using Shared;
 using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace GamePlay.Boards
 {
@@ -15,6 +14,10 @@ namespace GamePlay.Boards
 
         IReadOnlyDictionary<Vector2Int, IBoardCell> Cells { get; }
         bool IsMine { get; }
+
+        // A point of the world in the local space of the board, where ConstructionDataData lays the cells out: the
+        // bounds are fixed after the build and follow a move of the board.
+        Vector2 WorldToLocal(Vector2 world);
 
         /// <summary>
         /// Доска сгенерирована на сервере — до первого хода владельца её ещё нет,
@@ -42,127 +45,56 @@ namespace GamePlay.Boards
             new(-1, 1),
         };
 
-        public static HashSet<Vector2Int> NeighbourPositions(this IBoard board, Vector2Int position)
+        // The board position of a point outside the board.
+        public static readonly Vector2Int Outside = new(-1, -1);
+
+        public static bool IsInside(this IBoard board, Vector2 world)
         {
-            var bounds = board.GetBoardBounds();
+            var bounds = board.ConstructionDataData.LocalBounds;
+            var local = board.WorldToLocal(world);
 
-            var neighbours = new HashSet<Vector2Int>
-            {
-                new(position.x - 1, position.y),
-                new(position.x + 1, position.y),
-                new(position.x, position.y - 1),
-                new(position.x, position.y + 1),
-                new(position.x - 1, position.y - 1),
-                new(position.x + 1, position.y + 1),
-                new(position.x - 1, position.y + 1),
-                new(position.x + 1, position.y - 1)
-            };
-
-            neighbours.RemoveWhere(neighbour => neighbour.x < 0 ||
-                                                neighbour.x > bounds.x ||
-                                                neighbour.y < 0 ||
-                                                neighbour.y > bounds.y);
-
-            return neighbours;
+            return local.x > bounds.xMin &&
+                   local.x < bounds.xMax &&
+                   local.y > bounds.yMin &&
+                   local.y < bounds.yMax;
         }
 
-        public static void IterateNeighbours(this IBoard board, Vector2Int position, Action<Vector2Int> action)
+        public static Vector2Int WorldToBoardPosition(this IBoard board, Vector2 world)
         {
-            var neighbours = board.NeighbourPositions(position);
-
-            foreach (var neighbour in neighbours)
-            {
-                if (board.Cells.TryGetValue(neighbour, out var cell) == false)
-                    continue;
-
-                action(neighbour);
-            }
-        }
-
-        public static Vector2Int GetBoardBounds(this IBoard board)
-        {
-            var maxX = 0;
-            var maxY = 0;
-
-            foreach (var (position, _) in board.Cells)
-            {
-                if (position.x > maxX)
-                    maxX = position.x;
-
-                if (position.y > maxY)
-                    maxY = position.y;
-            }
-
-            return new Vector2Int(maxX, maxY);
-        }
-
-        public static (Vector2, Vector2) GetBoardWorldBounds(this IBoard board)
-        {
-            var minX = float.MaxValue;
-            var maxX = float.MinValue;
-            var minY = float.MaxValue;
-            var maxY = float.MinValue;
-
-            foreach (var (_, cell) in board.Cells)
-            {
-                var position = cell.WorldPosition;
-
-                if (position.x < minX)
-                    minX = position.x;
-
-                if (position.x > maxX)
-                    maxX = position.x;
-
-                if (position.y < minY)
-                    minY = position.y;
-
-                if (position.y > maxY)
-                    maxY = position.y;
-            }
-
-            var halfCellSize = board.ConstructionDataData.CellSize / 2;
-
-            return (new Vector2(minX - halfCellSize, minY - halfCellSize),
-                new Vector2(maxX + halfCellSize, maxY + halfCellSize));
-        }
-
-        public static Vector2Int RandomPosition(this IBoard board)
-        {
-            var bounds = board.GetBoardBounds();
-            return new Vector2Int(Random.Range(0, bounds.x), Random.Range(0, bounds.y));
-        }
-
-        public static bool IsInside(this IBoard board, Vector2 position)
-        {
-            var bounds = board.GetBoardWorldBounds();
-
-            return position.x > bounds.Item1.x &&
-                   position.x < bounds.Item2.x &&
-                   position.y > bounds.Item1.y &&
-                   position.y < bounds.Item2.y;
-        }
-
-        public static Vector2Int WorldToBoardPosition(this IBoard board, Vector2 position)
-        {
-            var bounds = board.GetBoardWorldBounds();
-
-            var local = position - bounds.Item1;
+            var data = board.ConstructionDataData;
+            var bounds = data.LocalBounds;
+            var local = board.WorldToLocal(world) - bounds.min;
 
             // A cell spans [start, start + size): the upper and right edges of the board belong to no cell, like
             // every other point outside. Cells abut each other (BoardConstructor has no gap between them), so the
             // position is the local point divided by the size of a cell.
             if (local.x < 0 ||
-                local.x >= bounds.Item2.x - bounds.Item1.x ||
+                local.x >= bounds.width ||
                 local.y < 0 ||
-                local.y >= bounds.Item2.y - bounds.Item1.y)
+                local.y >= bounds.height)
             {
-                return new Vector2Int(-1, -1);
+                return Outside;
             }
 
-            var x = Mathf.FloorToInt(local.x / board.ConstructionDataData.CellSize);
-            var y = Mathf.FloorToInt(local.y / board.ConstructionDataData.CellSize);
+            var x = Mathf.FloorToInt(local.x / data.CellSize);
+            var y = Mathf.FloorToInt(local.y / data.CellSize);
 
             return new Vector2Int(x, y);
+        }
+
+        // The cell under a point of the world, found from the coordinates: every position inside the bounds has a cell.
+        public static bool TryGetCellAt(this IBoard board, Vector2 world, out IBoardCell cell)
+        {
+            var position = board.WorldToBoardPosition(world);
+
+            if (position == Outside)
+            {
+                cell = null;
+                return false;
+            }
+
+            cell = board.Cells[position];
+            return true;
         }
 
         // The cell of a position the server sent for the board of owner: the server board has the same cells, so a
@@ -181,7 +113,7 @@ namespace GamePlay.Boards
 
         public static IReadOnlyList<IBoardCell> GetClosedShape(this IBoard board, Vector2Int start)
         {
-            if (start == new Vector2Int(-1, -1))
+            if (start == Outside)
                 return Array.Empty<IBoardCell>();
 
             var cells = board.Cells;

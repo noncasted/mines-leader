@@ -79,7 +79,7 @@ graph TD
 | **Menu** | Главное меню | MenuLoop, Navigation, Social, Decks |
 | **GamePlay** | Активная игра | Board, Players, Cards, Sync, UI |
 
-Подробнее: [[client-scenes|Клиент: сцены]], [[client-common|Клиент: Common]], [[client-dev-tools|инструменты разработки]]
+Подробнее: [[client-scenes|Клиент: сцены]], [[client-common|Клиент: Common]], [[client-dev-tools|инструменты разработки]], [[client-performance|производительность]]
 
 ---
 

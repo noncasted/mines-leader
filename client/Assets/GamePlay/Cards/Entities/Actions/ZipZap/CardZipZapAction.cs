@@ -139,18 +139,13 @@ namespace GamePlay.Cards
             }
 
             private readonly IBoard _board;
-            private readonly int _startArea = 1;
 
-            public Vector2Int LastPointer { get; set; }
+            // The chain starts at the one taken cell under the pointer.
+            private readonly IPattenShape _startShape = PatternShapes.Rhombus(1);
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            public void GetDropData(Vector2Int pointer, List<IBoardCell> result)
             {
-                LastPointer = pointer;
-
-                var startShape = PatternShapes.Rhombus(_startArea);
-                var startPositions = startShape.SelectTaken(_board, pointer);
-
-                return startPositions;
+                _startShape.SelectTaken(_board, pointer, result);
             }
         }
     }

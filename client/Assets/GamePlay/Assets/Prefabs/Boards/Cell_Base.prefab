@@ -501,51 +501,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c26ab6458fcea2e5fb288b076bd17e2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GamePlay::GamePlay.Boards.Effects.FogCellEffect
---- !u!1 &2716731623055234556
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 878544523723852858}
-  - component: {fileID: 6110451372219611318}
-  m_Layer: 0
-  m_Name: PointerHandler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &878544523723852858
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2716731623055234556}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5994033115975533349}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6110451372219611318
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2716731623055234556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81b3636eb1114a78b1aaf35d644eb266, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _size: {x: 1, y: 1}
 --- !u!1 &3499223606541121048
 GameObject:
   m_ObjectHideFlags: 0
@@ -758,7 +713,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 878544523723852858}
   - {fileID: 8855521761072871888}
   - {fileID: 7799717041624947639}
   - {fileID: 4527999154038343543}
@@ -781,7 +735,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _boardPosition: {x: 0, y: 0}
-  _pointerHandler: {fileID: 6110451372219611318}
   _freeView: {fileID: 8143781484921385278}
   _takenView: {fileID: 6743266875526256897}
   _board: {fileID: 0}

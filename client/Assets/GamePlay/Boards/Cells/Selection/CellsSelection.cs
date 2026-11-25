@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using GamePlay.Loop;
+﻿using GamePlay.Loop;
 using GamePlay.Services;
 using Internal;
 using UnityEngine;
@@ -40,15 +39,7 @@ namespace GamePlay.Boards
             if (_gameContext.IsPaused == true)
                 return;
 
-            IBoardCell target = null;
-
-            foreach (var player in _gameContext.All)
-            {
-                target = TryFindSelection(player.Board.Cells);
-
-                if (target != null)
-                    break;
-            }
+            var target = FindSelection(_input.World);
 
             if (target == _value.Value)
                 return;
@@ -56,11 +47,14 @@ namespace GamePlay.Boards
             _value.Set(target);
         }
 
-        private IBoardCell TryFindSelection(IReadOnlyDictionary<Vector2Int, IBoardCell> cells)
+        // The cell under the pointer comes from its coordinates on each board, not from a check of every cell.
+        private IBoardCell FindSelection(Vector2 world)
         {
-            foreach (var cell in cells.Values)
+            var players = _gameContext.All;
+
+            for (var i = 0; i < players.Count; i++)
             {
-                if (cell.PointerHandler.IsInside(_input.World))
+                if (players[i].Board.TryGetCellAt(world, out var cell) == true)
                     return cell;
             }
 

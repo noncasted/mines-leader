@@ -75,7 +75,7 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            Assert.IsEmpty(PatternShapes.Rhombus(3).All(board, new Vector2Int(-1, -1)));
+            Assert.IsEmpty(All(PatternShapes.Rhombus(3), board, new Vector2Int(-1, -1)));
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var cells = Positions(PatternShapes.Rhombus(3).All(board, new Vector2Int(5, 5)));
+            var cells = Positions(All(PatternShapes.Rhombus(3), board, new Vector2Int(5, 5)));
 
             CollectionAssert.AreEqual(new[]
             {
@@ -98,8 +98,8 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var square = Positions(PatternShapes.Rhombus(2).All(board, new Vector2Int(5, 5)));
-            var line = Positions(PatternShapes.Line(4, true).All(board, new Vector2Int(5, 5)));
+            var square = Positions(All(PatternShapes.Rhombus(2), board, new Vector2Int(5, 5)));
+            var line = Positions(All(PatternShapes.Line(4, true), board, new Vector2Int(5, 5)));
 
             CollectionAssert.AreEqual(new[]
             {
@@ -117,7 +117,7 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var cells = Positions(PatternShapes.Rhombus(5).All(board, new Vector2Int(0, 0)));
+            var cells = Positions(All(PatternShapes.Rhombus(5), board, new Vector2Int(0, 0)));
 
             CollectionAssert.AreEqual(new[]
             {
@@ -132,7 +132,7 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var cells = Positions(PatternShapes.Rhombus(3).All(board, new Vector2Int(15, 15)));
+            var cells = Positions(All(PatternShapes.Rhombus(3), board, new Vector2Int(15, 15)));
 
             CollectionAssert.AreEqual(new[] { new Vector2Int(15, 14), new Vector2Int(14, 15), new Vector2Int(15, 15) }, cells);
         }
@@ -142,8 +142,8 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var horizontal = Positions(PatternShapes.Line(5, true).All(board, new Vector2Int(14, 3)));
-            var vertical = Positions(PatternShapes.Line(5, false).All(board, new Vector2Int(3, 0)));
+            var horizontal = Positions(All(PatternShapes.Line(5, true), board, new Vector2Int(14, 3)));
+            var vertical = Positions(All(PatternShapes.Line(5, false), board, new Vector2Int(3, 0)));
 
             CollectionAssert.AreEqual(new[] { new Vector2Int(12, 3), new Vector2Int(13, 3), new Vector2Int(14, 3), new Vector2Int(15, 3) },
                 horizontal);
@@ -155,7 +155,7 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var cells = Positions(PatternShapes.Cross(3).All(board, new Vector2Int(0, 15)));
+            var cells = Positions(All(PatternShapes.Cross(3), board, new Vector2Int(0, 15)));
 
             CollectionAssert.AreEqual(new[]
             {
@@ -170,7 +170,7 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var cells = Positions(PatternShapes.Cross(3).All(board, new Vector2Int(-2, 4)));
+            var cells = Positions(All(PatternShapes.Cross(3), board, new Vector2Int(-2, 4)));
 
             CollectionAssert.AreEqual(new[] { new Vector2Int(0, 4) }, cells);
         }
@@ -182,8 +182,8 @@ namespace GamePlay.Tests
             board.Free(new Vector2Int(4, 5), new Vector2Int(5, 6));
             var shape = PatternShapes.Rhombus(3);
 
-            var taken = Positions(shape.SelectTaken(board, new Vector2Int(5, 5)));
-            var free = Positions(shape.SelectFree(board, new Vector2Int(5, 5)));
+            var taken = Positions(SelectTaken(shape, board, new Vector2Int(5, 5)));
+            var free = Positions(SelectFree(shape, board, new Vector2Int(5, 5)));
 
             CollectionAssert.AreEqual(new[] { new Vector2Int(5, 4), new Vector2Int(5, 5), new Vector2Int(6, 5) }, taken);
             CollectionAssert.AreEqual(new[] { new Vector2Int(4, 5), new Vector2Int(5, 6) }, free);
@@ -195,7 +195,7 @@ namespace GamePlay.Tests
             var board = Board();
             board.Free(new Vector2Int(1, 0));
 
-            var taken = Positions(PatternShapes.Rhombus(5).SelectTaken(board, new Vector2Int(0, 0)));
+            var taken = Positions(SelectTaken(PatternShapes.Rhombus(5), board, new Vector2Int(0, 0)));
 
             CollectionAssert.AreEqual(new[]
             {
@@ -210,10 +210,31 @@ namespace GamePlay.Tests
         {
             var board = Board();
 
-            var cells = PatternShapes.Cross(2).All(board, new Vector2Int(7, 7));
+            var cells = All(PatternShapes.Cross(2), board, new Vector2Int(7, 7));
 
             foreach (var cell in cells)
                 Assert.AreSame(board.Cells[cell.BoardPosition], cell);
+        }
+
+        private static List<IBoardCell> All(IPattenShape shape, IBoard board, Vector2Int center)
+        {
+            var result = new List<IBoardCell>();
+            shape.All(board, center, result);
+            return result;
+        }
+
+        private static List<IBoardCell> SelectTaken(IPattenShape shape, IBoard board, Vector2Int center)
+        {
+            var result = new List<IBoardCell>();
+            shape.SelectTaken(board, center, result);
+            return result;
+        }
+
+        private static List<IBoardCell> SelectFree(IPattenShape shape, IBoard board, Vector2Int center)
+        {
+            var result = new List<IBoardCell>();
+            shape.SelectFree(board, center, result);
+            return result;
         }
 
         private static FakeBoard Board()

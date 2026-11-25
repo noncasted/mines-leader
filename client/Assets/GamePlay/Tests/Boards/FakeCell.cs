@@ -11,26 +11,27 @@ namespace GamePlay.Tests
     // new state and clears the effects, Explode turns a taken cell free and remembers the kind of the explosion.
     public class FakeCell : IBoardCell
     {
-        public FakeCell(IBoard source, Vector2Int boardPosition, Vector2 worldPosition)
+        public FakeCell(FakeBoard source, Vector2Int boardPosition)
         {
-            Source = source;
+            _board = source;
             BoardPosition = boardPosition;
-            WorldPosition = worldPosition;
             _state.Set(new FakeTakenState(this));
         }
 
         private readonly ViewableProperty<ICellState> _state = new(null);
         private readonly FakeCellEffects _effects = new();
+        private readonly FakeBoard _board;
 
         public Vector2Int BoardPosition { get; }
-        public Vector2 WorldPosition { get; }
-        public IBoard Source { get; }
+        public Vector2 WorldPosition =>
+            _board.LocalToWorld(_board.ConstructionDataData.GetLocalPosition(BoardPosition));
+
+        public IBoard Source => _board;
 
         public IViewableProperty<ICellState> State => _state;
         public ICellEffects Effects => _effects;
         public CellExplosionType? Exploded { get; private set; }
 
-        public ICellPointerHandler PointerHandler => throw new NotSupportedException();
         public ICellSelectionView Selection => throw new NotSupportedException();
         public ICellVisuals Visuals => throw new NotSupportedException();
         public string PlayingAnimation => null;

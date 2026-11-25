@@ -92,13 +92,12 @@ namespace GamePlay.Cards
             private readonly IBoard _board;
             private readonly int _size;
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            public void GetDropData(Vector2Int pointer, List<IBoardCell> result)
             {
                 var selected = _board.GetClosedShape(pointer);
                 var ordered = selected.OrderBy(t => Vector2Int.Distance(t.BoardPosition, pointer));
 
-                var limited = ordered.Take(_size).ToList();
-                return limited;
+                result.AddRange(ordered.Take(_size));
             }
         }
     }

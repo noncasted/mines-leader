@@ -61,12 +61,16 @@ namespace GamePlay.Cards
             private readonly IBoard _board;
             private readonly IPattenShape _horizontalShape;
             private readonly IPattenShape _verticalShape;
+            private readonly List<IBoardCell> _horizontal = new();
+            private readonly List<IBoardCell> _vertical = new();
 
-            public IReadOnlyList<IBoardCell> GetDropData(Vector2Int pointer)
+            public void GetDropData(Vector2Int pointer, List<IBoardCell> result)
             {
-                var horizontal = _horizontalShape.SelectTaken(_board, pointer);
-                var vertical = _verticalShape.SelectTaken(_board, pointer);
-                return horizontal.Count >= vertical.Count ? horizontal : vertical;
+                _horizontal.Clear();
+                _vertical.Clear();
+                _horizontalShape.SelectTaken(_board, pointer, _horizontal);
+                _verticalShape.SelectTaken(_board, pointer, _vertical);
+                result.AddRange(_horizontal.Count >= _vertical.Count ? _horizontal : _vertical);
             }
         }
 

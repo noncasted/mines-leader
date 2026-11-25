@@ -10,7 +10,6 @@ namespace GamePlay.Boards
     public class CellView : MonoBehaviour, IBoardCell
     {
         [SerializeField] private Vector2Int _boardPosition;
-        [SerializeField] private CellPointerHandler _pointerHandler;
 
         [SerializeField] private CellFreeView _freeView;
         [SerializeField] private CellTakenView _takenView;
@@ -29,7 +28,6 @@ namespace GamePlay.Boards
         public Vector2 WorldPosition => transform.position;
 
         public IViewableProperty<ICellState> State => _state;
-        public ICellPointerHandler PointerHandler => _pointerHandler;
         public IBoard Source => _board;
         public ICellSelectionView Selection => _selection;
         public ICellVisuals Visuals => _visuals;

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using GamePlay.Boards;
 using GamePlay.Loop;
@@ -47,8 +46,13 @@ namespace GamePlay.Cards
             IReadOnlyLifetime selectionLifetime,
             ICardDropPattern pattern)
         {
-            IReadOnlyList<IBoardCell> selected = null;
-            var position = Vector2Int.zero;
+            // The drop data changes only with the cell under the pointer: it is computed again when the pointer moves
+            // to another cell of the target board, not every frame. Buffers are of this aim, reused between cells.
+            var dropData = new List<IBoardCell>();
+            var selected = new HashSet<IBoardCell>();
+            var next = new HashSet<IBoardCell>();
+            IBoard aimedBoard = null;
+            var position = BoardExtensions.Outside;
 
             // The end of the state lifetime (the turn is over, the card is taken over or torn down) cancels the
             // selection: nothing is dropped then.
@@ -64,34 +68,30 @@ namespace GamePlay.Cards
                     if (board == null || _context.TargetBoard != board)
                     {
                         DeselectAll();
-                        selected = null;
+                        aimedBoard = null;
                         return;
                     }
 
-                    position = board.WorldToBoardPosition(_input.World);
-                    var dropData = pattern.GetDropData(position);
+                    var pointer = board.WorldToBoardPosition(_input.World);
 
-                    if (selected != null)
-                    {
-                        foreach (var cell in selected)
-                        {
-                            if (dropData.Contains(cell) == false)
-                                cell.Selection.Deselect();
-                        }
-                    }
+                    if (board == aimedBoard && pointer == position)
+                        return;
 
-                    foreach (var cell in dropData)
-                    {
-                        if (selected == null || selected.Contains(cell) == false)
-                            cell.Selection.Select();
-                    }
-
-                    selected = dropData;
+                    aimedBoard = board;
+                    position = pointer;
+                    UpdateSelection();
                 }).SuppressCancellationThrow();
 
             DeselectAll();
 
-            if (isCanceled == true || selected == null || selected.Count == 0)
+            if (isCanceled == true || aimedBoard == null)
+                return new CardDropResult() { IsSuccess = false };
+
+            // The cells could change while the pointer stayed on one cell: the drop is judged by the data of now.
+            dropData.Clear();
+            pattern.GetDropData(position, dropData);
+
+            if (dropData.Count == 0)
                 return new CardDropResult() { IsSuccess = false };
 
             return new CardDropResult()
@@ -100,16 +100,40 @@ namespace GamePlay.Cards
                 Position = position
             };
 
+            void UpdateSelection()
+            {
+                dropData.Clear();
+                pattern.GetDropData(position, dropData);
+
+                next.Clear();
+                next.UnionWith(dropData);
+
+                foreach (var cell in selected)
+                {
+                    if (next.Contains(cell) == false)
+                        cell.Selection.Deselect();
+                }
+
+                foreach (var cell in next)
+                {
+                    if (selected.Contains(cell) == false)
+                        cell.Selection.Select();
+                }
+
+                (selected, next) = (next, selected);
+            }
+
             IBoard GetSelectedBoard()
             {
                 var input = _input.World;
+                var players = _gameContext.All;
 
-                foreach (var player in _gameContext.All)
+                for (var i = 0; i < players.Count; i++)
                 {
-                    if (player.Board.IsInside(input) == false)
-                        continue;
+                    var board = players[i].Board;
 
-                    return player.Board;
+                    if (board.IsInside(input) == true)
+                        return board;
                 }
 
                 return null;
@@ -117,11 +141,10 @@ namespace GamePlay.Cards
 
             void DeselectAll()
             {
-                if (selected == null)
-                    return;
-
                 foreach (var cell in selected)
                     cell.Selection.Deselect();
+
+                selected.Clear();
             }
         }
     }
