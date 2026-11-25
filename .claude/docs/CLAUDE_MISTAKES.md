@@ -483,6 +483,8 @@ duplicates.
 
 ## Lesson 11: UI Toolkit Sprite Reference — Use `resource()` Inline, Not `url()` in USS
 
+> Obsolete (2026-11-25): the client has no UI Toolkit screens (no `.uxml` in `client/Assets`, UI is uGUI). Applies only if UI Toolkit comes back.
+
 ### Mistake Made
 ```css
 /* WRONG — url() with GUID paths in USS for sprites */

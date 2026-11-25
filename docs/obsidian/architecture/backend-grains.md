@@ -200,7 +200,7 @@ await _collection.OnUpdatedTransactional(state.Id, state);  // в транзак
 
 ## Конфигурационные стейты
 
-Addressable-конфиги, распространяемые через `RuntimeChannel`:
+Конфиги, распространяемые через `RuntimeChannel`:
 
 | Интерфейс | Стейт | Назначение |
 |-----------|-------|-----------|

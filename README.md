@@ -26,10 +26,11 @@ Stack cards into one turn. Zip Zap defuses a chain of mines, and one good click 
 
 | Layer | Tech |
 |---|---|
-| Client | Unity 6 (6000.7), C#, URP 2D, UniTask, Addressables, WebGL |
-| Backend | .NET 10, Orleans 10.3, PostgreSQL (Npgsql, ADO.NET) |
+| Client | Unity 7000.0.0a10, C#, own 2D SRP, UniTask, engine AssetBundles (framework `ContentBundle`), WebGL |
+| Backend | .NET 10, Orleans 10.4, PostgreSQL (Npgsql, ADO.NET, Marten for event states) |
 | Shared | C# project compiled by both sides, MemoryPack |
-| Orchestration | .NET Aspire 13.5, Docker Compose, nginx, Coolify |
+| Framework | Shared base of our games, git submodule `tools/framework` (v0.15.1): DI container, reactive and lifetimes, content, network, real-time session, cluster infrastructure, forked Unity packages |
+| Orchestration | .NET Aspire 13.6, Docker Compose, nginx, Coolify |
 | Admin | Blazor console (BlazorBlueprint) |
 
 ## Technical decisions
@@ -56,8 +57,13 @@ Stack cards into one turn. Zip Zap defuses a chain of mines, and one good click 
 ## Layout
 
 ```
-backend/   Orleans silo, gateways, coordinator, Aspire host, tests, benchmarks
-client/    Unity project
-shared/    protocol, game models, configs
-docs/      design notes (Obsidian, Russian) and media
+backend/          game part of the backend: Game (sessions, gameplay), Meta (users, matches, bots),
+                  Cluster.Game, Console, Orchestration (silo, gateways, coordinator, Aspire host),
+                  Tools (tests, benchmarks, generators)
+client/           Unity project: Common (internal content, global scope, flow, rendering), Meta, Menu, GamePlay, Art
+shared/           protocol, game models, configs
+tools/framework/  framework submodule: client core, modules and forked packages, shared protocol base,
+                  backend infrastructure, cluster, session and console
+tools/scripts/    cluster, tests, deploy and agent scripts
+docs/             design notes (Obsidian, Russian) and media
 ```

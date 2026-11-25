@@ -95,7 +95,7 @@ sequenceDiagram
 | Лоадер | `ServiceScopeLoader` | `EntityScopeLoader` |
 | Билдер | `IScopeBuilder` | `IEntityBuilder` |
 | Результат | `ILoadedScope` | `IEntityScopeResult` |
-| Сцена | Опционально (runtime / Addressables / без сцены) | Привязан к `IScopeEntityView` |
+| Сцена | Опционально (сцена из бандла контента `ContentScene` / сцена Build Settings / без сцены) | Привязан к `IScopeEntityView` |
 | Примеры | Internal, Global, Meta, GameLoop, Menu, GamePlay | Карта, игрок, сущность на поле |
 
 Цепочка родителей задаётся атрибутом `[ContainerScopeParent]` на методе `Construct` — по нему генератор контейнера строит граф.
@@ -104,9 +104,9 @@ sequenceDiagram
 Internal.Construct
   └─ Global.Construct
        └─ Meta.Construct
-            ├─ GameLoop.Construct
-            │    ├─ Menu
-            │    └─ GamePlay
+            ├─ GameLoop.Construct   (грузит и сменяет Menu и GamePlay)
+            ├─ Menu
+            ├─ GamePlay
             └─ моки: MenuMock / GameMock (без GameLoop)
 ```
 
@@ -180,19 +180,21 @@ graph LR
 
 ## Каталоги ресурсов (рантайм)
 
-Общая база — `AssetGroup`: retain-счётчик, одна inflight-загрузка, Addressables или Resources.
+Общая база — `AssetGroup` фреймворка: retain-счётчик, одна inflight-загрузка. Группа грузится через `IContentLoader` по ссылке из сгенерированного `ContentRoot` (`Internal/Runtime/Catalogues/ContentRoot.asset`) и лежит в бандле контента (`ContentBundle`, AssetBundles движка, `tools/framework/.claude/docs/CONTENT.md`). Группы из списка `preloaded` в json каталога (сейчас `InternalAssets`, `GlobalAssets`, `GlobalPrefabs`) забираются при `AddContent` и читаются синхронно, Retain им не нужен.
 
 | Каталог | Доступ | Загрузка |
 |---------|--------|----------|
 | Спрайты | `Sprites.Cards.Icon` | `LoadSpriteGroup` / `RequestSpriteGroup` |
-| Префабы | `GlobalPrefabs.GlobalCamera`, `MenuPrefabs.*` | Retain группы; Global — Resources, без Retain |
+| Префабы | `GlobalPrefabs.GlobalCamera`, `MenuPrefabs.*` | Retain группы; `GlobalPrefabs` — preloaded |
 | Env-ассеты | `InternalAssets.OptionsContainer`, `GamePlayAssets.*` | группы скоупов: `Load/RequestEnvAssetGroup` |
-| Сцены | `Scenes.Menu`, `Scenes.GameField` | GUID → Addressables, кроме сцен из Build Settings |
+| Сцены | `Scenes.Menu`, `Scenes.GameField` | `ContentScene` по GUID, читается после `AddContent`; сцен из Build Settings в нём нет |
 | Цвета | `Colors.Deck.Attack` | Статические поля, без загрузки |
 
-Правило: Addressable-группа не грузится из геймплея через `Addressables.LoadAssetAsync`. Только `Request*` (BeforeBuild) или `Load*` (сразу, если группа нужна уже в Construct). `EnsureLoaded()` у Addressable **бросает**, если Retain не было.
+Правило: группа грузится только через `Request*` (до сборки скоупа) или `Load*` (сразу, если группа нужна уже в Construct). `EnsureLoaded()` у не-preloaded группы **бросает**, если Retain не было.
 
-Генерация групп и Addressables — в [[client-dev-tools#Каталоги|каталогах]].
+Бандлы игры (`Internal/Editor/Content`): `Main` (preloaded, в `.data`), `Menu`, `GamePlay`, `GamePlayViews`, `Music` и общие `SharedCommon` / `SharedMenu`, которые пишет синк общих бандлов (`GameSharedBundles`).
+
+Генерация групп и бандлов — в [[client-dev-tools#Каталоги|каталогах]].
 
 ---
 

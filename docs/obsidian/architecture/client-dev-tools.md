@@ -1,6 +1,6 @@
 # Клиент: инструменты разработки
 
-Редакторный слой Common. Задача — не писать GUID'ы, `[SerializeField]` на детей иерархии и addressable-группы руками, а генерировать их из ассетов и инспектора. Почти все тулзы живут в `client/Assets/Common/Internal/Editor/` и пишут в runtime-каталоги / Generated-папки модулей.
+Редакторный слой Common. Задача — не писать GUID'ы, `[SerializeField]` на детей иерархии и группы контента руками, а генерировать их из ассетов и инспектора. Почти все тулзы живут в `client/Assets/Common/Internal/Editor/` и пишут в runtime-каталоги / Generated-папки модулей.
 
 Архитектура Common, в которую они встроены: [[client-common|Клиент: Common]].
 
@@ -20,7 +20,7 @@ graph TB
     subgraph Codegen["Генерация"]
         Cat[Каталоги спрайтов / префабов / сцен / ассетов / цветов]
         CG[ContainerGenerator + AssetMap]
-        Addr[Addressables Sync]
+        Addr[Content Root + Shared Content Bundles]
     end
 
     subgraph Debug["Play Mode"]
@@ -43,11 +43,11 @@ graph TB
 
 | Нужно | Инструмент | Вход |
 |-------|------------|------|
-| Открыть сцену, сменить backend, перегенерировать каталоги, сбросить user id | Project Tools | `Tools/Project Tools` (`Ctrl+G`) |
+| Открыть сцену, сменить backend, перегенерировать каталоги, сбросить user id | Project Tools | `Tools/Framework/Project Tools` (`Ctrl+G`) |
 | Свойства иерархии без ручных SerializeField | Hierarchy Bindings | `GameObject/Create Object Bindings` |
 | Добавить арт / префаб / сцену в typed API | Каталоги + инспектор header | галочка Included + группа |
 | Понять, почему скоуп не собрался | Container Debugger / Graph | Play Mode |
-| Замерить старт | Startup Profiler | `Tools/Startup Profiler` |
+| Замерить старт | Startup Profiler | `Tools/Framework/Startup Profiler` |
 | Итерация меню/матча без полного старта | Mock-сцена | Play без `GameStartup` |
 | WebGL для деплоя | `WebGlBuild` | меню или batchmode |
 
@@ -59,7 +59,7 @@ graph TB
 2. **Генерация пачками и с дебаунсом.** `CatalogGenerationRunner`: не реентерабелен, ждёт импорт/компиляцию, 0.5 с debounce, в Play Mode не бежит.
 3. **Писать файл только если изменился.** `GeneratedFile.WriteIfChanged` — меньше лишних рекомпиляций.
 4. **Код в сборке потребителя.** `Global` / `Menu` / `GamePlay` получают `Assets/Generated/`. Остальные asmdef — `Generated` рядом с собой.
-5. **Addressables — одна запись на группу.** Бандл = группа каталога. Общие зависимости выносятся в `Shared_*`.
+5. **Группа — ленивая цель бандла.** Группа каталога — ссылка в `ContentRoot`, лежит в главном бандле `Main`, если её не держит корень другого `ContentBundle`. Ассеты, нужные двум бандлам, синк выносит в общие бандлы игры (`SharedCommon`, `SharedMenu`).
 6. **Редактор не ходит в runtime-сборку наоборот.** `ObjectBindings.RegenerateHandler` подставляется из Editor при загрузке домена.
 
 ---
@@ -68,7 +68,7 @@ graph TB
 
 Окно-хаб. `client/Assets/Common/Internal/Editor/Tools/ProjectTools/`
 
-`Tools/Project Tools` (`%g` → Ctrl/Cmd+G) — тоггл: повторное нажатие закрывает окно.
+`Tools/Framework/Project Tools` (`%g` → Ctrl/Cmd+G) — тоггл: повторное нажатие закрывает окно.
 
 Хост грузит первый найденный `OptionsContainer`. Кнопка **Save** делает `SetDirty` + `SaveAssets`.
 
@@ -120,8 +120,8 @@ PlayerPrefs `userId` (общий) и `userId:{hash dataPath}` (на этот к�
 | `CatalogGenerationRunner` | Дебаунс, защита от реентерабельности |
 | `AssetUserData` | JSON в `importer.userData` под своим ключом, чужие ключи не затирает |
 | `CatalogInspectorGUI` / `CatalogGroupField` | Секция в header инспектора |
-| `CatalogAddressablesSync` | Группа `{prefix}{name}`, одна запись — `.asset` группы, адрес = GUID |
-| `SharedAddressablesSync` | Дедуп ассетов, на которые ссылаются ≥2 группы |
+| `CatalogGroupsRegistry` | json-список групп типа и список `preloaded` |
+| `ContentRootGenerator` / `ContentRootBuildStep` | `ContentRoot.asset`: ссылки на все группы и сцены; шаг сборки контента пишет его без корней бандлов, оставленных вне сборки |
 | `CatalogAssemblies` / `ModuleAssetLayout` | Куда писать `*Prefabs.cs` / `*Assets.cs` |
 | `GeneratedFile` | Write-if-changed + уборка устаревших файлов по суффиксу |
 
@@ -129,13 +129,15 @@ PlayerPrefs `userId` (общий) и `userId:{hash dataPath}` (на этот к�
 
 ### Regenerate All
 
-`Tools/Regenerate All` (`Internal/Editor/Tools/Codegen/RegenerateAll.cs`) синхронно запускает все генераторы по порядку зависимостей, потом делает один `AssetDatabase.Refresh()`:
+`Tools/Framework/Codegen/Regenerate All` (`tools/framework/client/core/Editor/Tools/Codegen/RegenerateAll.cs`) синхронно запускает все генераторы по порядку зависимостей, потом делает один `AssetDatabase.Refresh()`:
 
 1. цвета, сцены, спрайты, аудио;
 2. hierarchy bindings: компоненты префабов-ассетов и загруженных сцен; заново связываются только биндинги с изменившимся кодом или с устаревшим `_structureHash` на объекте; незагруженные сцены с биндингами перечисляются в логе;
 3. env-ассеты и каталоги префабов;
-4. asset map контейнера;
-5. shared addressables.
+4. шаги проекта (`[RegenerateAllStep]`);
+5. asset map контейнера;
+6. content root;
+7. общие бандлы контента (`IContentSharedBundles`).
 
 В Play Mode и во время компиляции бросает исключение, упавший шаг останавливает прогон. У каждого генератора есть `GenerateNow()` (`CatalogGenerationRunner.RunNow`: без дебаунса, исключение доходит до вызывающего). На чистом дереве прогон ничего не меняет.
 
@@ -147,9 +149,9 @@ flowchart TD
     Mark --> PP[Postprocessor / delayed runner]
     PP --> Collect[Сканирование источников]
     Collect --> Groups[Group .asset]
-    Groups --> Addr[Addressables группа]
+    Groups --> Root[ContentRoot]
     Groups --> CS[Generated C#]
-    Addr --> Shared[Shared_* бандлы]
+    Root --> Shared[Shared* бандлы]
 ```
 
 ### Спрайты
@@ -159,9 +161,9 @@ flowchart TD
 | Источник | `Assets/Art/**` (`.png` / `.psd` / `.aseprite`) |
 | Ключ userData | `spriteCatalog`: included, group, kind Sheet/Animation, time, color |
 | Группа по умолчанию | относительный путь под `Art/` → PascalCase |
-| Меню | `Tools/GenerateSprites` |
+| Меню | `Tools/Framework/Codegen/Sprites` |
 | Авто | postprocessor + reload редактора |
-| Выход | `Runtime/Catalogues/Sprites/{Group}.asset`, Addressables `Sprites_{Group}`, `Sprites.cs` + `{Group}Sprites.cs` |
+| Выход | `Runtime/Catalogues/Sprites/{Group}.asset` (ссылка в `ContentRoot`), `Sprites.cs` + `{Group}Sprites.cs` |
 | Рантайм | `Sprites.Cards.Name` после `LoadSpriteGroup` / `RequestSpriteGroup` |
 
 Геттер бросает, если группа не загружена. Предзагрузка меты (`StartupAssetsPreload`) держит часть групп до конца сессии.
@@ -171,12 +173,12 @@ flowchart TD
 | | |
 |--|--|
 | Источник | любой `.prefab` с `prefabCatalog.included` |
-| JSON групп | `Runtime/Catalogues/Prefabs/PrefabGroups.json` (в т.ч. `nonAddressable`: сейчас `Global`) |
-| Меню | `Tools/GeneratePrefabsCatalog` |
-| Выход | Addressable: `.../Catalogues/Prefabs/{Group}.asset`; Resources: `.../Catalogues/Prefabs/Resources/PrefabGroups/{Group}.asset` |
+| JSON групп | `Runtime/Catalogues/Prefabs/PrefabGroups.json` (в т.ч. `preloaded`: сейчас `Global`) |
+| Меню | `Tools/Framework/Codegen/Prefabs Catalog` |
+| Выход | `.../Catalogues/Prefabs/{Group}.asset` |
 | C# | `MenuPrefabs`, `GamePlayPrefabs` в `Assets/Generated` модуля; группа без типов игры (`GlobalPrefabs`) - в `Catalogues/Prefabs` контента |
 
-Галочка **Addressable Group** общая на группу: снятие уносит **весь** `.asset` группы в Resources. Global-префабы так и едут в плеер без бандла — `GlobalScopeExtensions` их не Retain'ит.
+Галочка **Preloaded Group** общая на группу: группа забирается при `AddContent` и читается синхронно. Так грузятся Global-префабы.
 
 `[PrefabDefinition]` / PrefabBuilder в клиенте **больше нет**. Каталог их заменил.
 
@@ -187,26 +189,26 @@ flowchart TD
 | Источник | любой аудиофайл (`.wav` / `.mp3` / `.ogg` / …) с `audioCatalog.included` |
 | Ключ userData | `audioCatalog`: included, group, volume (слайдер 0..1 в инспекторе) |
 | JSON групп | `Runtime/Catalogues/Audio/AudioGroups.json` |
-| Меню | `Tools/GenerateAudioCatalog` |
+| Меню | `Tools/Framework/Codegen/Audio Catalog` |
 | Авто | postprocessor + reload редактора |
-| Выход | `Runtime/Catalogues/Audio/{Group}.asset`, Addressables `Audio_{Group}` |
+| Выход | `Runtime/Catalogues/Audio/{Group}.asset` (ссылка в `ContentRoot`) |
 | C# | `GlobalAudio`, `GamePlayAudio`, … в `Runtime/Catalogues/Audio` |
 | Вариации | клипы `Name_0`, `Name_1`, … сворачиваются в `IReadOnlyList<Sound> Name`; играть через `IAudioPlayer.PlayRandomFromGroup` |
 | Рантайм | `GlobalAudio.GameMusic` — `Sound { Clip, Volume }` — после `LoadAudioGroup(GlobalAudio.Group)` / `RequestAudioGroup` |
 
-Только Addressables: группы в Resources у аудио нет.
+Preloaded-групп у аудио сейчас нет. Музыка — отдельный бандл `Music`.
 
 ### Env-ассеты (options)
 
-Маркерный баз-класс `EnvAsset`. Устроено как префабы: у каждой группы свой `EnvAssetGroupAsset` в `Catalogues/Assets/` (Addressables `Assets_<Group>`) или в `Catalogues/Assets/Resources/AssetGroups/` (галочка «Addressable Group» снята, список в `AssetGroups.json`).
+Маркерный баз-класс `EnvAsset`. Устроено как префабы: у каждой группы свой `EnvAssetGroupAsset` в `Catalogues/Assets/`; preloaded-группы перечислены в `AssetGroups.json` (галочка «Preloaded Group»).
 
 | Группа | Где | Кто грузит |
 |--------|-----|------------|
-| `InternalAssets` (`OptionsContainer`) | Resources | `LoadResourceEnvAssetGroup` в синхронном Construct корня |
-| `GlobalAssets` | Resources | `LoadEnvAssetGroup` в Construct Global — опции читаются при регистрации |
-| `GamePlayAssets` | Addressables | `RequestEnvAssetGroup` в Construct GamePlay |
+| `InternalAssets` (`OptionsContainer`) | preloaded | `LoadEnvAssetGroup` в Construct корня, после `AddContent` |
+| `GlobalAssets` | preloaded | `LoadEnvAssetGroup` в Construct Global — опции читаются при регистрации |
+| `GamePlayAssets` | бандл контента | `RequestEnvAssetGroup` в Construct GamePlay |
 
-Обращение к свойству незагруженной адресуемой группы бросает исключение.
+Обращение к свойству незагруженной не-preloaded группы бросает исключение.
 
 Создать options из скрипта: `Assets/Create from sources` (`Ctrl+Q`) — кладёт `.asset` в `{Module}/Assets/Options/`.
 
@@ -214,23 +216,21 @@ flowchart TD
 
 ### Сцены
 
-Сканирует `Assets/Common`, `GamePlay`, `Menu`, `Meta`. Пишет `Scenes.cs` (`StaticScene` с GUID).
+Сканирует `Assets/Common`, `GamePlay`, `Menu`, `Meta`. Пишет `Scenes.cs` (`ContentScene` по GUID из `ContentRoot`).
 
-Сцены из **Build Settings** в Addressables не попадают — иначе они оказались бы в билде дважды. Остальные — группы `Scenes_{домен}` (второй сегмент пути: Menu, GamePlay, …), адрес = путь ассета.
+Сцены из **Build Settings** остаются в плеере, вне бандлов контента, и в `Scenes.cs` не попадают. Остальные лежат в бандлах контента: бандл сцены определяет раскладка (`ContentBundleLayout`).
 
-Меню `Tools/GenerateScenes`. Авто: reload + `EditorBuildSettings.sceneListChanged`. Runner'а нет, генерация прямая.
+Меню `Tools/Framework/Codegen/Scenes`. Авто: reload + `EditorBuildSettings.sceneListChanged`. Runner'а нет, генерация прямая.
 
 ### Цвета
 
-Один `Assets/Art/ColorCatalog.asset`. Генератор пишет `Colors.cs` со статическими `readonly Color`. Нет Addressables, нет автозапуска — только `Tools/GenerateColors` и кнопка на ассете.
+Один `Assets/Art/ColorCatalog.asset`. Генератор пишет `Colors.cs` со статическими `readonly Color`. Без бандла и без автозапуска — только `Tools/Framework/Codegen/Colors` и кнопка на ассете.
 
-### Shared Addressables
+### Общие бандлы контента
 
-Ассет без своей записи, на который ссылаются несколько групп, Unity копирует в каждый бандл. `SharedAddressablesSync` делает его явной записью `Shared_Common` / `Shared_Menu` / `Shared_GamePlay`.
+Ассет, который нужен напрямую двум бандлам и которого не держит ни один из них, раскладка считает ошибкой: движок скопировал бы его в оба. `ContentSharedSync` фреймворка делает такой ассет корнем общего бандла игры. Список общих бандлов — `Internal/Editor/Content/GameSharedBundles.cs`: `SharedCommon` (preloaded, для `Main`) и `SharedMenu` (для `Menu`, `GamePlayViews`, `GamePlay`).
 
-Фаза берётся из таблицы потребителей (`Sprites_Cards` → GamePlay, `Prefabs_Menu` → Menu, шрифты/плагины → Common). Ошибка в таблице не ломает загрузку — фаза просто поднимет лишний бандл.
-
-Перед WebGL-сборкой sync зовётся **синхронно**: в batchmode отложенный пересчёт не успевает.
+Синк запускается перед каждой сборкой контента, в Regenerate All и из `Tools/Framework/Codegen/Sync Shared Content Bundles`. Подробно: `tools/framework/.claude/docs/CONTENT.md`.
 
 ---
 
@@ -265,7 +265,7 @@ sequenceDiagram
 
 ### Как пользоваться
 
-1. Выделить объект → `GameObject/Create Object Bindings` (или `Tools/Object Bindings/Create For Selection`).
+1. Выделить объект → `GameObject/Create Object Bindings` (или `Tools/Framework/Create Object Bindings`).
 2. Имя / namespace (при повторной генерации заблокированы — не плодить второй тип).
 3. Опционально **Is Scene Service** / **Is Entity Component** — генератор допишет `ISceneService.Create` / `IEntityComponent.Register`.
 4. После компиляции на объекте висит сгенерированный компонент; пользовательский класс наследует его и может добавить логику.
@@ -340,7 +340,7 @@ dotnet run --project tools/framework/client/core/Source~/ContainerGenerator.Veri
 
 `Internal/Editor/Tools/ContainerCodegen/`
 
-`ContainerGraphPostprocessor` на импорт/удаление/перенос `.prefab`/`.unity`, на reload и по меню `Tools/GenerateContainerGraphAssets`:
+`ContainerGraphPostprocessor` на импорт/удаление/перенос `.prefab`/`.unity`, на reload и по меню `Tools/Framework/Codegen/Container Asset Map`:
 
 1. `ContainerGraphAssetScanner` читает YAML (не грузит объекты в редактор). Ищет `SceneServicesFactory` и entity-holder'ы.
 2. `ContainerGraphAssetWriter` пишет `ContainerGraph.AssetMap.cs`.
@@ -351,7 +351,7 @@ dotnet run --project tools/framework/client/core/Source~/ContainerGenerator.Veri
 
 ### Container Debugger
 
-`Tools/Container Debugger`. Read-only. Данные только из `ContainerRegistryDebug` / `IContainerDiagnostics`.
+`Tools/Framework/Container/Debugger`. Read-only. Данные только из `ContainerRegistryDebug` / `IContainerDiagnostics`.
 
 - Дерево корней и детей.
 - Таблица регистраций: слот, тип, сервисы, lifetime, создан ли экземпляр.
@@ -364,7 +364,7 @@ dotnet run --project tools/framework/client/core/Source~/ContainerGenerator.Veri
 
 ### Container Graph
 
-`Tools/Container Graph`. Живой граф Graph Toolkit по тем же `ContainerRegistryDebug.Roots`.
+`Tools/Framework/Container/Graph`. Живой граф Graph Toolkit по тем же `ContainerRegistryDebug.Roots`.
 
 Ассет `ContainerGraph/Transient/ContainerLiveGraph.containergraph` — **черновик**, не источник правды. Дерево растёт слева направо по глубине скоупа. Статус: «нет контейнеров» в Edit Mode / ожидание первого `Build` в Play Mode.
 
@@ -376,7 +376,7 @@ dotnet run --project tools/framework/client/core/Source~/ContainerGenerator.Veri
 
 Рантайм: `Internal/Runtime/Tools/Profiling/`  
 Editor: `Internal/Editor/Tools/Profiling/`  
-Окно: `Tools/Startup Profiler`
+Окно: `Tools/Framework/Startup Profiler`
 
 `GameProfiler` — статика: этапы размазаны по extension-методам скоупов, куда DI не протащить.
 
@@ -422,13 +422,13 @@ Editor: `Internal/Editor/Tools/Profiling/`
 
 Во фреймворке, платформа `web` (`Internal.Platforms.Web.Editor`), имя `Internal.WebGlBuild.Build` прежнее.
 
-`Tools/Build/WebGL`. CI:
+`Tools/Framework/Build/WebGL`. Batchmode:
 
 ```text
 Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Build
 ```
 
-Опционально `-buildOutput` (по умолчанию `client/build` — это же пакует Docker). Перед билдом `SharedAddressablesSync.Sync()`. В batchmode явный `EditorApplication.Exit(0|1)`: один `-quit` глотает исключения и выходит 0, деплой тогда упаковал бы старый билд.
+Опционально `-buildOutput` (по умолчанию `client/build`). Вокруг билда идут `IPlayerBuildStep` проекта (`PlayerBuildSteps`), среди них сборка бандлов контента (`ContentBuild`). В batchmode явный `EditorApplication.Exit(0|1)`: один `-quit` глотает исключения и выходит 0, деплой тогда упаковал бы старый билд.
 
 Связанный документ: [[client-webgl-build-size|размер WebGL-билда]].
 
@@ -439,9 +439,9 @@ Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Bu
 - `PlayerAssemblyFilter` (`IFilterBuildAssemblies`) выкидывает из плеера `MCPForUnity.Runtime` (иначе линкер оставляет MonoBehaviour, а с ним Newtonsoft) и `Unity.2D.Tilemap.Runtime` (`[AlwaysLinkAssembly]` из-за Aseprite, держит модули Tilemap и Physics2D).
 - `McpScreenshotsFolder` на загрузке проекта пишет EditorPrefs скриншотов в `Temp/Screenshots`, не в `Assets/Screenshots`.
 
-### LinkerGenerator — выключен
+### link.xml
 
-Весь `IPreprocessBuildWithReport` и меню `Tools/Generate link.xml` закомментированы: `preserve="all"` на своих сборках не давал линкеру вырезать мёртвый код. Файл оставлен как история решения.
+Своего генератора `link.xml` нет: `preserve="all"` на своих сборках не давал линкеру вырезать мёртвый код. Типы объектов из бандлов контента сохраняет `ContentLinkXml` фреймворка (`preserve="nothing"`).
 
 ### CardIconsExporter
 
@@ -462,25 +462,26 @@ Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Bu
 
 | Пункт | Шорткат |
 |-------|---------|
-| `Tools/Project Tools` | Ctrl/Cmd+G |
-| `Tools/Container Debugger` | — |
-| `Tools/Container Graph` | — |
-| `Tools/GenerateContainerGraphAssets` | — |
-| `Tools/Startup Profiler` | — |
-| `Tools/GenerateSprites` | — |
-| `Tools/GeneratePrefabsCatalog` | — |
-| `Tools/GenerateAudioCatalog` | — |
-| `Tools/GenerateScenes` | — |
-| `Tools/GenerateAssetsCatalog` | — |
-| `Tools/GenerateColors` | — |
-| `Tools/SyncSharedAddressables` | — |
-| `Tools/Build/WebGL` | — |
-| `Tools/Container/Run Benchmark` | — |
-| `Tools/Object Bindings/Create For Selection` | — |
+| `Tools/Framework/Project Tools` | Ctrl/Cmd+G |
+| `Tools/Framework/Container/Debugger` | — |
+| `Tools/Framework/Container/Graph` | — |
+| `Tools/Framework/Container/Run Benchmark` | — |
+| `Tools/Framework/Startup Profiler` | — |
+| `Tools/Framework/Codegen/Regenerate All` | — |
+| `Tools/Framework/Codegen/Sprites` | — |
+| `Tools/Framework/Codegen/Prefabs Catalog` | — |
+| `Tools/Framework/Codegen/Audio Catalog` | — |
+| `Tools/Framework/Codegen/Scenes` | — |
+| `Tools/Framework/Codegen/Assets Catalog` | — |
+| `Tools/Framework/Codegen/Colors` | — |
+| `Tools/Framework/Codegen/Container Asset Map` | — |
+| `Tools/Framework/Codegen/Content Root` | — |
+| `Tools/Framework/Codegen/Sync Shared Content Bundles` | — |
+| `Tools/Framework/Build/WebGL` | — |
+| `Tools/Framework/Create Object Bindings` | — |
 | `GameObject/Create Object Bindings` | — |
 | `Assets/Scan services` | Ctrl/Cmd+E |
 | `Assets/Create from sources` | Ctrl/Cmd+Q |
-| `Tools/Generate link.xml` | выключен |
 
 ---
 
@@ -493,7 +494,7 @@ Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Bu
 5. Старт тормозит — Startup Profiler, сравнить тёплый прогон с cold после рекомпиляции.
 6. «Почему не резолвится» — Play + Container Debugger / Graph. Если класса скоупа нет — смотреть `CINGR*` и AssetMap (сцена/префаб попали в сканер?).
 7. Смена Local/Production API — Options, Save.
-8. Деплой — `WebGlBuild` (он сам синкает Shared Addressables).
+8. Деплой — `/deploy-client` или `WebGlBuild` (сборка контента и синк общих бандлов идут сами).
 
 ---
 
@@ -502,7 +503,9 @@ Unity -quit -batchmode -projectPath client -executeMethod Internal.WebGlBuild.Bu
 | Путь | Содержание |
 |------|------------|
 | `tools/framework/client/core/Editor/Tools/` | Окна, биндинги, профайлер, MCP (фреймворк) |
-| `tools/framework/client/core/Editor/Catalogues/` | Генераторы каталогов и Addressables (фреймворк) |
+| `tools/framework/client/core/Editor/Catalogues/` | Генераторы каталогов и `ContentRoot` (фреймворк) |
+| `tools/framework/client/core/Editor/Content/`, `Runtime/Content/` | Сборка и загрузка бандлов контента (фреймворк) |
+| `client/Assets/Common/Internal/Editor/Content/` | `ContentBundle`-ассеты игры и `GameSharedBundles` |
 | `tools/framework/client/core/Runtime/Catalogues/` | Рантайм групп (фреймворк) |
 | `tools/framework/client/core/Runtime/Tools/Container/` | Контракты контейнера (фреймворк) |
 | `tools/framework/client/core/Source~/ContainerGenerator/` | Roslyn-генератор скоупов |

@@ -4,13 +4,13 @@
 
 ## Главный принцип
 
-Линкер Unity подключает модуль движка целиком, если в финальных сборках осталась **хотя бы одна** ссылка на его типы. Вместе с модулем в билд попадают его нативные зависимости. Например, одна ссылка URP на `UIElementsRuntimeUtility` держала в билде 1594 из 2244 типов `UnityEngine.UIElementsModule`, а один вызов буфера обмена в `InputField` держал модули IMGUI и TextCoreTextEngine.
+Линкер Unity подключает модуль движка целиком, если в финальных сборках осталась **хотя бы одна** ссылка на его типы. Вместе с модулем в билд попадают его нативные зависимости. Например, когда проект ещё был на URP, одна его ссылка на `UIElementsRuntimeUtility` держала в билде 1594 из 2244 типов `UnityEngine.UIElementsModule`, а один вызов буфера обмена в `InputField` держал модули IMGUI и TextCoreTextEngine.
 
 Часть таких ссылок в пакетах Unity включается через `versionDefines` в asmdef: define появляется сам, если в manifest есть модуль. Модули нельзя убрать из manifest, потому что от них зависят редакторные пакеты (MCP for Unity, Aseprite Importer). Поэтому сами пакеты **встроены** в `client/Packages/`, а правки сделаны в их копиях.
 
 ## Результат (br, `client/build`)
 
-Сентябрь 2026, Unity 6000.x, сумма файлов плеера:
+История. Сентябрь 2026, Unity 6000.x (до обновления на 7000), сумма файлов плеера:
 
 | Шаг | Размер | Разница |
 |---|---|---|
@@ -31,12 +31,20 @@
 | Без 2D-физики: свой hit-test, Tilemap отфильтрован | ~5 010 KB | −296 KB |
 | 106 сабмодулей вырезаны по профилю | ~4 600 KB | −426 KB |
 | Урезанный MemoryPack.Core | ~4 200 KB | −396 KB |
-| `link.xml` Addressables без `preserve="all"` на типах из бандлов | ~4 110 KB | −88 KB |
+| `link.xml` Addressables без `preserve="all"` на типах из бандлов (Addressables потом удалены, см. ниже) | ~4 110 KB | −88 KB |
 | Без модуля IMGUI | ~3 910 KB | −177 KB |
 
-Итог: `wasm.br` 2.85 MB, `data.br` 1.06 MB, `framework.js.br` 64 KB, `loader.js` 28 KB.
+17 ноября 2026, фреймворк 0.9: Addressables заменены на AssetBundles движка (`ContentBundle`, `tools/framework/.claude/docs/CONTENT.md`), uGUI взят из форка фреймворка (7.0.0):
 
-Для сравнения: пустой проект Unity 6 со всеми настройками размера весит около 2 MB br. Остаток — наш набор фич: TMP и UGUI, игровой код и протокол, Addressables и метаданные il2cpp (`global-metadata.dat`, около 780 KB br).
+| Шаг | Размер | Разница |
+|---|---|---|
+| Контент на `ContentBundle`, форк uGUI 7.0.0 | ~3 990 KB | +80 KB |
+
+В этом шаге ушли Addressables и ResourceManager, но вернулись модули TextCoreTextEngine и TextCoreFontEngine: их тянет генератор текста TMP (`TMP_AdvancedTextGenerator`). IMGUI в билд не вернулся.
+
+Сейчас (деплой 17.11.2026, `minesleader.xyz/Build`): `wasm.br` 2 841 KB, `data.br` 1 148 KB, `framework.js.br` 70 KB, `loader.js` 28 KB, всего около 4.0 MB при первой загрузке. Ленивые бандлы контента (`StreamingAssets/Content`) грузятся позже и в эту сумму не входят.
+
+Для сравнения: пустой проект Unity (замер на 6000.x) со всеми настройками размера весит около 2 MB br. Остаток — наш набор фич: TMP и UGUI, игровой код и протокол, каталог и preloaded-бандлы контента, метаданные il2cpp (`global-metadata.dat`, около 730 KB br, больше половины `data.br`).
 
 ## Форки пакетов
 
@@ -46,16 +54,12 @@
 |---|---|
 | `com.unity.ugui` | `Runtime/UGUI/UnityEngine.UI.asmdef`: удалены versionDefines `PACKAGE_UITOOLKIT`, `PACKAGE_PHYSICS`, `PACKAGE_PHYSICS2D`, `PACKAGE_ANIMATION`. В ugui 7.0.0 `InputField` и `TMP_InputField` уже работают с буфером обмена через `SystemCopyBuffer` (без IMGUI) |
 | `com.unity.render-pipelines.core` | `Runtime/Unity.RenderPipelines.Core.Runtime.asmdef` и `Editor/Unity.RenderPipelines.Core.Editor.asmdef`: удалён `ENABLE_PHYSICS_MODULE` |
-| `com.unity.addressables` | `Editor/.../SchemaBuilders/BundledAssetSchemaBuilder.cs`, `AddIncludedTypes`: типы-наследники `UnityEngine.Object` из бандлов пишутся в `link.xml` как `preserve="nothing" serialized="true"`, а не `preserve="all"` |
 | `com.unity.web.stripping-tool` | `Editor/Core/WasmOpt.cs`: добавлен `--enable-exception-handling`. `StrippingProjectSettings.cs`: повторная загрузка настроек через `delayCall` |
 
 Пакеты скопированы без `Documentation~`, `Samples~` и `Tests`.
 
 > [!danger] Web Stripping Tool без `--enable-exception-handling`
 > Пакет после билда прогоняет wasm через `wasm-opt -O3`, но не включает фичу exceptions. Binaryen тогда считает, что вызовы не бросают, и выкидывает все `try`/`catch`: в релизном wasm их было 0 при ~9000 после линковки. Любое исключение, даже пойманное в C#, роняет плеер (`Uncaught exception from main loop`). Проверка после обновления пакета: `wasm-dis --all-features <build>.wasm | grep -c '(try'` должно быть больше нуля.
-
-> [!danger] Сборки Addressables сохраняются целиком
-> `m_Linker.AddAssemblies(Addressables, ResourceManager)` в `BundledAssetSchemaBuilder` убирать нельзя. ResourceManager создаёт операции (`GroupOperation`) и адаптеры сериализации каталога через рефлексию. Без полного сохранения в плеере падает `MissingMethodException: Default constructor not found ... GroupOperation`, и `catalog.bin` не загружается.
 
 Что теряем:
 - **UGUI:** в билде не работают `PhysicsRaycaster` и `Physics2DRaycaster`, Animation-переходы `Selectable` и связка EventSystem с панелями UI Toolkit.
@@ -72,7 +76,8 @@ NuGet-версия помечает почти все форматтеры `[Pre
 
 ## Остальные правки
 
-- **Свой 2D SRP вместо URP.** Пайплайн лежит в `Assets/Common/Rendering`, ассет `Assets/Settings/GamePipeline.asset`.
+- **Свой 2D SRP вместо URP.** Пайплайн лежит в `Assets/Common/Rendering`, ассет `Assets/Settings/GamePipeline.asset`. Пайплайну от форка RP Core нужна только его ShaderLibrary.
+- **`link.xml` бандлов контента** пишет фреймворк (`ContentLinkXml`): типы объектов из бандлов сохраняются с `preserve="nothing"`, стриппинг кода не отключается. Это замена прежней правки форка Addressables.
 - **2D-физика удалена.** Клики по картам и клеткам обрабатывает свой hit-test: `CardsPointer` (`GamePlay/Cards/Services`) проверяет прямоугольники `CardPointerArea`, сверху оказывается карта с большим SortingGroup. `PlayerAssemblyFilter` фреймворка (`IFilterBuildAssemblies`, список в `ProjectSettings/Framework.json`, `StrippedPlayerAssemblies`) выкидывает из билда `Unity.2D.Tilemap.Runtime`: его тянет Aseprite Importer через `[AlwaysLinkAssembly]`, а модуль Tilemap зависит от Physics2D. В UniTask удалён `UNITASK_PHYSICS2D_SUPPORT`.
 - **Input System удалён.** Ввод идёт через старый `Input`. В `Global_Events.prefab` стоит `StandaloneInputModule`.
 - **Модуль XR** (`com.unity.modules.xr`) удалён из manifest.
@@ -84,7 +89,7 @@ NuGet-версия помечает почти все форматтеры `[Pre
 
 - **`data.unity3d` без LZ4HC** (`BuildOptions.UncompressedAssetBundle`). Это единственный способ: на Web настройки сжатия в Build Profile и флаги `CompressWithLz4*` игнорируются. Выигрыш всего −47 KB `data.br`, а распакованные данные занимают на 1.5 MB больше в heap wasm.
 - **Убрать UICommon.** Без `Event.PopEvent` не работает ввод с клавиатуры в `TMP_InputField`, а выигрыш около 3.5 KB.
-- **Content Directories вместо Addressables.** Оценка выигрыша 50–100 KB br. ContentLoad, Regex и Uri остаются в билде в любом случае, а переход требует переписать загрузку и деплой контента.
+- **Content Directories вместо Addressables** (история, октябрь 2026). Оценка выигрыша 50–100 KB br. ContentLoad, Regex и Uri остаются в билде в любом случае, а переход требует переписать загрузку и деплой контента. Позже фреймворк заменил Addressables на AssetBundles движка (`ContentBundle`, фреймворк 0.8), версия на Content Directory в нём не прижилась.
 
 ## Ограничения
 
