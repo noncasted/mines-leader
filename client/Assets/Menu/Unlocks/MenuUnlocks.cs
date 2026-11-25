@@ -41,7 +41,7 @@ namespace Menu.Unlocks
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
         /// <summary>
-        /// Ряды собираются один раз на старте сцены и живут вместе с ней.
+        /// Rows are built once at scene start and live together with it.
         /// </summary>
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
@@ -50,7 +50,7 @@ namespace Menu.Unlocks
         }
 
         /// <summary>
-        /// На входе только подписываемся: статусы и клики живут ровно столько, сколько открыт экран.
+        /// On entry we only subscribe: statuses and clicks live exactly as long as the screen is open.
         /// </summary>
         public UniTask OnEntered(IUIStateHandle handle)
         {
@@ -67,7 +67,7 @@ namespace Menu.Unlocks
 
         private void BuildRow(IReadOnlyLifetime screenLifetime, IReadOnlyLifetime rowLifetime, IAchievementRow row)
         {
-            // Ряд живёт, пока существует и сама сцена, и запись в конфиге.
+            // The row lives while both the scene and the config entry exist.
             var lifetime = rowLifetime.Child();
             screenLifetime.Listen(lifetime.Terminate);
 
@@ -96,7 +96,7 @@ namespace Menu.Unlocks
 
         private void Bind(EntryView entry)
         {
-            // Ряд мог приехать конфигом уже после входа на экран, поэтому подписка идёт и отсюда.
+            // A row may have arrived with the config after entering the screen, so the subscription goes from here too.
             if (_screenLifetime == null)
                 return;
 

@@ -7,8 +7,8 @@ using UnityEngine;
 namespace Menu.Profile
 {
     /// <summary>
-    /// Список матчей: строки спавнятся из префаба в один контейнер и живут
-    /// до следующей сборки списка.
+    /// Match list: rows are spawned from a prefab into one container and live
+    /// until the next list build.
     /// </summary>
     [DisallowMultipleComponent]
     public class MenuProfileHistory : MonoBehaviour

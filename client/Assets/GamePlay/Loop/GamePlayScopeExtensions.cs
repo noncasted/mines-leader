@@ -66,7 +66,7 @@ namespace GamePlay.Loop
             builder.Register<GameContext>()
                    .As<IGameContext>();
 
-            // CardVfxFactory инжектит VFX, созданные в рантайме.
+            // CardVfxFactory injects VFX created at runtime.
             builder.Injectable<ZipZapLine>();
             
             builder.AddGameEndServices();
@@ -86,7 +86,7 @@ namespace GamePlay.Loop
                    .As<IRoundChanged>()
                    .As<IMatchCompleted>();
 
-            // Раунд — альтернатива одного сервиса: класс скоупа строит тот, что зарегистрирован.
+            // The round is an alternative of one service: the scope class builds whichever is registered.
             switch (sessionData.Type)
             {
                 case GameMatchType.TimeLimited:
@@ -102,7 +102,7 @@ namespace GamePlay.Loop
                     throw new ArgumentOutOfRangeException();
             }
 
-            // Обработчики общие: записи режима приходят только в матче этого режима.
+            // The handlers are shared: mode records arrive only in a match of that mode.
             builder.AddSnapshotHandler<TimeLimitedRoundSnapshotHandler, TimeLimitedRoundRecord>();
             builder.AddSnapshotHandler<LastManStandingRoundSnapshotHandler, LastManStandingRoundRecord>();
 

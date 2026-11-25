@@ -20,9 +20,9 @@ namespace GamePlay.Cards
         void SetPressed(bool value);
     }
 
-    // Хит-тест карт без физики: раньше это делали BoxCollider2D и OnMouse*. Под указателем
-    // выигрывает карта, которая рисуется выше. Нажатие, как и у OnMouseDown/Up, держит карта,
-    // на которой кнопку зажали, даже если указатель с неё ушёл.
+    // Card hit test without physics: it used to be done by BoxCollider2D and OnMouse*. Under the pointer
+    // the card drawn on top wins. The press, like OnMouseDown/Up, is held by the card
+    // the button was pressed on, even if the pointer has left it.
     public class CardsPointer : ICardsPointer, IScopeSetup, IUpdatable
     {
         public CardsPointer(IUpdater updater, IGameInput input)
@@ -90,14 +90,14 @@ namespace GamePlay.Cards
                 _hovered = target;
             }
 
-            // Как OnMouseOver: подтверждается каждый кадр, чтобы карта, наведённая во время
-            // паузы, подсветилась сразу после неё.
+            // Like OnMouseOver: confirmed every frame, so a card hovered during
+            // a pause is highlighted right after it.
             _hovered?.SetHovered(true);
         }
 
         private void UpdatePressed(bool isDown)
         {
-            // Выключенная карта отпускает нажатие, как раньше делал OnDisable.
+            // A disabled card releases the press, as OnDisable used to do.
             if (_pressed != null && _pressed.IsActive == false)
                 Release();
 

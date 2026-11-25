@@ -14,9 +14,9 @@ namespace Flow.Mocks
     public class GameMock : MockBase
     {
         /// <summary>
-        /// Агент кладёт сюда JSON <see cref="AgentMatchFixture"/> перед входом в Play
-        /// (tools/scripts/game-agent.py start --hand ...). Ключ читается один раз и удаляется,
-        /// поэтому следующий Play без фикстуры идёт как обычно. Сцена не меняется.
+        /// The agent puts the JSON of <see cref="AgentMatchFixture"/> here before entering Play
+        /// (tools/scripts/game-agent.py start --hand ...). The key is read once and removed,
+        /// so the next Play without a fixture goes as usual. The scene is not changed.
         /// </summary>
         public const string FixturePrefsKey = "MinesLeader.GameMock.Fixture";
 
@@ -30,7 +30,7 @@ namespace Flow.Mocks
         {
             var scope = await Bootstrap();
 
-            // Меню, которое обычно ждёт мету, здесь нет: игре нужны реестры карт и подключение.
+            // There is no menu here, which usually waits for the meta: the game needs the card registries and the connection.
             await scope.Resolve<IMetaState>().IsReady.WaitTrue(scope.Lifetime);
 
             var scopeLoaderFactory = scope.Resolve<IServiceScopeLoader>();

@@ -9,8 +9,8 @@ namespace GamePlay.Cards
 {
     /// <summary>
     /// [GamePlay] [Card] [Smoke]
-    /// Карта Smoke - создает временный эффект дыма на вражеской доске.
-    /// Дым появляется в форме ромба и действует несколько раундов.
+    /// The Smoke card - creates a temporary smoke effect on the enemy board.
+    /// The smoke appears in a diamond shape and lasts several rounds.
     /// </summary>
     public class CardSmokeAction : ICardAction
     {

@@ -26,8 +26,8 @@ namespace Global.Setup
         [ContainerScopeParent(typeof(InternalScopeExtensions), nameof(InternalScopeExtensions.Construct))]
         public static async UniTask Construct(IScopeBuilder builder)
         {
-            // Опции (AddPublisher) и префабы (Instantiate в Add*) нужны прямо при регистрации,
-            // поэтому обе группы грузятся до неё, параллельно друг другу.
+            // Options (AddPublisher) and prefabs (Instantiate in Add*) are needed right at registration,
+            // so both groups load before it, in parallel with each other.
             await UniTask.WhenAll(
                 builder.LoadEnvAssetGroup(GlobalAssets.Group),
                 builder.LoadPrefabGroup(GlobalPrefabs.Group));

@@ -73,7 +73,7 @@ namespace GamePlay.Loop
                 }
             });
 
-            // Раунд живёт дольше состояния матча, поэтому слушается отдельно от него.
+            // The round outlives the match state, so it is listened to separately from it.
             _round.Player.View(lifetime, (playerLifetime, player) => OnRoundChanged(playerLifetime, player));
         }
 

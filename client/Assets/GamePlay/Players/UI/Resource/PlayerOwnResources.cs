@@ -86,8 +86,8 @@ namespace GamePlay.Players.Resource
             return entries;
         }
 
-        // Мелкий ряд лежит в гриде на две строки с горизонтальным ходом, поэтому порядок детей
-        // уже идёт парами «верхний, нижний» — ровно в том виде, в каком его ждёт ряд.
+        // The small row lies in a two-line grid with a horizontal flow, so the children order
+        // already goes in "top, bottom" pairs - exactly as the row expects it.
         private static PlayerResourceEntry[] Small(GameOwnResourceRowBindings row)
         {
             var source = row.SmallRow.GameOwnResourceRowEntries;

@@ -38,7 +38,7 @@ namespace Menu.Profile
             _gameObject.SetActive(false);
         }
 
-        // Глубина истории раньше правилась в инспекторе, но так её никто и не трогал.
+        // The history depth used to be tuned in the inspector, but nobody ever touched it.
         private const int HistoryCount = Meta.Profile.DefaultHistoryCount;
 
         private readonly MenuProfileStats _stats;
@@ -65,7 +65,7 @@ namespace Menu.Profile
             _stats.Bind(lifetime, _profile);
         }
 
-        // Портреты качаются предзагрузкой параллельно сетапу меню и готовы только вместе с метой.
+        // Portraits download by preload in parallel with the menu setup and are ready only together with the meta.
         public void OnMetaSetupCompleted(IReadOnlyLifetime lifetime)
         {
             var avatar = _profile.Character switch
@@ -78,8 +78,8 @@ namespace Menu.Profile
         }
 
         /// <summary>
-        /// История приезжает запросом, поэтому перезапрашивается на каждом входе:
-        /// между открытиями экрана игрок успевает сыграть.
+        /// The history arrives by a request, so it is re-requested on every entry:
+        /// the player manages to play between screen openings.
         /// </summary>
         public UniTask OnEntered(IUIStateHandle handle)
         {
@@ -148,7 +148,7 @@ namespace Menu.Profile
             if (lifetime.IsTerminated == true)
                 return;
 
-            // Пока ответ ехал, игрок мог выбрать другой матч.
+            // While the reply was on its way, the player could have picked another match.
             if (_selectedMatch != entry.Id)
                 return;
 

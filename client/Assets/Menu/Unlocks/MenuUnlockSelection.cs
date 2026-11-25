@@ -13,7 +13,7 @@ namespace Menu.Unlocks
     public interface IMenuUnlockSelection : IUIState
     {
         /// <summary>
-        /// Открывает выбор награды за тир и ждёт, пока игрок заберёт карту или закроет окно.
+        /// Opens the tier reward selection and waits until the player claims a card or closes the window.
         /// </summary>
         UniTask Process(IReadOnlyLifetime lifetime, IAchievementTier tier);
     }
@@ -102,14 +102,14 @@ namespace Menu.Unlocks
             if (lifetime.IsTerminated == true)
                 return;
 
-            // Запрос не дошёл: держать окно в загрузке бессмысленно, закрываем — тир останется незабранным.
+            // The request did not arrive: keeping the window in loading is pointless, so close it - the tier stays unclaimed.
             if (options == null)
             {
                 _log.Error("Failed to load rewards for {Type} tier {Tier}", _tier.Type, _tier.Tier);
                 return;
             }
 
-            // Выйти без выбора нельзя, поэтому пустой пул — единственный способ закрыть окно без карты.
+            // Leaving without a choice is impossible, so an empty pool is the only way to close the window without a card.
             if (options.Count == 0)
             {
                 _log.Info("No cards left for {Type} tier {Tier}", _tier.Type, _tier.Tier);
@@ -129,7 +129,7 @@ namespace Menu.Unlocks
         {
             ClearOptions();
 
-            // All каждый раз собирает новый словарь, поэтому берём его один раз на раскладку.
+            // All builds a new dictionary every time, so take it once per layout.
             var configs = _configs.Value?.All;
 
             foreach (var card in cards)
@@ -162,8 +162,8 @@ namespace Menu.Unlocks
             }
             catch (Exception e) when (e is NetworkRequestException || e is TimeoutException || e is OperationCanceledException)
             {
-                // Claim вызывается через Forget, и без перехвата окно навсегда осталось бы в "Unlocking...".
-                // Ловятся только сбои запроса, как в AchievementRewards.GetOptions: ошибка кода падает наверх.
+                // Claim is called through Forget, and without a catch the window would stay in "Unlocking..." forever.
+                // Only request failures are caught, as in AchievementRewards.GetOptions: a code error propagates up.
                 _log.Error(e, "Claim failed");
             }
 

@@ -75,8 +75,8 @@ namespace GamePlay.Cards
                 return;
             }
 
-            // Доска противника появляется только после его первого хода: пока её нет,
-            // атакующие карты играть нельзя.
+            // The opponent board appears only after their first move: until then
+            // attack cards cannot be played.
             if (Config.Target == CardTarget.OpponentBoard && TargetBoard.IsGenerated.Value == false)
             {
                 _isAvailable.Set(false);

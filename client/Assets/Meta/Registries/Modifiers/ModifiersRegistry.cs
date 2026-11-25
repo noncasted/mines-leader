@@ -77,8 +77,8 @@ namespace Meta
                 "PowerSurge" => Sprites.CardBuffs.PowerSurge,
                 "SoulLink" => Sprites.CardBuffs.SoulLink,
                 "TrebuchetAimer" => Sprites.CardBuffs.TrebuchetAimer,
-                // Иконки может не быть — тогда баф всё равно попадает в список с именем
-                // и описанием, а не роняет весь реестр вместе с HUD бафов.
+                // The icon may be missing - then the buff still goes into the list with its name
+                // and description, instead of breaking the whole registry together with the buffs HUD.
                 _ => null
             };
         }

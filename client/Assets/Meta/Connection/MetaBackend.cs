@@ -69,9 +69,9 @@ namespace Meta
             else
                 _log.Info("Connecting to backend as guest {GuestId}", auth.GuestId);
 
-            // Коннект идёт параллельно загрузке меню: отрезок на стек не встаёт, иначе чужие этапы
-            // вложились бы в ожидание сокета. Текущим он делается только на синхронном прологе,
-            // чтобы замер самого сокета лёг внутрь.
+            // The connect runs in parallel with the menu loading: the span does not go on the stack, otherwise foreign stages
+            // would nest into the socket wait. It is made current only on the synchronous prologue,
+            // so that the socket measurement itself falls inside.
             using var socket = GameProfiler.Concurrent("Socket");
 
             UniTask run;

@@ -3,9 +3,9 @@ using Internal;
 namespace Menu.Common
 {
     /// <summary>
-    /// Мета готова: авторизация прошла и все проекции подключения приехали. Меню грузится
-    /// параллельно с метой, поэтому всё, что читает её данные, строится здесь, а не в OnSetup.
-    /// Экран загрузки снимается сразу после этого события (см. MenuLoop).
+    /// The meta is ready: authorization passed and all connection projections arrived. The menu loads
+    /// in parallel with the meta, so everything that reads its data is built here, not in OnSetup.
+    /// The loading screen is removed right after this event (see MenuLoop).
     /// </summary>
     public interface IMetaSetupCompleted
     {

@@ -9,25 +9,25 @@ using UnityEngine;
 namespace Menu.Decks
 {
     /// <summary>
-    /// Контракт сервиса проигрывания превью карты на Menu_Board. Реализация — Agent A.
-    /// Agent B (UI) потребляет только этот интерфейс: стартует воспроизведение на hover,
-    /// останавливает на leave, читает RenderTexture доски для подстановки в popup.
+    /// Contract of the service that plays a card preview on Menu_Board. The implementation is Agent A.
+    /// Agent B (UI) consumes only this interface: starts playback on hover,
+    /// stops it on leave, reads the board RenderTexture to substitute it into the popup.
     /// </summary>
     public interface IMenuCardPreviewPlayer
     {
         /// <summary>
-        /// RenderTexture сцены Menu_Board. UI привязывает её к background-image popup.
+        /// The Menu_Board scene RenderTexture. The UI binds it to the popup background-image.
         /// </summary>
         RenderTexture PreviewTexture { get; }
 
         /// <summary>
-        /// True, если для этой карты на беке сгенерирован превью-бандл (поле-модифицирующие карты).
-        /// Resource/buff/hand-карты без визуала возвращают false — UI по этому флагу скрывает popup.
+        /// True if a preview bundle is generated on the backend for this card (field-modifying cards).
+        /// Resource/buff/hand cards without visuals return false - the UI hides the popup by this flag.
         /// </summary>
         bool HasPreview(CardType cardType);
 
         /// <summary>
-        /// Запускает сценарий превью для данной карты (сброс стейта + проигрывание снапшотов).
+        /// Starts the preview scenario for the given card (state reset + playing snapshots).
         /// </summary>
         UniTask Play(IReadOnlyLifetime lifetime, CardType cardType);
     }

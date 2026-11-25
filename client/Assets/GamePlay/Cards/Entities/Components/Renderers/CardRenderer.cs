@@ -32,8 +32,8 @@ namespace GamePlay.Cards
 
             _sortingGroup = bindings.SortingGroup;
 
-            // Рубашка и выделение красятся вместе с лицом: у удалённой карты лицо выключено
-            // до вскрытия, а тонировать надо всё равно.
+            // The back and the highlight are tinted together with the face: for a remote card the face is off
+            // until it is revealed, but tinting is needed anyway.
             _all = new[]
             {
                 body.SpriteRenderer,

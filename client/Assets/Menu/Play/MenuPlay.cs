@@ -67,7 +67,7 @@ namespace Menu.Play
             _searchView.CancelButton.ListenClick(lifetime, StopSearch);
         }
 
-        // Режимы строятся по конфигу матчмейкинга, а он приезжает проекцией вместе с метой.
+        // Modes are built from the matchmaking config, and it arrives as a projection together with the meta.
         public void OnMetaSetupCompleted(IReadOnlyLifetime lifetime)
         {
             _matchMakingConfigs.View(lifetime, options => BuildModes(lifetime, options));

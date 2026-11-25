@@ -8,7 +8,7 @@ namespace GamePlay.UI
     public interface IGamePauseLeave
     {
         /// <summary>
-        /// Показывает подтверждение выхода и ждёт ответа игрока.
+        /// Shows the leave confirmation and waits for the player's answer.
         /// </summary>
         UniTask<bool> Process(IReadOnlyLifetime lifetime);
     }

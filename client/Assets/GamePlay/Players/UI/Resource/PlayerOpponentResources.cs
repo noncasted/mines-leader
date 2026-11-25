@@ -87,9 +87,9 @@ namespace GamePlay.Players.Resource
             return entries;
         }
 
-        // У чужого ряда верх и низ лежат отдельными объектами, а ряд ждёт один список в порядке
-        // отрисовки, поэтому сшиваем их парами. Первый пипс верха назван иначе и в биндингах
-        // лежит отдельным полем — в списке он всё равно идёт первым, как и в иерархии.
+        // In the opponent row the top and the bottom are separate objects, while the row expects one list in
+        // drawing order, so they are stitched in pairs. The first top pip is named differently and lies
+        // in the bindings as a separate field - it comes first in the list anyway, as in the hierarchy.
         private static PlayerResourceEntry[] Small(GameOpponentResourceRowBindings row)
         {
             var top = row.SmallRow.Top;

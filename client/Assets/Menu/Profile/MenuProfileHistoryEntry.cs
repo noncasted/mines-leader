@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace Menu.Profile
 {
     /// <summary>
-    /// Строка списка матчей: "{Режим} vs {Соперник}" и цветной тег результата.
+    /// A match list row: "{Mode} vs {Opponent}" and a colored result tag.
     /// </summary>
     [DisallowMultipleComponent]
     public class MenuProfileHistoryEntry : MonoBehaviour

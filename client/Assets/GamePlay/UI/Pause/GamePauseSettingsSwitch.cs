@@ -6,8 +6,8 @@ using UnityEngine.UI;
 namespace GamePlay.UI
 {
     /// <summary>
-    /// Пара кнопок On/Off: активная половина берёт спрайт <see cref="SettingsSprites.On"/>,
-    /// вторая — <see cref="SettingsSprites.Off"/>.
+    /// A pair of On/Off buttons: the active half takes the <see cref="SettingsSprites.On"/> sprite,
+    /// the other one - <see cref="SettingsSprites.Off"/>.
     /// </summary>
     [DisallowMultipleComponent]
     public class GamePauseSettingsSwitch : MonoBehaviour

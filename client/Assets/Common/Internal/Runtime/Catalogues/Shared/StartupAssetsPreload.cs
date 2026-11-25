@@ -4,20 +4,20 @@ namespace Internal
 {
     public interface IStartupAssetsPreload
     {
-        /// <summary>Все группы предзагрузки в памяти.</summary>
+        /// <summary>All preload groups in memory.</summary>
         IViewableProperty<bool> IsLoaded { get; }
 
-        /// <summary>Музыка в памяти: грузится отдельно (свой бандл Music), мету и меню не задерживает.</summary>
+        /// <summary>Music in memory: loaded separately (its own Music bundle), does not delay the meta or the menu.</summary>
         IViewableProperty<bool> IsMusicLoaded { get; }
 
         void Start();
     }
 
     /// <summary>
-    /// Спрайты реестров меты, звуки интерфейса и музыка живут всё время приложения и из памяти не выходят, поэтому их никто
-    /// не отпускает. Качаются с самого старта параллельно остальной загрузке: старт их не ждёт,
-    /// мета ждёт спрайты и звуки перед сборкой реестров (см. MetaLoop), музыку не ждёт никто - меню включает её, когда она
-    /// загрузится (см. MenuLoop).
+    /// Meta registry sprites, interface sounds and music live for the whole app lifetime and never leave memory, so nobody
+    /// releases them. They download from the very start in parallel with the rest of the loading: the startup does not wait,
+    /// the meta waits for sprites and sounds before building the registries (see MetaLoop), nobody waits for the music - the menu starts it when it
+    /// has loaded (see MenuLoop).
     /// </summary>
     public class StartupAssetsPreload : IStartupAssetsPreload
     {
@@ -35,7 +35,7 @@ namespace Internal
 
         private async UniTask Load()
         {
-            // Ветка идёт параллельно всей загрузке, поэтому лежит в корне трассы и на стек не встаёт.
+            // The branch runs in parallel with the whole loading, so it sits at the trace root and does not go on the stack.
             using (var stage = GameProfiler.Detached("Startup assets"))
             {
                 UniTask loads;
@@ -54,8 +54,8 @@ namespace Internal
                 await loads;
             }
 
-            // Флаг ставится после закрытия отрезка: за ним синхронно идут реестры меты, а за ними
-            // меню, которое закрывает всю трассу.
+            // The flag is set after the span is closed: the meta registries follow synchronously, and after them
+            // the menu, which closes the whole trace.
             _isLoaded.Set(true);
         }
 

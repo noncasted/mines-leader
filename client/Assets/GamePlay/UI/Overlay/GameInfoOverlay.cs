@@ -8,8 +8,8 @@ namespace GamePlay.UI
         T Spawn<T>(T prefab) where T : Component;
     }
 
-    // Тултипы живут на отдельном канвасе поверх карт: карты в руке сортируются на слое UI
-    // с order до CardSorting.SelectedOrder, и канвас игроков оказывается под ними.
+    // Tooltips live on a separate canvas above the cards: hand cards are sorted on the UI layer
+    // with order up to CardSorting.SelectedOrder, and the players canvas would end up under them.
     public class GameInfoOverlay : IGameInfoOverlay
     {
         public GameInfoOverlay(IGameCamera camera, InfoOverlayUIBindings bindings)

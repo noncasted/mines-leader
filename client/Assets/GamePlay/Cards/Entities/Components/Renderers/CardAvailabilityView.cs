@@ -2,8 +2,8 @@ using Internal;
 
 namespace GamePlay.Cards
 {
-    // Цвета доступности живут в каталоге: у чистого класса нет инспектора, а подбирать их
-    // всё равно надо художнику.
+    // The availability colors live in the catalogue: a plain class has no inspector, and an artist
+    // has to tune them anyway.
     public class CardAvailabilityView : IScopeSetup
     {
         public CardAvailabilityView(ICardRenderer renderer, ICardContext context)

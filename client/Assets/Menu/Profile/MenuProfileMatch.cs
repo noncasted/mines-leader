@@ -9,8 +9,8 @@ using UnityEngine;
 namespace Menu.Profile
 {
     /// <summary>
-    /// Раскладка выбранного матча: колода соперника сверху, своя снизу,
-    /// плашка результата, время матча и изменение рейтинга.
+    /// Layout of the selected match: the opponent deck on top, own at the bottom,
+    /// the result plate, the match time and the rating change.
     /// </summary>
     [DisallowMultipleComponent]
     public class MenuProfileMatch : MonoBehaviour
@@ -90,7 +90,7 @@ namespace Menu.Profile
 
         private void BuildCards(IReadOnlyList<CardType> cards, RectTransform root)
         {
-            // All каждый раз собирает новый словарь, поэтому берём его один раз на раскладку.
+            // All builds a new dictionary every time, so take it once per layout.
             var configs = _configs.Value.All;
 
             foreach (var type in cards)

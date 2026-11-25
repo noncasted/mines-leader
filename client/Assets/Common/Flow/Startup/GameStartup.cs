@@ -18,15 +18,15 @@ namespace Flow.Startup
 
         private async UniTask Setup()
         {
-            // Трасса старта закрывается на входе в меню: там загрузка и заканчивается,
-            // а сюда управление уже не возвращается (см. MenuLoader).
+            // The startup trace is closed on entering the menu: the loading ends there,
+            // and control never returns here (see MenuLoader).
             GameProfiler.Begin("Startup");
 
-            // Корень строится тем же загрузчиком, что и остальные скоупы; дальше его берут уже из контейнера.
+            // The root is built by the same loader as the other scopes; later it is taken from the container.
             var serviceLoader = new ServiceScopeLoader();
             var internalScope = await serviceLoader.LoadInternal();
 
-            // Спрайты меты качаются параллельно всей дальнейшей загрузке: мета дождётся их сама.
+            // Meta sprites download in parallel with the rest of the loading: the meta waits for them itself.
             internalScope.Resolve<IStartupAssetsPreload>().Start();
 
             var scopeLoader = internalScope.Resolve<IServiceScopeLoader>();

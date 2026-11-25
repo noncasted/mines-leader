@@ -20,8 +20,8 @@ namespace GamePlay.Boards
         Vector2 WorldToLocal(Vector2 world);
 
         /// <summary>
-        /// Доска сгенерирована на сервере — до первого хода владельца её ещё нет,
-        /// и играть по ней карты нельзя.
+        /// The board is generated on the server - it does not exist until the owner's first move,
+        /// and cards cannot be played on it.
         /// </summary>
         IViewableProperty<bool> IsGenerated { get; }
 

@@ -30,7 +30,7 @@ namespace Flow.Loop
 
         public async UniTask<IGameEndTransition> Load(GameLoadData gameLoadData)
         {
-            // Своя трасса на переход из меню в матч: трасса старта к этому моменту закрыта.
+            // Own trace for the menu-to-match transition: the startup trace is closed by now.
             GameProfiler.Begin("GamePlay");
 
             ILoadedScope scope;
@@ -45,7 +45,7 @@ namespace Flow.Loop
                 scope = await _scopeLoader.Load((loader, parent) => loader.LoadPvp(parent, gameLoadData.Result));
             }
 
-            // Дальше начинается сам матч, а он живёт вне загрузки.
+            // The match itself starts next, and it lives outside the loading.
             GameProfiler.Finish();
 
             var loop = scope.Container.Resolve<IGamePlayLoop>();

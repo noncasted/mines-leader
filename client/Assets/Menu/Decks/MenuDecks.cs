@@ -59,7 +59,7 @@ namespace Menu.Decks
 
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
-        // Колоды и конфиги карт к этому моменту уже приехали: ждать обновления колод не нужно.
+        // Decks and card configs have already arrived by now: no need to wait for a deck update.
         public void OnMetaSetupCompleted(IReadOnlyLifetime lifetime)
         {
             OnInitialized(lifetime);

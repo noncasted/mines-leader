@@ -78,8 +78,8 @@ namespace GamePlay.Cards
                        .As<IGamePlayer>();
                 builder.RegisterInstance(_gameContext.Self.Hand);
 
-                // Скоуп локальной карты — ребёнок скоупа игрока, но граф проверяется от игрового скоупа:
-                // то, что карта берёт у игрока, регистрируется явно.
+                // The local card scope is a child of the player scope, but the graph is checked from the game scope:
+                // what the card takes from the player is registered explicitly.
                 builder.RegisterInstance(_gameContext.Self.Mana);
                 builder.RegisterInstance(_gameContext.Self.Turns);
                 builder.RegisterInstance(_gameContext.Self.Modifiers);

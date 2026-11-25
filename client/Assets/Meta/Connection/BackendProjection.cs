@@ -7,7 +7,7 @@ namespace Meta
 {
     public interface IBackendProjection
     {
-        /// <summary>Значение приехало хотя бы раз.</summary>
+        /// <summary>The value has arrived at least once.</summary>
         IViewableProperty<bool> IsInitialized { get; }
 
         Type GetValueType();
@@ -15,8 +15,8 @@ namespace Meta
     }
 
     /// <summary>
-    /// Проекция, которую сервер присылает сразу при подключении: без неё мета не готова
-    /// (см. <see cref="MetaState"/>).
+    /// A projection the server sends right on connect: without it the meta is not ready
+    /// (see <see cref="MetaState"/>).
     /// </summary>
     public interface IInitialBackendProjection : IBackendProjection
     {
@@ -54,8 +54,8 @@ namespace Meta
 
         public void OnReceived(INetworkContext context)
         {
-            // Флаг ставится после значения: кто дождался готовности, уже видит данные,
-            // а подписчики самой проекции успели их разобрать.
+            // The flag is set after the value: whoever waited for readiness already sees the data,
+            // and the subscribers of the projection itself have had time to process it.
             _lifetimedValue.Set((T)context);
             _isInitialized.Set(true);
         }
@@ -92,8 +92,8 @@ namespace Meta
         }
 
         /// <summary>
-        /// Ответ на запрос (поиск матча, лобби), который едет тем же каналом проекций. При подключении
-        /// он не приезжает, поэтому готовность меты его не ждёт.
+        /// A reply to a request (match search, lobby) that travels over the same projection channel. It does not
+        /// arrive on connect, so the meta readiness does not wait for it.
         /// </summary>
         public static IScopeBuilder RegisterBackendResponse<T>(this IScopeBuilder builder)
             where T : class, INetworkContext

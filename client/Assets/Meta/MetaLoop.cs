@@ -52,8 +52,8 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            // Подключение и реестры сетап не держат: меню грузится параллельно с ними,
-            // а готовности меты дожидается само (см. MenuLoop).
+            // The connection and the registries are not held by the setup: the menu loads in parallel with them
+            // and waits for the meta readiness itself (see MenuLoop).
             Connect(lifetime).Forget();
             LoadRegistries(lifetime).Forget();
         }
@@ -68,8 +68,8 @@ namespace Meta
                 {
                     var isAuthorized = await Authorize(lifetime);
 
-                    // Флаги ветки ставятся после закрытия её отрезков: за последним из них синхронно
-                    // открывается меню и закрывает всю трассу.
+                    // The branch flags are set after its spans are closed: right after the last of them the menu
+                    // opens synchronously and closes the whole trace.
                     if (isAuthorized == true)
                     {
                         // Before the flag: the first session of the telemetry (GameLoop) opens on it and refers to this record.
@@ -125,7 +125,7 @@ namespace Meta
             // A connection that did not get its projections is not alive: a failed attempt ends it.
             try
             {
-                // Подписка на проекции — до коннекта, чтобы отрезок ожидания не пропустил их приезд.
+                // Subscribe to the projections before the connect, so the wait span does not miss their arrival.
                 var projectionsTask = _state.IsProjectionsReceived.WaitTrue(lifetime);
                 var loss = new MetaConnectionLoss(_backend.Connection, connectionLifetime);
 
@@ -151,8 +151,8 @@ namespace Meta
 
                 _log.Info("Waiting for projections");
 
-                // Проекции приезжают с бэкенда пачкой после коннекта: этот отрезок и есть
-                // ожидание данных, без которых меню открывать нечем.
+                // The projections arrive from the backend in a batch after the connect: this span is
+                // the wait for the data without which the menu has nothing to open with.
                 await stage.Measure("Projections", loss.Race(projectionsTask));
             }
             catch
@@ -186,7 +186,7 @@ namespace Meta
         {
             using (var stage = GameProfiler.Detached("Meta registries"))
             {
-                // Реестры раскладывают спрайты по определениям, а спрайты качаются со старта.
+                // The registries distribute sprites over definitions, and the sprites download from the start.
                 await stage.Measure("Startup assets", _startupAssets.IsLoaded.WaitTrue(lifetime));
 
                 using (GameProfiler.Ambient(stage))

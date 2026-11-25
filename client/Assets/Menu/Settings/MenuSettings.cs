@@ -12,7 +12,7 @@ namespace Menu.Settings
     }
 
     /// <summary>
-    /// Экран настроек в меню: кнопок применения нет, каждое изменение сразу уезжает в сейв.
+    /// The settings screen in the menu: there are no apply buttons, every change goes to the save at once.
     /// </summary>
     public class MenuSettings : IMenuSettings, IUIStateAsyncEnterHandler
     {
@@ -41,8 +41,8 @@ namespace Menu.Settings
         public IUIConstraints Constraints { get; } = UIConstraints.Game;
 
         /// <summary>
-        /// Копия сейва живёт ровно столько, сколько открыт экран: значения в неё пишутся
-        /// на каждое изменение и тут же уходят в <see cref="ISettings.Apply"/>.
+        /// The save copy lives exactly as long as the screen is open: values are written into it
+        /// on every change and immediately go to <see cref="ISettings.Apply"/>.
         /// </summary>
         public UniTask OnEntered(IUIStateHandle handle)
         {
@@ -86,7 +86,7 @@ namespace Menu.Settings
 
         private void Apply(SettingsSave save)
         {
-            // Копия уходит наружу, чтобы экран продолжал править только свой экземпляр.
+            // A copy goes out, so the screen keeps editing only its own instance.
             _settings.Apply(save.Copy()).Forget();
         }
     }

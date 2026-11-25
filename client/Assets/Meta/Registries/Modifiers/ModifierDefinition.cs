@@ -10,8 +10,8 @@ namespace Meta
         Sprite Image { get; }
 
         /// <summary>
-        /// Описание с подставленным размером эффекта: направление ("+" или "-") зашито
-        /// в текст, поэтому в него уходит модуль значения модификатора.
+        /// Description with the effect size substituted: the direction ("+" or "-") is baked
+        /// into the text, so the absolute value of the modifier is passed in.
         /// </summary>
         string Describe(float value);
     }

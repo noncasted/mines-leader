@@ -51,9 +51,9 @@ namespace GamePlay.Cards
         }
 
         /// <summary>
-        /// Превью подсвечивает ромб сразу на обеих досках: обмен идёт по одинаковым координатам.
-        /// Ромб обрезается по доске цели, а доски обоих игроков одного размера, поэтому позиция
-        /// без клетки у владельца — ошибка.
+        /// The preview highlights the diamond on both boards at once: the swap goes by identical coordinates.
+        /// The diamond is clipped by the target board, and both players' boards have the same size, so a position
+        /// without a cell on the owner's side is an error.
         /// </summary>
         public class Pattern : ICardDropPattern
         {

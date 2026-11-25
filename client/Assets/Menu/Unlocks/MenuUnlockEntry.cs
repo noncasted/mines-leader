@@ -35,8 +35,8 @@ namespace Menu.Unlocks
         }
 
         /// <summary>
-        /// Подписывает вид на прогресс, статус и клик. Вызывается при входе на экран,
-        /// сам вид живёт дольше — он собирается один раз при старте сцены.
+        /// Subscribes the view to progress, status and click. Called on entering the screen,
+        /// while the view itself lives longer - it is built once at scene start.
         /// </summary>
         public void Bind(IReadOnlyLifetime lifetime, Action<MenuUnlockEntry> clicked)
         {

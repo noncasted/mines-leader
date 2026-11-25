@@ -45,9 +45,9 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            // Проекции и реестры едут параллельно сетапу меты, а колода собирается из определений
-            // реестра карт: проекцию разбираем только после реестров. Оба пути успевают до
-            // готовности меты — MetaState ставит её после подписчиков частных флагов.
+            // Projections and registries arrive in parallel with the meta setup, and a deck is built from the definitions of
+            // the card registry: the projection is processed only after the registries. Both paths finish before
+            // the meta is ready - MetaState sets it after the subscribers of the private flags.
             _state.IsRegistriesLoaded.ViewTrue(lifetime, registriesLifetime => {
                 _projection.ViewNotNull(registriesLifetime, data => {
                     foreach (var (index, entry) in data.Entries)

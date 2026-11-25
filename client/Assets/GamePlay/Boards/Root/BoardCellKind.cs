@@ -1,7 +1,7 @@
 namespace GamePlay.Boards
 {
-    // Поля игроков делят один базовый префаб клетки и различаются только спрайтами,
-    // поэтому доска выбирает вариант по своей принадлежности.
+    // Player boards share one base cell prefab and differ only by sprites,
+    // so the board picks the variant by its ownership.
     public enum BoardCellKind
     {
         Own = 0,

@@ -9,13 +9,13 @@ namespace GamePlay.UI
     public interface IGamePauseSettings
     {
         /// <summary>
-        /// Открывает настройки поверх паузы и ждёт, пока игрок нажмёт «назад».
+        /// Opens the settings over the pause and waits until the player presses "back".
         /// </summary>
         UniTask Process(IReadOnlyLifetime lifetime);
     }
 
     /// <summary>
-    /// Экран настроек в паузе: кнопок применения нет, каждое изменение сразу уезжает в сейв.
+    /// The settings screen in the pause: there are no apply buttons, every change goes to the save at once.
     /// </summary>
     public class GamePauseSettings : IGamePauseSettings
     {
@@ -46,8 +46,8 @@ namespace GamePlay.UI
         private readonly ISettings _settings;
 
         /// <summary>
-        /// Копия сейва живёт ровно столько, сколько открыт экран: значения в неё пишутся
-        /// на каждое изменение и тут же уходят в <see cref="ISettings.Apply"/>.
+        /// The save copy lives exactly as long as the screen is open: values are written into it
+        /// on every change and immediately go to <see cref="ISettings.Apply"/>.
         /// </summary>
         public async UniTask Process(IReadOnlyLifetime lifetime)
         {
@@ -97,7 +97,7 @@ namespace GamePlay.UI
 
         private void Apply(SettingsSave save)
         {
-            // Копия уходит наружу, чтобы экран продолжал править только свой экземпляр.
+            // A copy goes out, so the screen keeps editing only its own instance.
             _settings.Apply(save.Copy()).Forget();
         }
     }

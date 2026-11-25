@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Menu.Profile
 {
-    /// <summary>Шапка профиля: аватар, имя и три счётчика с сервера.</summary>
+    /// <summary>Profile header: avatar, name and three counters from the server.</summary>
     [DisallowMultipleComponent]
     public class MenuProfileStats : MonoBehaviour
     {

@@ -6,8 +6,8 @@ namespace GamePlay.Players.Resource
     [DisallowMultipleComponent]
     public class PlayerResourceRow : MonoBehaviour
     {
-        // Пипсы приходят из сгенерированных биндингов ряда: сериализованных массивов больше нет,
-        // поэтому и рассинхрона между иерархией и ссылками в инспекторе тоже.
+        // Pips come from the generated bindings of the row: there are no serialized arrays any more,
+        // so there is no desync between the hierarchy and the inspector references either.
         private Elements _elements;
 
         public void Setup(
@@ -43,14 +43,14 @@ namespace GamePlay.Players.Resource
             PlayerResourceOptions options,
             bool reverse)
         {
-            // Какой из рядов виден, решает сам ряд: в иерархии оба выключены, и включать их
-            // руками по префабам — ровно тот рассинхрон, от которого ушли вместе с массивами.
+            // Which row is visible is decided by the row itself: both are off in the hierarchy, and enabling them
+            // by hand on prefabs is exactly the desync we left behind together with the arrays.
             _elements.SmallRoot.SetActive(false);
             _elements.LargeRoot.SetActive(true);
 
-            // Пипсы рисуются по resultMax, поэтому и потраченные считаются от него:
-            // при бонусе current больше baseMax, и baseMax - current уходил в минус,
-            // из-за чего ни один пипс не гасился и бафф выглядел на ход щедрее.
+            // Pips are drawn by resultMax, so the spent ones are counted from it too:
+            // with a bonus current is greater than baseMax, and baseMax - current went negative,
+            // so no pip was dimmed and the buff looked more generous for a turn.
             var additional = resultMax - baseMax;
             var spent = resultMax - current;
 
@@ -129,8 +129,8 @@ namespace GamePlay.Players.Resource
         }
 
         /// <summary>
-        /// Всё, что ряд берёт из сгенерированных биндингов: корни обоих рядов и их пипсы.
-        /// Мелкие идут одним списком в порядке отрисовки — чётные в верхнюю строку, нечётные в нижнюю.
+        /// Everything the row takes from the generated bindings: the roots of both rows and their pips.
+        /// The small ones go in one list in drawing order - even to the top line, odd to the bottom one.
         /// </summary>
         public readonly struct Elements
         {

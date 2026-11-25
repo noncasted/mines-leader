@@ -82,7 +82,7 @@ namespace GamePlay.Loop
 
             _gameState.Set(GameStateType.Completed);
 
-            // Пока рвутся мины, ввод по доскам и картам уже не нужен.
+            // While mines are blowing up, input on boards and cards is no longer needed.
             _gameContext.SetPaused(true);
             await _boardsReveal.Play(lifetime, gameResult);
 

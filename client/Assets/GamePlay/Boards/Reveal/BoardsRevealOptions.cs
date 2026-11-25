@@ -8,8 +8,8 @@ namespace GamePlay.Boards
         [SerializeField] [Min(0f)] private float _explosionTime = 2f;
 
         /// <summary>
-        /// По оси X — нормализованное время подрыва, по оси Y — доля уже взорванных мин.
-        /// Чем круче кривая, тем больше мин взрывается одновременно.
+        /// X axis - normalized detonation time, Y axis - share of mines already blown up.
+        /// The steeper the curve, the more mines explode at once.
         /// </summary>
         [SerializeField] [CurveRange(0, 0, 1, 1)]
         private AnimationCurve _explodedShareCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);

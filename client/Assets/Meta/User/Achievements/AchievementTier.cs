@@ -5,16 +5,16 @@ namespace Meta
 {
     public enum AchievementStatus
     {
-        /// <summary>Тир недоступен: предыдущие тиры ряда ещё не открыты.</summary>
+        /// <summary>The tier is unavailable: the previous tiers of the series are not unlocked yet.</summary>
         Locked,
 
-        /// <summary>Ближайший неоткрытый тир ряда — тот, к которому игрок идёт сейчас.</summary>
+        /// <summary>The nearest locked tier of the series - the one the player is working towards now.</summary>
         InProgress,
 
-        /// <summary>Условие выполнено, награда ждёт выбора.</summary>
+        /// <summary>The condition is met, the reward waits to be picked.</summary>
         Available,
 
-        /// <summary>Награда забрана.</summary>
+        /// <summary>The reward is claimed.</summary>
         Taken
     }
 

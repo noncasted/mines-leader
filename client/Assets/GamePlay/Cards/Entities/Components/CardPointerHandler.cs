@@ -11,8 +11,8 @@ namespace GamePlay.Cards
         IViewableProperty<bool> IsPressed { get; }
     }
 
-    // Наведение и нажатие определяет общий ICardsPointer, здесь к ним добавляется
-    // единственное правило: на паузе карта не подсвечивается и не нажимается.
+    // Hover and press are determined by the shared ICardsPointer, here the only rule
+    // is added: on pause the card is neither highlighted nor pressed.
     public class CardPointerHandler : ICardPointerHandler, ICardPointerTarget, IScopeSetup
     {
         public CardPointerHandler(
@@ -44,8 +44,8 @@ namespace GamePlay.Cards
         public int SortingLayer => UnityEngine.SortingLayer.GetLayerValueFromID(_sortingGroup.sortingLayerID);
         public int SortingOrder => _sortingGroup.sortingOrder;
 
-        // Не lifetime из OnSetup: карту уничтожает Destroy() через время жизни контейнера,
-        // а lifetime загрузчика скоупа живёт дольше вьюхи.
+        // Not the lifetime from OnSetup: the card is destroyed by Destroy() through the container lifetime,
+        // and the scope loader lifetime outlives the view.
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
             _pointer.Add(_containerLifetime, this);

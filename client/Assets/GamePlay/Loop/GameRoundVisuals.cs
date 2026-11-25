@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace GamePlay.Loop
 {
-    // Смена хода и победа приходят из ивент лупа: к одному снапшоту они не привязаны.
+    // Turn change and victory come from the event loop: they are not tied to one snapshot.
     public class GameRoundVisuals : IRoundChanged, IMatchCompleted
     {
         public GameRoundVisuals(
@@ -57,7 +57,7 @@ namespace GamePlay.Loop
                 _audioPlayer.PlaySound(GamePlayAudio.GameRoundWin);
         }
 
-        // Подложка оверлея гаснет вместе с рамкой поля.
+        // The overlay backdrop fades together with the board frame.
         private static void Apply(SpriteRenderer frame, Image plate, bool isActive)
         {
             frame.sprite = isActive == true ? Sprites.GameField.Active : Sprites.GameField.Invactive;

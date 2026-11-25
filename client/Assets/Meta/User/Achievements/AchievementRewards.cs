@@ -10,13 +10,13 @@ namespace Meta
     public interface IAchievementRewards
     {
         /// <summary>
-        /// Карты, из которых игрок выбирает награду. Сервер фиксирует набор за ачивкой,
-        /// поэтому повторный запрос вернёт тот же список.
+        /// Cards the player picks the reward from. The server fixes the set per achievement,
+        /// so a repeated request returns the same list.
         /// </summary>
         UniTask<IReadOnlyList<CardType>> GetOptions(IAchievementTier tier);
 
         /// <summary>
-        /// Забирает выбранную карту. Статус тира приедет проекцией.
+        /// Claims the picked card. The tier status arrives as a projection.
         /// </summary>
         UniTask<bool> Claim(IAchievementTier tier, CardType card);
     }
@@ -34,7 +34,7 @@ namespace Meta
 
         public async UniTask<IReadOnlyList<CardType>> GetOptions(IAchievementTier tier)
         {
-            // null — запрос не дошёл или упал на сервере: вызывающий отличит это от пустого пула и закроет окно.
+            // null - the request did not arrive or failed on the server: the caller tells this from an empty pool and closes the window.
             try
             {
                 var response = await _backend.GetAchievementRewardOptions(tier.Type, tier.Tier);

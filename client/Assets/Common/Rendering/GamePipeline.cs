@@ -5,9 +5,9 @@ using UnityEngine.Rendering;
 namespace Rendering
 {
     /// <summary>
-    /// 2D без света: на камеру один проход, все очереди сразу, сортировка как у прозрачных
-    /// (sorting layer → order in layer → кастомная ось). Постпроцессинг встанет между
-    /// отрисовкой и выводом в таргет камеры.
+    /// 2D without light: one pass per camera, all queues at once, sorting like transparent ones
+    /// (sorting layer -> order in layer -> custom axis). Post-processing will go between
+    /// the drawing and the output to the camera target.
     /// </summary>
     public class GamePipeline : RenderPipeline
     {
@@ -104,9 +104,9 @@ namespace Rendering
                 return;
             }
 
-            // Скайбокса в 2D нет: Skybox чистится цветом фона, как это делал URP 2D.
-            // Экран всегда непрозрачный: у URP кадр шёл через HDR-буфер без альфы,
-            // а прозрачный фон в WebGL просвечивает страницу.
+            // There is no skybox in 2D: Skybox is cleared with the background color, as URP 2D did.
+            // The screen is always opaque: in URP the frame went through an HDR buffer without alpha,
+            // and a transparent background in WebGL shows the page through.
             var color = QualitySettings.activeColorSpace == ColorSpace.Linear
                 ? camera.backgroundColor.linear
                 : camera.backgroundColor;

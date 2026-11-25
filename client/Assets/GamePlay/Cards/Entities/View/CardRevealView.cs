@@ -10,8 +10,8 @@ namespace GamePlay.Cards
         void Reveal();
     }
 
-    // Удалённая карта лежит рубашкой вверх: лицо на префабе выключено, а вскрытие просто
-    // меняет, какая из двух сторон активна.
+    // A remote card lies face down: the face on the prefab is off, and the reveal simply
+    // switches which of the two sides is active.
     public class CardRevealView : IScopeSetup, ICardRevealView
     {
         public CardRevealView(

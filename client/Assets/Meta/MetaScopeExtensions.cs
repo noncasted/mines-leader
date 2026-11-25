@@ -21,8 +21,8 @@ namespace Meta
         [ContainerScopeParent(typeof(GlobalScopeExtensions), nameof(GlobalScopeExtensions.Construct))]
         public static UniTask Construct(IScopeBuilder builder)
         {
-            // Спрайты меты (CardsIcons, CardBuffs, MenuPlay, Portraits) живут всё время приложения
-            // и качаются со старта в StartupAssetsPreload.
+            // Meta sprites (CardsIcons, CardBuffs, MenuPlay, Portraits) live for the whole app lifetime
+            // and are downloaded from the start in StartupAssetsPreload.
             builder.Register<MetaLoop>()
                    .As<IScopeSetup>();
 

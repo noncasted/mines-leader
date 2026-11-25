@@ -41,7 +41,7 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            // Проекции едут параллельно сетапу меты: до подключения значений ещё нет.
+            // Projections arrive in parallel with the meta setup: there are no values yet before the connection.
             _configs.ViewNotNull(lifetime, OnConfigReceived);
             _statsProjection.ViewNotNull(lifetime, OnStatsReceived);
             _achievementsProjection.ViewNotNull(lifetime, OnAchievementsReceived);
@@ -96,7 +96,7 @@ namespace Meta
 
             foreach (var rowTiers in _rowTiers)
             {
-                // Ряд открывается по порядку, поэтому в работе всегда ровно один тир — первый неоткрытый.
+                // A series unlocks in order, so exactly one tier is always in progress - the first locked one.
                 var hasTierInProgress = false;
 
                 foreach (var tier in rowTiers)

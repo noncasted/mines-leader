@@ -5,16 +5,16 @@ namespace Meta
 {
     public interface IMetaState
     {
-        /// <summary>Сервер принял юзера, и его id сверен с сохранённым.</summary>
+        /// <summary>The server accepted the user and its id matches the saved one.</summary>
         IViewableProperty<bool> IsAuthorized { get; }
 
-        /// <summary>Все проекции, которые сервер шлёт при подключении, приехали.</summary>
+        /// <summary>All projections the server sends on connect have arrived.</summary>
         IViewableProperty<bool> IsProjectionsReceived { get; }
 
-        /// <summary>Реестры меты собраны.</summary>
+        /// <summary>The meta registries are built.</summary>
         IViewableProperty<bool> IsRegistriesLoaded { get; }
 
-        /// <summary>Всё сразу: по этому флагу меню достраивается и снимает загрузочный экран.</summary>
+        /// <summary>Everything at once: by this flag the menu finishes building and removes the loading screen.</summary>
         IViewableProperty<bool> IsReady { get; }
 
         void SetAuthorized();
@@ -22,12 +22,12 @@ namespace Meta
     }
 
     /// <summary>
-    /// Мета грузится параллельными ветками (подключение, реестры), и их готовность собирается здесь.
-    /// Проекции отслеживаются по их собственным флагам. Ответы на запросы (матч, лобби) сюда
-    /// не входят: при подключении они не приезжают.
+    /// The meta loads in parallel branches (connection, registries), and their readiness is gathered here.
+    /// Projections are tracked by their own flags. Replies to requests (match, lobby) are not
+    /// included: they do not arrive on connect.
     ///
-    /// IsReady ставится после того, как отработали подписчики частного флага: сервисы, которые
-    /// достраиваются по нему (например, колоды по реестрам), успевают до открытия меню.
+    /// IsReady is set after the subscribers of the private flag have run: services that
+    /// finish building by it (for example, decks by registries) are done before the menu opens.
     /// </summary>
     public class MetaState : IMetaState, IScopeSetup
     {
@@ -53,7 +53,7 @@ namespace Meta
             foreach (var projection in _projections)
                 projection.IsInitialized.AdviseTrue(lifetime, CheckProjections);
 
-            // Часть проекций могла приехать ещё до сетапа.
+            // Some projections may have arrived before the setup.
             CheckProjections();
         }
 

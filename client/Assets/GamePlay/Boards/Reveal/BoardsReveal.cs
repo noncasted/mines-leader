@@ -15,8 +15,8 @@ namespace GamePlay.Boards
         UniTask Play(IReadOnlyLifetime lifetime, MatchCompletedData data);
     }
 
-    // Конец матча: доски приводятся к серверному состоянию, после чего на поле
-    // проигравшего по кривой из конфига подрываются все оставшиеся мины.
+    // End of the match: the boards are brought to the server state, after which all remaining mines
+    // on the loser's board are detonated along the curve from the config.
     public class BoardsReveal : IBoardsReveal
     {
         public BoardsReveal(IGameContext gameContext, IAudioPlayer audioPlayer)
@@ -93,7 +93,7 @@ namespace GamePlay.Boards
             {
                 var progress = options.ExplosionTime > 0f ? Mathf.Clamp01(elapsed / options.ExplosionTime) : 1f;
 
-                // На последнем кадре добиваем остаток, даже если кривая не дошла до единицы.
+                // On the last frame finish the remainder, even if the curve did not reach one.
                 var target = progress >= 1f
                     ? mines.Count
                     : Mathf.Clamp(Mathf.CeilToInt(curve.Evaluate(progress) * mines.Count), exploded, mines.Count);
@@ -103,7 +103,7 @@ namespace GamePlay.Boards
                     for (; exploded < target; exploded++)
                         animations.Add(mines[exploded].Explode(CellExplosionType.Mine));
 
-                    // Одна пачка — один звук: иначе одновременные взрывы забивают аудио.
+                    // One batch - one sound: otherwise simultaneous explosions clog the audio.
                     _audioPlayer.PlayRandomFromGroup(GamePlayAudio.GameMineNormal);
                 }
 

@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace GamePlay.Cards
 {
-    // Область карты под указателем вместо BoxCollider2D: прямоугольник в локальных координатах
-    // объекта, поэтому повороты и масштаб карты учитываются сами.
+    // The card area under the pointer instead of BoxCollider2D: a rectangle in the object's local coordinates,
+    // so card rotation and scale are accounted for automatically.
     [DisallowMultipleComponent]
     public class CardPointerArea : MonoBehaviour
     {

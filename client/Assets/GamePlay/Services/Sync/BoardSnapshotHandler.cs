@@ -38,7 +38,7 @@ namespace GamePlay.Services
             return UniTask.CompletedTask;
         }
 
-        // Один снапшот — одно действие игрока: каскад открытых клеток звучит одним звуком.
+        // One snapshot is one player action: a cascade of opened cells sounds as one sound.
         private void PlaySound(SharedBoardSnapshot record)
         {
             var isOpened = false;

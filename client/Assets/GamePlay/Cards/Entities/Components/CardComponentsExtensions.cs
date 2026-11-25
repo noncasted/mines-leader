@@ -38,8 +38,8 @@ namespace GamePlay.Cards
             return builder;
         }
 
-        // Вьюхи карты — обычные классы над GameCardBindings: на префабе их нет, и обе карты
-        // собирают одну и ту же общую часть.
+        // Card views are plain classes over GameCardBindings: they are not on the prefab, and both cards
+        // build the same shared part.
         public static IEntityBuilder AddCardViews(this IEntityBuilder builder)
         {
             builder.Register<CardTransform>()

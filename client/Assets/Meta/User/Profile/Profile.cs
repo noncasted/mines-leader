@@ -60,7 +60,7 @@ namespace Meta
 
         public void OnSetup(IReadOnlyLifetime lifetime)
         {
-            // Проекции едут параллельно сетапу меты: до подключения значений ещё нет.
+            // Projections arrive in parallel with the meta setup: there are no values yet before the connection.
             _profileProjection.ViewNotNull(lifetime, projection => {
                 Id = projection.Id;
                 _name.Set(projection.Name);

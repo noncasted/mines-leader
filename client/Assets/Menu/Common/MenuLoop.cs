@@ -46,8 +46,8 @@ namespace Menu.Common
         {
             var completion = new UniTaskCompletionSource<SharedMatchmaking.MatchResult>();
 
-            // Меню грузится параллельно с метой: авторизация, проекции и реестры могли ещё не успеть.
-            // Отрезок параллельный — ветки меты в это время ещё пишут свои замеры.
+            // The menu loads in parallel with the meta: authorization, projections and registries may not be done yet.
+            // The span is parallel - the meta branches are still writing their measurements meanwhile.
             await GameProfiler.Concurrent("Wait meta").Track(_metaState.IsReady.WaitTrue(lifetime));
 
             using (GameProfiler.Scope("Meta setup completed"))
@@ -62,7 +62,7 @@ namespace Menu.Common
                     _audioPlayer.PlayLoopMusic(MusicAudio.GameMusic, 0f);
             });
 
-            // Меню достроено по данным меты и дальше ждёт игрока: замерять больше нечего.
+            // The menu is built from the meta data and now waits for the player: nothing left to measure.
             GameProfiler.Finish();
 
             _play.MatchFound.Advise(lifetime, sessionData => completion.TrySetResult(sessionData));

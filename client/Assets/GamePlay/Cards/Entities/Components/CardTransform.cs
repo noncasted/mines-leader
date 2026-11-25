@@ -15,7 +15,7 @@ namespace GamePlay.Cards
         void SetHandForce(float force);
     }
 
-    // Двигается вьюха, а не корень карты: корень держит скоуп и порядок сортировки.
+    // The view moves, not the card root: the root holds the scope and the sorting order.
     public class CardTransform : ICardTransform
     {
         public CardTransform(GameCardBindings bindings)

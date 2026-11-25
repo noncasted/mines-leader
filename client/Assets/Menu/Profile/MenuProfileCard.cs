@@ -8,8 +8,8 @@ using UnityEngine.UI;
 namespace Menu.Profile
 {
     /// <summary>
-    /// Карта в раскладке матча. Только показ: ни драга, ни выбора здесь нет,
-    /// поэтому данные приходят готовыми и живут до пересборки раскладки.
+    /// A card in the match layout. Display only: there is no drag or selection here,
+    /// so the data arrives ready and lives until the layout is rebuilt.
     /// </summary>
     [DisallowMultipleComponent]
     public class MenuProfileCard : MonoBehaviour
