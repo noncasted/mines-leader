@@ -14,49 +14,6 @@ using Shared;
 
 namespace MetaGateway.Matchmaking;
 
-public class SearchQueueEntry
-{
-    public SearchQueueEntry(Guid userId, Guid requestId, DateTime joinedAt)
-    {
-        UserId = userId;
-        RequestId = requestId;
-        JoinedAt = joinedAt;
-    }
-
-    public Guid UserId { get; }
-
-    // N10: SharedMatchmaking.SearchMatch.RequestId, echoed in the search result.
-    public Guid RequestId { get; }
-
-    public DateTime JoinedAt { get; }
-}
-
-public interface IMatchmaking
-{
-    Task<SharedMatchmaking.LobbyResult> SearchLobby(Guid userId);
-
-    // The result comes later as a MatchSearchResultUpdate projection with this requestId: Matched, or Failed when
-    // the match of the pair could not be created.
-    Task SearchMatch(Guid userId, GameMatchType type, Guid requestId);
-    Task CancelMatchSearch(Guid userId);
-    Task<SharedMatchmaking.MatchResult> Create(Guid userId, GameMatchType type);
-    Task<SharedMatchmaking.MatchResult> CreateWithBot(Guid userId, GameMatchType type, AgentMatchFixture? fixture = null);
-    MatchmakingStatsDto GetStats();
-}
-
-public record MatchmakingStatsDto
-{
-    public int TotalInQueue { get; init; }
-    public IReadOnlyList<MatchmakingQueueStatsDto> Queues { get; init; } = [];
-}
-
-public record MatchmakingQueueStatsDto
-{
-    public required string Type { get; init; }
-    public required int Count { get; init; }
-    public double? OldestWaitSeconds { get; init; }
-}
-
 public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
 {
     public Matchmaking(
@@ -208,83 +165,20 @@ public class Matchmaking : IMatchmaking, ICoordinatorSetupCompleted
 
             await _lock.WaitAsync(lifetime.Token);
 
-            var hasMatched = false;
             var botConfig = _botConfig.Value;
             var thresholdSeconds = botConfig.MatchmakingApplyThreshold;
             var now = DateTime.UtcNow;
             var matchesCreated = new List<(SearchQueueEntry[], GameMatchType)>();
             var botMatchesCreated = new List<(SearchQueueEntry, GameMatchType)>();
 
-            foreach (var (type, queue) in _searchQueue)
-            {
-                var toRemove = new List<int>();
-                var botMatches = new List<SearchQueueEntry>();
-
-                for (var i = 0; i < queue.Count; i++)
-                {
-                    var entry = queue[i];
-                    var waitTimeSeconds = (now - entry.JoinedAt).TotalSeconds;
-
-                    if (waitTimeSeconds >= thresholdSeconds)
-                    {
-                        if (_users.IsConnected(entry.UserId) == true)
-                        {
-                            _logger.LogInformation("[Matchmaking] {UserID} waited {WaitTime}s, applying bot match",
-                                entry.UserId,
-                                (int)waitTimeSeconds);
-                            botMatches.Add(entry);
-                            toRemove.Add(i);
-                        }
-                        else
-                        {
-                            _logger.LogInformation("[Matchmaking] {UserID} is not connected", entry.UserId);
-                            toRemove.Add(i);
-                        }
-                    }
-                }
-
-                foreach (var idx in toRemove.OrderByDescending(x => x))
-                    queue.RemoveAt(idx);
-
-                if (queue.Count >= 2)
-                {
-                    var first = queue[0];
-                    var second = queue[1];
-
-                    if (_users.IsConnected(first.UserId) == false)
-                    {
-                        _logger.LogInformation("[Matchmaking] {UserID} is not connected", first.UserId);
-                        queue.RemoveAt(0);
-                        hasMatched = true;
-                        continue;
-                    }
-
-                    if (_users.IsConnected(second.UserId) == false)
-                    {
-                        _logger.LogInformation("[Matchmaking] {UserID} is not connected", second.UserId);
-                        queue.RemoveAt(1);
-                        hasMatched = true;
-                        continue;
-                    }
-
-                    queue.RemoveAt(0);
-                    queue.RemoveAt(0);
-
-                    _logger.LogInformation("[Matchmaking] {First} and {Second} are matched",
-                        first.UserId,
-                        second.UserId);
-
-                    matchesCreated.Add((new[] { first, second }, type));
-                    hasMatched = true;
-                }
-                else if (botMatches.Count > 0)
-                {
-                    foreach (var entry in botMatches)
-                        botMatchesCreated.Add((entry, type));
-
-                    hasMatched = true;
-                }
-            }
+            var hasMatched = MatchmakingPairing.Run(
+                _searchQueue,
+                now,
+                thresholdSeconds,
+                _users,
+                _logger,
+                matchesCreated,
+                botMatchesCreated);
 
             _lock.Release();
 
