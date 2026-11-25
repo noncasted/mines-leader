@@ -126,6 +126,15 @@ resharper_wrap_before_invocation_rpar = false
 resharper_wrap_before_declaration_rpar = false
 resharper_wrap_before_arrow_with_expressions = false
 
+# Framework.Analyzers (tools/framework/client/core/Source~/Analyzers/README.md): a rule with no finding in the code of the game
+# is an error, the others stay warnings until their cleanup. Read by dotnet build only: the Unity compile keeps every rule a warning.
+dotnet_diagnostic.FWR001.severity = warning
+dotnet_diagnostic.FWR002.severity = warning
+dotnet_diagnostic.FWR003.severity = warning
+dotnet_diagnostic.FWR004.severity = error
+dotnet_diagnostic.FWR005.severity = error
+dotnet_diagnostic.FWR006.severity = warning
+
 [{*.har,*.jsb2,*.jsb3,*.json,*.jsonc,.babelrc,.eslintrc,.prettierrc,.ws-context,jest.config}]
 indent_style = space
 indent_size = 2

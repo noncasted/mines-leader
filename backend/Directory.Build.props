@@ -9,4 +9,8 @@
     <ItemGroup>
         <None Remove="**\*.csproj.DotSettings"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Analyzer Include="$(MSBuildThisFileDirectory)../tools/framework/client/core/Analyzers/Framework.Analyzers.dll"/>
+    </ItemGroup>
 </Project>
