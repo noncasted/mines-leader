@@ -24,8 +24,11 @@ namespace Meta
             // Спрайты меты (CardsIcons, CardBuffs, MenuPlay, Portraits) живут всё время приложения
             // и качаются со старта в StartupAssetsPreload.
             builder.Register<MetaLoop>()
-                   .As<IScopeSetup>()
-                   .As<IMetaConnection>();
+                   .As<IScopeSetup>();
+
+            builder.Register<MetaReconnection>()
+                   .As<IMetaConnection>()
+                   .As<IMetaReconnection>();
 
             builder.Register<Decks>()
                    .As<IDecks>()

@@ -88,7 +88,7 @@ Reading: skill `client-telemetry` (`.claude/skills/client-telemetry/SKILL.md`).
   authorization is not allowed); every next session opens before its part loads, and closes the previous one. A rematch
   opens a new `match` session. The mark `match.started` (`GamePlay/Telemetry/MatchTelemetryMark`, on `IGameStarted`) splits
   the loading and the wait for the players from the play.
-- Startup trace: `MetaLoop` sends `SendStartupTrace` after every authorization of the meta socket (a reconnect too), before
+- Startup trace: `MetaLoop` sends `SendStartupTrace` after every authorization of the meta socket (`MetaReconnection` after a reconnect), before
   the first session. Its spans are the `GameProfiler` spans of the scopes and of the meta; on the web the page spans of
   `client/Assets/WebGLTemplates/Default/index.html` (`window.startupTrace`) come first. `$T startups`, `$T startup <id>`.
   `BackendTraceId` of the record is the trace of the root span `Meta connect` of that socket (MetaGateway, source
