@@ -1,0 +1,14 @@
+{
+  "$type": "Shared.UserDeckConfigOptions, Shared",
+  "BaseDeck": {
+    "$type": "System.Collections.Generic.List`1[[Shared.CardType, Shared]], System.Private.CoreLib",
+    "$values": [
+      200,
+      100,
+      2400,
+      600,
+      2900,
+      1700
+    ]
+  }
+}

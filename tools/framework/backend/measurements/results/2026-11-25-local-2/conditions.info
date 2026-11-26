@@ -1,0 +1,3 @@
+source noncasted/pixel-swarm ccbcf430c5e756f2e263faa196728bd19b67dcdd ccbcf43
+idle 300s after healthy, cpus 6 per container, postgres:18-alpine
+machine omarchy nproc=24 load="5.64 8.32 11.11" ram=63383MiB docker 29.7.2

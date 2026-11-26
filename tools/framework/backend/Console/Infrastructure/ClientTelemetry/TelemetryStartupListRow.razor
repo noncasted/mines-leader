@@ -1,0 +1,20 @@
+@using Game.ClientTelemetry
+
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2.5 text-xs whitespace-nowrap">
+        <a class="underline" href="@ConsoleConstants.Pages.ClientTelemetryStartup(Startup.Id)">@TelemetryValueFormat.Timestamp(Startup.ReceivedAt)</a>
+    </td>
+    <td class="px-4 py-2.5 text-xs">@Startup.Name</td>
+    <td class="px-4 py-2.5 text-xs">@TelemetryStartupFacts.State(Startup)</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@TelemetrySessionFacts.Device(Startup.Device)</td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground">@(Startup.Device.BuildVersion ?? TelemetryValueFormat.Unknown)</td>
+    <td class="px-4 py-2.5 text-xs text-right whitespace-nowrap">@TelemetryValueFormat.Milliseconds(Startup.DurationMs)</td>
+    <td class="px-4 py-2.5 text-xs text-right">@Startup.Frames</td>
+    <td class="px-4 py-2.5 text-xs text-right">@Startup.SpanCount</td>
+    <td class="px-4 py-2.5 text-xs text-right">@Startup.Depth</td>
+    <td class="px-4 py-2.5 text-xs text-right">@Startup.DroppedSpans / @Startup.RejectedSpans</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetryStartupInfo Startup { get; set; }
+}

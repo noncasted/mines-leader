@@ -1,0 +1,4 @@
+/backend-measure-2026-11-25-local-aspire-monolith-workstation	179290112	0	98795520	76095488	5431296
+/pgbouncer-measure-2026-11-25-local-aspire-monolith-workstation	9252864	0	7745536	491520	471040
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation	137682944	0	24965120	105009152	81969152
+/aspire-dashboard-measure-2026-11-25-local-aspire-monolith-workstation	117583872	0	87883776	27787264	27779072

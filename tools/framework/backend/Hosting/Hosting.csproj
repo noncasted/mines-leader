@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The hosting of game sessions around Framework.Session: the sessions of a game server (the collection, the
+         lobby sessions and their codes, the lobby service of a session), the requests of the meta to the game servers
+         (search, solo, lobby create / join / match join, tickets) and their handlers on the game server. The factory
+         of the sessions and the search stay in the game: they build the container of a session of the game and know
+         its rules (ILobbyFactory, IKnownUsersMatches, ISessionSearch, ILobbyMatches, ILobbyEntryPolicy). -->
+    <PropertyGroup>
+        <AssemblyName>Framework.Hosting</AssemblyName>
+        <RootNamespace>Game.Hosting</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\common\framework.common.csproj"/>
+        <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\Session\Session.csproj"/>
+        <ProjectReference Include="..\..\shared\SessionCore\framework.session.core.csproj"/>
+    </ItemGroup>
+
+</Project>

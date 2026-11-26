@@ -1,0 +1,205 @@
+#host vps-bf8f6dbe 2026-11-25T04:39:24Z nproc=6 uptime=12031920.20
+               total        used        free      shared  buff/cache   available
+Mem:           11676        4470        1562         996        7001        7205
+Swap:          16383         634       15749
+#df
+/dev/sda1        96G   38G   58G  40% /
+#stats
+meta-f8yz0we2icjsm7edti3g9zp7-20261125T023152	184.8MiB / 11.4GiB	4.74%
+console-f8yz0we2icjsm7edti3g9zp7-20261125T023152	210.5MiB / 11.4GiB	4.38%
+game-f8yz0we2icjsm7edti3g9zp7-20261125T023152	177.1MiB / 11.4GiB	0.57%
+coordinator-f8yz0we2icjsm7edti3g9zp7-20261125T023152	181.2MiB / 11.4GiB	0.40%
+silo-f8yz0we2icjsm7edti3g9zp7-20261125T023152	175.2MiB / 11.4GiB	5.80%
+pgbouncer-f8yz0we2icjsm7edti3g9zp7-20261125T023152	7.91MiB / 11.4GiB	3.08%
+aspire-dashboard-f8yz0we2icjsm7edti3g9zp7-20261125T023152	117.6MiB / 11.4GiB	1.12%
+game-c4b3aasq8hoikkbzgloa5ccd-20261125T011226	143.8MiB / 11.4GiB	0.33%
+meta-c4b3aasq8hoikkbzgloa5ccd-20261125T011226	165.9MiB / 11.4GiB	4.63%
+console-c4b3aasq8hoikkbzgloa5ccd-20261125T011226	178.4MiB / 11.4GiB	0.44%
+coordinator-c4b3aasq8hoikkbzgloa5ccd-20261125T011226	156.8MiB / 11.4GiB	4.20%
+silo-c4b3aasq8hoikkbzgloa5ccd-20261125T011226	174.9MiB / 11.4GiB	1.67%
+pgbouncer-c4b3aasq8hoikkbzgloa5ccd-20261125T011226	7.781MiB / 11.4GiB	0.20%
+aspire-dashboard-c4b3aasq8hoikkbzgloa5ccd-20261125T011226	86.32MiB / 11.4GiB	0.05%
+coolify	304.6MiB / 11.4GiB	0.61%
+coolify-db	56.66MiB / 11.4GiB	0.01%
+coolify-redis	5.391MiB / 11.4GiB	0.78%
+web-rp57atznu171qtglsuupajin	2.363MiB / 11.4GiB	0.00%
+meta-cnbvs6gaztztw7hrt9omywvh-20261117T103711	101.3MiB / 11.4GiB	3.96%
+console-cnbvs6gaztztw7hrt9omywvh-20261117T103711	121.5MiB / 11.4GiB	0.59%
+coordinator-cnbvs6gaztztw7hrt9omywvh-20261117T103710	95.56MiB / 11.4GiB	4.00%
+silo-cnbvs6gaztztw7hrt9omywvh-20261117T103710	142.1MiB / 11.4GiB	2.02%
+pgbouncer-cnbvs6gaztztw7hrt9omywvh-20261117T103710	2.238MiB / 11.4GiB	0.14%
+aspire-dashboard-cnbvs6gaztztw7hrt9omywvh-20261117T103711	72.34MiB / 11.4GiB	1.58%
+web-kxbnp6f7sld3gppbj6ik7as0	2.367MiB / 11.4GiB	0.00%
+vp7mmjzon4ko5gxhx0ntzt2m	24.99MiB / 11.4GiB	4.10%
+vjgu3p4ptf5bxxs7di7f8sw1	53.59MiB / 11.4GiB	0.90%
+coolify-sentinel	13.3MiB / 11.4GiB	3.55%
+w14436sq0m5kp47dadhs533f-proxy	2.176MiB / 11.4GiB	0.00%
+amnezia-awg2	28.73MiB / 11.4GiB	1.77%
+w14436sq0m5kp47dadhs533f	96.68MiB / 11.4GiB	0.62%
+coolify-proxy	57.27MiB / 11.4GiB	0.68%
+amnezia-xray	10.73MiB / 11.4GiB	0.00%
+#labels
+/meta-f8yz0we2icjsm7edti3g9zp7-20261125T023152\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/meta:latest\t2026-11-25T02:34:23.911587156Z\t1129186
+/console-f8yz0we2icjsm7edti3g9zp7-20261125T023152\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/console:latest\t2026-11-25T02:34:23.10327762Z\t1128949
+/game-f8yz0we2icjsm7edti3g9zp7-20261125T023152\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/game:latest\t2026-11-25T02:34:23.601325799Z\t1129067
+/coordinator-f8yz0we2icjsm7edti3g9zp7-20261125T023152\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/coordinator:latest\t2026-11-25T02:34:22.331106072Z\t1128698
+/silo-f8yz0we2icjsm7edti3g9zp7-20261125T023152\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/silo:latest\t2026-11-25T02:34:16.561814707Z\t1127808
+/pgbouncer-f8yz0we2icjsm7edti3g9zp7-20261125T023152\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tedoburu/pgbouncer:v1.26.0-p0\t2026-11-25T02:34:09.483455126Z\t1126560
+/aspire-dashboard-f8yz0we2icjsm7edti3g9zp7-20261125T023152\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmcr.microsoft.com/dotnet/aspire-dashboard:13.5\t2026-11-25T02:34:09.282140026Z\t1126469
+/game-c4b3aasq8hoikkbzgloa5ccd-20261125T011226\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tpixel-swarm/game:latest\t2026-11-25T01:15:30.450659562Z\t209867
+/meta-c4b3aasq8hoikkbzgloa5ccd-20261125T011226\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tpixel-swarm/meta:latest\t2026-11-25T01:15:30.171618588Z\t209730
+/console-c4b3aasq8hoikkbzgloa5ccd-20261125T011226\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tpixel-swarm/console:latest\t2026-11-25T01:15:30.761122996Z\t209947
+/coordinator-c4b3aasq8hoikkbzgloa5ccd-20261125T011226\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tpixel-swarm/coordinator:latest\t2026-11-25T01:15:29.402049197Z\t209516
+/silo-c4b3aasq8hoikkbzgloa5ccd-20261125T011226\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tpixel-swarm/silo:latest\t2026-11-25T01:15:23.661327995Z\t208600
+/pgbouncer-c4b3aasq8hoikkbzgloa5ccd-20261125T011226\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-25T01:15:16.688633977Z\t207294
+/aspire-dashboard-c4b3aasq8hoikkbzgloa5ccd-20261125T011226\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tmcr.microsoft.com/dotnet/aspire-dashboard:13.6\t2026-11-25T01:15:16.954824688Z\t207369
+/coolify\tsource\t\t\t\tdocker.io/coollabsio/coolify:4.7.6\t2026-11-20T01:20:15.721770186Z\t466095
+/coolify-db\tsource\t\t\t\tpostgres:15-alpine\t2026-11-20T01:20:09.842037603Z\t464859
+/coolify-redis\tsource\t\t\t\tredis:7-alpine\t2026-11-20T01:20:10.014646088Z\t464941
+/web-rp57atznu171qtglsuupajin\trp57atznu171qtglsuupajin\tminesleader\tweb\tclient\tnginx:1.27-alpine\t2026-11-17T15:26:04.059676998Z\t1996213
+/meta-cnbvs6gaztztw7hrt9omywvh-20261117T103711\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/meta:latest\t2026-11-17T10:41:30.841418299Z\t2838575
+/console-cnbvs6gaztztw7hrt9omywvh-20261117T103711\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/console:latest\t2026-11-17T10:41:30.615446551Z\t2838481
+/coordinator-cnbvs6gaztztw7hrt9omywvh-20261117T103710\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/coordinator:latest\t2026-11-17T10:41:29.877514168Z\t2838346
+/silo-cnbvs6gaztztw7hrt9omywvh-20261117T103710\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/silo:latest\t2026-11-17T10:41:02.527255054Z\t2834274
+/pgbouncer-cnbvs6gaztztw7hrt9omywvh-20261117T103710\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-17T10:40:55.226279074Z\t2833339
+/aspire-dashboard-cnbvs6gaztztw7hrt9omywvh-20261117T103711\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tmcr.microsoft.com/dotnet/aspire-dashboard:13.6\t2026-11-17T10:40:54.990758638Z\t2833211
+/web-kxbnp6f7sld3gppbj6ik7as0\tkxbnp6f7sld3gppbj6ik7as0\tpixel-swarm\tweb\tclient\tnginx:1.27-alpine\t2026-11-17T10:36:53.62312912Z\t2799941
+/vp7mmjzon4ko5gxhx0ntzt2m\tvp7mmjzon4ko5gxhx0ntzt2m\tautobattler\tpostgres\tpostgres\tpostgres:17-alpine\t2026-11-17T10:33:09.213497773Z\t2779014
+/vjgu3p4ptf5bxxs7di7f8sw1\tvjgu3p4ptf5bxxs7di7f8sw1\tpixel-swarm\tpostgres\tpostgres\tpostgres:18-alpine\t2026-11-17T10:33:06.393230689Z\t2778512
+/coolify-sentinel\t\t\t\t\tdocker.io/coollabsio/sentinel:1.1.5\t2026-11-09T12:43:22.935672972Z\t3183269
+/w14436sq0m5kp47dadhs533f-proxy\tproxy\t\t\t\tnginx:stable-alpine\t2026-11-04T08:19:24.049162766Z\t2718633
+/amnezia-awg2\t\t\t\t\tamnezia-awg2\t2026-08-26T06:14:05.990672108Z\t197233
+/w14436sq0m5kp47dadhs533f\tw14436sq0m5kp47dadhs533f\tminesleader\tpostgres\tpostgres\tpostgres:18-alpine\t2026-07-08T22:27:35.759822339Z\t2462
+/coolify-proxy\tcoolify-proxy\t\t\t\ttraefik:v3.6\t2026-07-08T22:27:35.789801895Z\t2470
+/amnezia-xray\t\t\t\t\tamnezia-xray\t2026-07-08T22:27:35.774033817Z\t2429
+#pss
+/meta-f8yz0we2icjsm7edti3g9zp7-20261125T023152 1129186 280712 212152 130360
+/console-f8yz0we2icjsm7edti3g9zp7-20261125T023152 1128949 311056 240428 147852
+/game-f8yz0we2icjsm7edti3g9zp7-20261125T023152 1129067 271804 203378 124100
+/coordinator-f8yz0we2icjsm7edti3g9zp7-20261125T023152 1128698 274112 206963 128068
+/silo-f8yz0we2icjsm7edti3g9zp7-20261125T023152 1127808 267676 200350 111456
+/pgbouncer-f8yz0we2icjsm7edti3g9zp7-20261125T023152 1126560 9772 8707 7600
+/aspire-dashboard-f8yz0we2icjsm7edti3g9zp7-20261125T023152 1126469 194744 183912 85548
+/game-c4b3aasq8hoikkbzgloa5ccd-20261125T011226 209867 235308 168813 96448
+/meta-c4b3aasq8hoikkbzgloa5ccd-20261125T011226 209730 258476 191428 113340
+/console-c4b3aasq8hoikkbzgloa5ccd-20261125T011226 209947 274712 206901 127516
+/coordinator-c4b3aasq8hoikkbzgloa5ccd-20261125T011226 209516 247188 181136 108492
+/silo-c4b3aasq8hoikkbzgloa5ccd-20261125T011226 208600 266400 199662 112892
+/pgbouncer-c4b3aasq8hoikkbzgloa5ccd-20261125T011226 207294 9500 8325 7556
+/aspire-dashboard-c4b3aasq8hoikkbzgloa5ccd-20261125T011226 207369 131736 105964 77032
+/coolify 466095 80 72 24
+/coolify 466391 8 4 4
+/coolify 466393 56 48 4
+/coolify 466403 8 4 4
+/coolify 466404 8 4 4
+/coolify 466405 8 4 4
+/coolify 466406 12 8 8
+/coolify 466407 8 4 4
+/coolify 466408 8 4 4
+/coolify 466409 8 4 4
+/coolify 466410 8 4 4
+/coolify 466417 8 4 4
+/coolify 466444 17924 2578 1564
+/coolify 466777 4420 605 256
+/coolify 466785 1620 369 472
+/coolify 466786 1632 381 484
+/coolify 466787 1624 373 476
+/coolify 466788 1620 385 492
+/coolify 466789 1628 377 480
+/coolify 466790 1640 389 480
+/coolify 467335 61468 11382 6376
+/coolify 468113 36556 35874 9900
+/coolify 468114 23012 9503 2592
+/coolify 468116 37712 24110 8148
+/coolify 468117 26636 13193 3668
+/coolify 468447 75664 62132 22396
+/coolify 1465825 59476 10138 5628
+/coolify 2155284 56536 9391 5392
+/coolify 2874512 57888 10009 5388
+/coolify 4115164 54140 8686 5364
+/coolify 23130 3672 2229 1564
+/coolify 380432 60944 11073 5732
+/coolify 4077641 54264 8774 5404
+/coolify 4171405 54152 8720 5352
+/coolify 390049 64460 14061 5728
+/coolify 390388 55632 9349 5300
+/coolify 2576842 82564 68695 23868
+/coolify-db 464859 20220 8589 844
+/coolify-db 464947 44072 34975 924
+/coolify-db 464948 10092 2152 828
+/coolify-db 464950 8380 1602 796
+/coolify-db 464951 6644 1317 892
+/coolify-db 464952 5920 1070 864
+/coolify-db 2576927 17820 9984 2776
+/coolify-redis 464941 8204 8200 4536
+/web-rp57atznu171qtglsuupajin 1996213 2392 639 224
+/web-rp57atznu171qtglsuupajin 1996278 1512 267 372
+/web-rp57atznu171qtglsuupajin 1996279 1508 263 368
+/web-rp57atznu171qtglsuupajin 1996280 1512 267 372
+/web-rp57atznu171qtglsuupajin 1996281 1520 275 380
+/web-rp57atznu171qtglsuupajin 1996282 1508 263 368
+/web-rp57atznu171qtglsuupajin 1996283 1512 267 372
+/meta-cnbvs6gaztztw7hrt9omywvh-20261117T103711 2838575 142708 110133 70092
+/console-cnbvs6gaztztw7hrt9omywvh-20261117T103711 2838481 170056 135416 81752
+/coordinator-cnbvs6gaztztw7hrt9omywvh-20261117T103710 2838346 137492 105918 65296
+/silo-cnbvs6gaztztw7hrt9omywvh-20261117T103710 2834274 169372 137372 88420
+/pgbouncer-cnbvs6gaztztw7hrt9omywvh-20261117T103710 2833339 3040 1799 1048
+/aspire-dashboard-cnbvs6gaztztw7hrt9omywvh-20261117T103711 2833211 90600 64828 37456
+/web-kxbnp6f7sld3gppbj6ik7as0 2799941 2376 635 184
+/web-kxbnp6f7sld3gppbj6ik7as0 2800098 1456 249 316
+/web-kxbnp6f7sld3gppbj6ik7as0 2800099 1476 269 336
+/web-kxbnp6f7sld3gppbj6ik7as0 2800100 1456 249 316
+/web-kxbnp6f7sld3gppbj6ik7as0 2800101 1464 257 324
+/web-kxbnp6f7sld3gppbj6ik7as0 2800103 1476 269 336
+/web-kxbnp6f7sld3gppbj6ik7as0 2800104 1460 253 320
+/vp7mmjzon4ko5gxhx0ntzt2m 2779014 20004 7346 420
+/vp7mmjzon4ko5gxhx0ntzt2m 2779299 12640 3487 448
+/vp7mmjzon4ko5gxhx0ntzt2m 2779300 9556 1890 360
+/vp7mmjzon4ko5gxhx0ntzt2m 2779302 7756 1378 340
+/vp7mmjzon4ko5gxhx0ntzt2m 2779303 6300 1115 488
+/vp7mmjzon4ko5gxhx0ntzt2m 2779304 5504 869 444
+/vp7mmjzon4ko5gxhx0ntzt2m 2427940 19032 6957 2364
+/vp7mmjzon4ko5gxhx0ntzt2m 2547968 18532 6841 2364
+/vjgu3p4ptf5bxxs7di7f8sw1 2778512 19604 6522 360
+/vjgu3p4ptf5bxxs7di7f8sw1 2778817 4464 492 364
+/vjgu3p4ptf5bxxs7di7f8sw1 2778818 3384 224 276
+/vjgu3p4ptf5bxxs7di7f8sw1 2778819 3800 273 276
+/vjgu3p4ptf5bxxs7di7f8sw1 2778820 33504 22443 500
+/vjgu3p4ptf5bxxs7di7f8sw1 2778821 9768 1595 364
+/vjgu3p4ptf5bxxs7di7f8sw1 2778823 7992 1160 368
+/vjgu3p4ptf5bxxs7di7f8sw1 2778824 6540 971 512
+/vjgu3p4ptf5bxxs7di7f8sw1 2778825 5752 756 448
+/vjgu3p4ptf5bxxs7di7f8sw1 1896082 24096 7079 2712
+/vjgu3p4ptf5bxxs7di7f8sw1 2364662 22048 6394 2532
+/vjgu3p4ptf5bxxs7di7f8sw1 2500361 20976 6213 2560
+/coolify-sentinel 3183269 12660 12656 7932
+/w14436sq0m5kp47dadhs533f-proxy 2718633 3284 2666 40
+/w14436sq0m5kp47dadhs533f-proxy 2718732 1020 326 212
+/w14436sq0m5kp47dadhs533f-proxy 2718733 880 262 200
+/w14436sq0m5kp47dadhs533f-proxy 2718734 896 278 216
+/w14436sq0m5kp47dadhs533f-proxy 2718735 956 292 208
+/w14436sq0m5kp47dadhs533f-proxy 2718736 1008 314 200
+/w14436sq0m5kp47dadhs533f-proxy 2718737 896 278 216
+/amnezia-awg2 197233 0 0 0
+/amnezia-awg2 197273 44 10 0
+/amnezia-awg2 197274 72 34 20
+/amnezia-awg2 198151 44 10 0
+/amnezia-awg2 198182 28852 28848 26412
+/amnezia-awg2 198216 72 34 20
+/w14436sq0m5kp47dadhs533f 2462 19348 6423 368
+/w14436sq0m5kp47dadhs533f 3164 27896 5572 340
+/w14436sq0m5kp47dadhs533f 3169 24180 4503 336
+/w14436sq0m5kp47dadhs533f 3170 23336 4276 336
+/w14436sq0m5kp47dadhs533f 3171 41516 8866 480
+/w14436sq0m5kp47dadhs533f 3172 39680 7732 352
+/w14436sq0m5kp47dadhs533f 3405 8008 1089 352
+/w14436sq0m5kp47dadhs533f 3406 6424 934 476
+/w14436sq0m5kp47dadhs533f 3408 5524 718 444
+/w14436sq0m5kp47dadhs533f 1888488 33312 7140 2576
+/w14436sq0m5kp47dadhs533f 2045442 34356 7559 2736
+/w14436sq0m5kp47dadhs533f 2409467 31252 6720 2504
+/w14436sq0m5kp47dadhs533f 2556767 30104 6536 2500
+/coolify-proxy 2470 86460 86456 36644
+/amnezia-xray 2429 4 4 4
+/amnezia-xray 2960 4 0 0
+/amnezia-xray 3004 8596 8592 5860

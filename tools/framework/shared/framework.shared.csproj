@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The same sources are compiled by Unity through Framework.Shared.asmdef (C# 9, no implicit usings). -->
+    <PropertyGroup>
+        <AssemblyName>Framework.Shared</AssemblyName>
+        <RootNamespace>Shared</RootNamespace>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <!-- SessionCore/ is its own assembly (Framework.Session.Core) inside the same package. -->
+    <ItemGroup>
+        <Compile Remove="SessionCore/**"/>
+        <None Remove="SessionCore/**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.meta"/>
+        <None Remove="**\*.asmdef"/>
+        <None Remove="package.json"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MemoryPack"/>
+        <PackageReference Include="MemoryPack.UnityShims"/>
+    </ItemGroup>
+
+</Project>

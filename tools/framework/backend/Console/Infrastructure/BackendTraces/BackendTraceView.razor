@@ -1,0 +1,79 @@
+@using Console.Infrastructure.ClientTelemetry
+
+<div class="flex items-center gap-4">
+    <span class="text-xs text-muted-foreground">@TelemetryValueFormat.Timestamp(Trace.StartUtc) · @TelemetryValueFormat.Milliseconds(Trace.DurationMs) · @Trace.Spans.Count spans</span>
+    <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small" @onclick="ExpandAll">Expand all</BbButton>
+    <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small" @onclick="CollapseAll">Collapse all</BbButton>
+</div>
+
+<div class="rounded-lg border">
+    <table class="w-full text-sm">
+        <thead>
+        <tr class="border-b bg-muted/50">
+            <th class="h-10 px-4 text-left font-medium text-muted-foreground">Span</th>
+            <th class="h-10 px-4 text-left font-medium text-muted-foreground">Service</th>
+            <th class="h-10 px-4 text-right font-medium text-muted-foreground">Duration</th>
+            <th class="h-10 px-4 font-medium text-muted-foreground">
+                <div class="flex justify-between text-xs">
+                    @foreach (var part in Enumerable.Range(0, TelemetryStartupStyle.AxisParts + 1))
+                    {
+                        <span>@TelemetryValueFormat.Milliseconds(ScaleMs * part / TelemetryStartupStyle.AxisParts)</span>
+                    }
+                </div>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var span in _tree.Visible(_expanded))
+        {
+            <BackendTraceRow
+                @key="span.Index"
+                Span="span"
+                ScaleMs="ScaleMs"
+                HasChildren="_tree.HasChildren(span.Index)"
+                IsExpanded="_expanded.Contains(span.Index)"
+                OnToggle="Toggle"/>
+        }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required BackendTrace Trace { get; set; }
+
+    private readonly HashSet<int> _expanded = [];
+
+    private SpanTree<BackendTraceSpan> _tree = null!;
+    private BackendTrace? _shown;
+
+    // The own axis of the trace: the clock of the backend is not the frames of the client, the two are never drawn on one scale.
+    private double ScaleMs => Math.Max(1, Trace.DurationMs);
+
+    // A backend trace is small: it opens whole. A render of the page sets the same trace again and keeps what was closed.
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(Trace, _shown))
+            return;
+
+        _shown = Trace;
+        _tree = new SpanTree<BackendTraceSpan>(Trace.Spans, span => span.Index, span => span.ParentIndex, span => span.StartMs);
+        _expanded.Clear();
+        _expanded.UnionWith(_tree.All);
+    }
+
+    private void Toggle(int index)
+    {
+        if (!_expanded.Remove(index))
+            _expanded.Add(index);
+    }
+
+    private void ExpandAll()
+    {
+        _expanded.UnionWith(_tree.All);
+    }
+
+    private void CollapseAll()
+    {
+        _expanded.Clear();
+    }
+}

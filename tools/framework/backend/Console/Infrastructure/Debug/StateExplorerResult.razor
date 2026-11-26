@@ -1,0 +1,45 @@
+@if (IsLoading)
+{
+    <div class="flex items-center justify-center py-16">
+        <LucideIcon Name="loader-circle" Size="32" class="animate-spin text-primary"/>
+    </div>
+    return;
+}
+
+@if (NotFound)
+{
+    <BbAlert Variant="AlertVariant.Warning">
+        <ChildContent>
+            <BbAlertTitle>Not Found</BbAlertTitle>
+            <BbAlertDescription>No state found for key "@GrainKey" in table "@Table"</BbAlertDescription>
+        </ChildContent>
+    </BbAlert>
+    return;
+}
+
+@if (Json == null)
+{
+    return;
+}
+
+<div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Result</h2>
+        <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Small" @onclick="OnCopy">
+            <LucideIcon Name="copy" Size="14" class="mr-1"/>
+            Copy
+        </BbButton>
+    </div>
+    <div class="rounded-lg border bg-muted/30 p-4 overflow-auto max-h-[600px]">
+        <pre class="text-xs font-mono whitespace-pre-wrap break-all">@Json</pre>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required bool IsLoading { get; set; }
+    [Parameter, EditorRequired] public required bool NotFound { get; set; }
+    [Parameter, EditorRequired] public required string? Json { get; set; }
+    [Parameter, EditorRequired] public required string GrainKey { get; set; }
+    [Parameter, EditorRequired] public required string Table { get; set; }
+    [Parameter, EditorRequired] public required EventCallback OnCopy { get; set; }
+}

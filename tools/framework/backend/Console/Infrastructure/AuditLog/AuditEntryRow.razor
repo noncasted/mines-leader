@@ -1,0 +1,11 @@
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2.5 text-xs text-muted-foreground whitespace-nowrap">@Entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+    <td class="px-4 py-2.5 text-xs">
+        <span class="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">@Entry.Action</span>
+    </td>
+    <td class="px-4 py-2.5 text-xs text-muted-foreground break-all">@Entry.Details</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public AuditEntry Entry { get; set; } = null!;
+}

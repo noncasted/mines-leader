@@ -1,0 +1,10 @@
+/meta-measure-2026-11-25-local-1-services-workstation	116645888	0	57569280	56340480	5791744
+/game-measure-2026-11-25-local-1-services-workstation	95518720	0	43896832	48930816	2818048
+/console-measure-2026-11-25-local-1-services-workstation	106926080	0	52953088	51044352	897024
+/coordinator-measure-2026-11-25-local-1-services-workstation	104116224	0	46833664	54312960	7741440
+/silo-measure-2026-11-25-local-1-services-workstation	137748480	0	71426048	61108224	2842624
+/otlp-measure-2026-11-25-local-1-services-workstation	3325952	0	2363392	372736	102400
+/pgbouncer-measure-2026-11-25-local-1-services-workstation	12275712	0	7741440	3256320	3256320
+/victoriatraces-measure-2026-11-25-local-1-services-workstation	32415744	0	21082112	4624384	4624384
+/victorialogs-measure-2026-11-25-local-1-services-workstation	23973888	0	15888384	2437120	2437120
+/postgres-measure-2026-11-25-local-1-services-workstation	82690048	0	19550208	55664640	32575488

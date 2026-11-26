@@ -1,0 +1,8 @@
+/meta-measure-2026-11-25-local-aspire-services-server	140410880	0	58396672	78733312	22908928
+/console-measure-2026-11-25-local-aspire-services-server	119455744	0	61296640	53616640	1294336
+/game-measure-2026-11-25-local-aspire-services-server	124121088	0	54054912	66924544	15765504
+/coordinator-measure-2026-11-25-local-aspire-services-server	95510528	0	43810816	48427008	1179648
+/silo-measure-2026-11-25-local-aspire-services-server	158547968	0	90095616	63848448	2838528
+/pgbouncer-measure-2026-11-25-local-aspire-services-server	13303808	0	7737344	4026368	4022272
+/postgres-measure-2026-11-25-local-aspire-services-server	80252928	0	26148864	47292416	24260608
+/aspire-dashboard-measure-2026-11-25-local-aspire-services-server	186884096	0	96497664	87924736	61550592

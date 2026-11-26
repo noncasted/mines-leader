@@ -1,0 +1,52 @@
+@using Game.ClientTelemetry
+
+<div class="rounded-lg border bg-card p-4 flex flex-col gap-2">
+    <div class="flex items-center justify-between gap-2">
+        <span class="text-sm font-medium break-all">@Data.Name.Name</span>
+        @if (Metric != null)
+        {
+            <span class="text-xs text-muted-foreground whitespace-nowrap">avg @Value(Metric.Average)</span>
+        }
+    </div>
+    <div class="flex gap-2">
+        <div class="flex flex-col justify-between text-xs text-muted-foreground text-right whitespace-nowrap" style="min-width: 4.5rem">
+            <span>@Value(Data.Chart.Max)</span>
+            <span>@Value(Data.Chart.Min)</span>
+        </div>
+        <svg viewBox="0 0 @Number(TelemetryChartGeometry.Width) @Number(TelemetryChartGeometry.Height)" preserveAspectRatio="none" style="flex: 1 1 0; min-width: 0; height: 6rem">
+            @foreach (var span in HiddenSpans)
+            {
+                <rect x="@Number(Geometry.X(span.From))" y="0" width="@Number(Math.Max(Geometry.X(span.To) - Geometry.X(span.From), TelemetrySessionChartStyle.MinHiddenWidth))"
+                      height="@Number(TelemetryChartGeometry.Height)" style="@TelemetrySessionChartStyle.HiddenFill"/>
+            }
+            @foreach (var tick in Timeline.Ticks)
+            {
+                <line x1="@Number(Geometry.X(tick.Time))" x2="@Number(Geometry.X(tick.Time))" y1="0" y2="@Number(TelemetryChartGeometry.Height)"
+                      vector-effect="non-scaling-stroke" stroke-dasharray="@TelemetrySessionChartStyle.TickDash(tick.Kind)"
+                      style="stroke: @TelemetrySessionChartStyle.TickColor(tick.Kind); stroke-width: 1">
+                    <title>@TelemetryValueFormat.Time(tick.Time): @tick.Label</title>
+                </line>
+            }
+            @foreach (var segment in Data.Chart.Segments)
+            {
+                <path d="@Geometry.Path(segment.Points)" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"
+                      stroke-dasharray="@(segment.Hidden ? TelemetrySessionChartStyle.HiddenDash : null)"
+                      style="stroke: @(segment.Hidden ? TelemetrySessionChartStyle.HiddenColor : TelemetrySessionChartStyle.LineColor); stroke-width: 1.5"/>
+            }
+        </svg>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetryNamedChart Data { get; set; }
+    [Parameter, EditorRequired] public required TelemetryTimeline Timeline { get; set; }
+    [Parameter, EditorRequired] public required IReadOnlyList<TelemetryHiddenSpan> HiddenSpans { get; set; }
+
+    // Null: every point of the metric is hidden, the summary does not know it.
+    [Parameter, EditorRequired] public required TelemetryMetricSummary? Metric { get; set; }
+
+    private TelemetryChartGeometry Geometry => new(Timeline.End, Data.Chart.Min, Data.Chart.Max);
+
+    private string Value(double value) => TelemetryValueFormat.Value(value, Data.Name.Unit);
+    private static string Number(double value) => TelemetryChartGeometry.Number(value);
+}

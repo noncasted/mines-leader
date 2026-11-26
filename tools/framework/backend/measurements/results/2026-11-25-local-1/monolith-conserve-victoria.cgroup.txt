@@ -1,0 +1,6 @@
+/backend-measure-2026-11-25-local-1-monolith-conserve	162750464	0	88096768	70365184	331776
+/otlp-measure-2026-11-25-local-1-monolith-conserve	4804608	0	2371584	1855488	1232896
+/pgbouncer-measure-2026-11-25-local-1-monolith-conserve	8372224	0	7745536	135168	135168
+/postgres-measure-2026-11-25-local-1-monolith-conserve	64868352	0	22704128	35540992	11788288
+/victoriatraces-measure-2026-11-25-local-1-monolith-conserve	22990848	0	16658432	692224	692224
+/victorialogs-measure-2026-11-25-local-1-monolith-conserve	13783040	0	9388032	0	0

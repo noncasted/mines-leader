@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+        <AssemblyName>Shared</AssemblyName>
+        <RootNamespace>Shared</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.meta"/>
+        <Content Remove="**\*.meta"/>
+        <None Remove=".editorconfig"/>
+        <None Remove="**\*.asmdef"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MemoryPack" Version="1.21.4"/>
+        <PackageReference Include="MemoryPack.UnityShims" Version="1.21.4"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\tools\framework\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\tools\framework\common\framework.common.csproj"/>
+    </ItemGroup>
+
+    <!-- Framework.Analyzers (FWR rules, severities in the root .editorconfig): backend/Directory.Build.props does not reach this
+         folder, so the backend build of shared needs its own reference; the Unity compile takes the dll from its .meta. -->
+    <ItemGroup>
+        <Analyzer Include="..\tools\framework\client\core\Analyzers\Framework.Analyzers.dll"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EditorConfigFiles Remove="Backend\.editorconfig"/>
+        <EditorConfigFiles Remove="Domain\.editorconfig"/>
+        <EditorConfigFiles Remove="Game\.editorconfig"/>
+        <EditorConfigFiles Remove="Protocol\.editorconfig"/>
+        <EditorConfigFiles Remove="Session\.editorconfig"/>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,36 @@
+#host omarchy 2026-11-25T08:43:02Z nproc=24 uptime=74581.11
+               total        used        free      shared  buff/cache   available
+Mem:           63383       33442        7717        1417       27262       29941
+Swap:          96150       42723       53427
+#df
+/dev/mapper/root  952G  851G   78G  92% /
+#stats
+backend-measure-2026-11-25-local-aspire-monolith-workstation	166.5MiB / 61.9GiB	5.41%
+pgbouncer-measure-2026-11-25-local-aspire-monolith-workstation	9.121MiB / 61.9GiB	0.05%
+postgres-measure-2026-11-25-local-aspire-monolith-workstation	53.59MiB / 61.9GiB	0.35%
+aspire-dashboard-measure-2026-11-25-local-aspire-monolith-workstation	85.64MiB / 61.9GiB	0.02%
+#labels
+/backend-measure-2026-11-25-local-aspire-monolith-workstation\tmeasure-2026-11-25-local-aspire-monolith-workstation\tpixel-swarm\t\t\tbackend-measurements/backend:local\t2026-11-25T08:37:57.229153396Z\t3758845
+/pgbouncer-measure-2026-11-25-local-aspire-monolith-workstation\tmeasure-2026-11-25-local-aspire-monolith-workstation\tpixel-swarm\t\t\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-25T08:37:47.496672027Z\t3757901
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation\tmeasure-2026-11-25-local-aspire-monolith-workstation\tpixel-swarm\t\t\tpostgres:18-alpine\t2026-11-25T08:37:42.826836403Z\t3757368
+/aspire-dashboard-measure-2026-11-25-local-aspire-monolith-workstation\tmeasure-2026-11-25-local-aspire-monolith-workstation\tpixel-swarm\t\t\tmcr.microsoft.com/dotnet/aspire-dashboard:13.6\t2026-11-25T08:37:42.998669008Z\t3757550
+#pss
+/backend-measure-2026-11-25-local-aspire-monolith-workstation 3758845 265060 252812 96480
+/pgbouncer-measure-2026-11-25-local-aspire-monolith-workstation 3757901 9660 9278 7564
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757368 30280 16325 1980
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757819 8748 2875 2072
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757820 5876 865 2056
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757821 5188 613 2032
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757822 11388 2669 2144
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757823 6740 1005 2044
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757825 9748 2409 2056
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757826 8516 1321 2360
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3757827 7704 1158 2324
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3758681 22620 5657 4520
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3759007 22528 5725 4740
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3759009 16476 3320 3348
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3759010 23972 6809 5716
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3759011 17360 3789 3736
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3759021 20716 4558 3792
+/postgres-measure-2026-11-25-local-aspire-monolith-workstation 3759022 21236 4835 3996
+/aspire-dashboard-measure-2026-11-25-local-aspire-monolith-workstation 3757550 158188 158176 85824

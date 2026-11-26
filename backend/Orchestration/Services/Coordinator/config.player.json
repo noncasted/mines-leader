@@ -1,0 +1,5 @@
+{
+  "$type": "Shared.PlayerConfigOptions, Shared",
+  "HandSize": 6,
+  "DeckSize": 16
+}

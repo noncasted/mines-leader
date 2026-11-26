@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+
+<div class="relative min-h-screen flex flex-col">
+    <header class="sticky top-0 z-50 w-full border-b bg-background">
+        <div class="container flex h-14 items-center">
+            <a href="/infrastructure" class="mr-6 flex items-center space-x-2">
+                <LucideIcon Name="box" Size="24" class="text-primary"/>
+                <span class="font-bold">Console</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        @Body
+    </main>
+</div>
+
+<BbToastProvider Position="ToastPosition.BottomRight"/>
+<BbPortalHost/>

@@ -1,0 +1,19 @@
+<div class="flex items-center gap-2" style="@TelemetryLayoutStyle.Wrap">
+    <span class="text-xs text-muted-foreground">@Label</span>
+    @foreach (var option in Options)
+    {
+        <BbButton
+            Size="ButtonSize.Small"
+            Variant="@(option.Value == Selected ? ButtonVariant.Default : ButtonVariant.Outline)"
+            @onclick="() => OnSelect.InvokeAsync(option.Value)">
+            @option.Label
+        </BbButton>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required string Label { get; set; }
+    [Parameter, EditorRequired] public required IReadOnlyList<TelemetryFilterOption> Options { get; set; }
+    [Parameter, EditorRequired] public required string? Selected { get; set; }
+    [Parameter, EditorRequired] public EventCallback<string?> OnSelect { get; set; }
+}

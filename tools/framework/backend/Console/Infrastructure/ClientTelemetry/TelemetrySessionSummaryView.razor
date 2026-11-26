@@ -1,0 +1,51 @@
+@using Game.ClientTelemetry
+
+<div style="@TelemetryLayoutStyle.Stats">
+    <TelemetryStat Label="Duration" Value="@TelemetryValueFormat.Duration(TelemetrySessionFacts.Duration(Info))"/>
+    <TelemetryStat Label="Avg FPS" Value="@TelemetryValueFormat.Optional(TelemetrySessionFacts.AverageFps(Summary), null)"/>
+    <TelemetryStat Label="Samples / background" Value="@($"{Summary.Samples} / {Summary.HiddenSamples}")" Hint="The samples taken in the background are out of the summary"/>
+    <TelemetryStat Label="Errors / marks" Value="@($"{Errors} / {Marks}")" Hint="Errors with the repeats"/>
+    <TelemetryStat Label="Started" Value="@TelemetryValueFormat.Timestamp(Info.StartedAt)"/>
+    <TelemetryStat Label="Closed" Value="@(Info.ClosedAt is { } closed ? TelemetryValueFormat.Timestamp(closed) : TelemetryValueFormat.Unknown)"/>
+    <TelemetryStat
+        Label="Dropped samples / errors / marks"
+        Value="@(Info.Digest is { } digest ? $"{digest.DroppedSamples} / {digest.DroppedErrors} / {digest.DroppedMarks}" : TelemetryValueFormat.Unknown)"
+        Hint="Out of the memory of the session, so the summary does not cover them. Known at the close"/>
+    <TelemetryStat Label="Rejected" Value="@(Info.Digest?.RejectedRequests.ToString() ?? TelemetryValueFormat.Unknown)" Hint="Batches and items the backend has not taken. Known at the close"/>
+</div>
+
+<div class="rounded-lg border bg-card p-4 flex flex-col gap-2">
+    <span class="text-sm font-medium">Device</span>
+    <div class="text-xs" style="@TelemetryLayoutStyle.Stats">
+        @foreach (var (label, value) in DeviceFields)
+        {
+            <div class="flex items-center gap-2">
+                <span class="text-muted-foreground">@label</span>
+                <span class="break-all">@(value ?? TelemetryValueFormat.Unknown)</span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetrySessionInfo Info { get; set; }
+    [Parameter, EditorRequired] public required TelemetrySessionSummary Summary { get; set; }
+    [Parameter, EditorRequired] public required long Errors { get; set; }
+    [Parameter, EditorRequired] public required long Marks { get; set; }
+
+    // The closed list of TelemetryDevice, nothing else is kept about a device.
+    private IEnumerable<(string Label, string? Value)> DeviceFields =>
+    [
+        ("Platform", Info.Device.Platform),
+        ("Build", Info.Device.BuildVersion),
+        ("Browser", Info.Device.Browser),
+        ("Browser version", Info.Device.BrowserMajor?.ToString()),
+        ("OS", Info.Device.Os),
+        ("OS version", Info.Device.OsMajor?.ToString()),
+        ("GPU", Info.Device.Gpu),
+        ("Cores", Info.Device.Cores?.ToString()),
+        ("Memory class", Info.Device.MemoryClass?.ToString()),
+        ("Screen", Info.Device is { ScreenWidth: { } width, ScreenHeight: { } height } ? $"{width}x{height}" : null),
+        ("Pixel ratio", Info.Device.Dpr?.ToString())
+    ];
+}

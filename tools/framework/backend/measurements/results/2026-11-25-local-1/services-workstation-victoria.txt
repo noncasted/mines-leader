@@ -1,0 +1,53 @@
+#host omarchy 2026-11-25T07:51:10Z nproc=24 uptime=71468.65
+               total        used        free      shared  buff/cache   available
+Mem:           63383       35407        3895        4292       31995       27976
+Swap:          96150       37967       58183
+#df
+/dev/mapper/root  952G  849G   80G  92% /
+#stats
+meta-measure-2026-11-25-local-1-services-workstation	106.1MiB / 61.9GiB	2.42%
+game-measure-2026-11-25-local-1-services-workstation	89.46MiB / 61.9GiB	2.20%
+console-measure-2026-11-25-local-1-services-workstation	101.5MiB / 61.9GiB	2.36%
+coordinator-measure-2026-11-25-local-1-services-workstation	91.7MiB / 61.9GiB	0.11%
+silo-measure-2026-11-25-local-1-services-workstation	129MiB / 61.9GiB	4.84%
+otlp-measure-2026-11-25-local-1-services-workstation	4.348MiB / 32MiB	1.55%
+pgbouncer-measure-2026-11-25-local-1-services-workstation	8.098MiB / 61.9GiB	0.04%
+victoriatraces-measure-2026-11-25-local-1-services-workstation	26.5MiB / 256MiB	0.27%
+victorialogs-measure-2026-11-25-local-1-services-workstation	20.54MiB / 256MiB	0.02%
+postgres-measure-2026-11-25-local-1-services-workstation	46.89MiB / 61.9GiB	0.28%
+#labels
+/meta-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tbackend-measurements/meta:local\t2026-11-25T07:46:04.195385671Z\t2948218
+/game-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tbackend-measurements/game:local\t2026-11-25T07:46:04.692470185Z\t2948458
+/console-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tbackend-measurements/console:local\t2026-11-25T07:46:04.446149163Z\t2948340
+/coordinator-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tbackend-measurements/coordinator:local\t2026-11-25T07:46:03.260606648Z\t2948058
+/silo-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tbackend-measurements/silo:local\t2026-11-25T07:45:57.250976513Z\t2944849
+/otlp-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tnginx:1.30.8-alpine-slim\t2026-11-25T07:45:46.483692777Z\t2941391
+/pgbouncer-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-25T07:45:47.342645217Z\t2941487
+/victoriatraces-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tvictoriametrics/victoria-traces:v0.13.0\t2026-11-25T07:45:40.247932255Z\t2940155
+/victorialogs-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tvictoriametrics/victoria-logs:v1.54.0\t2026-11-25T07:45:40.778863762Z\t2940401
+/postgres-measure-2026-11-25-local-1-services-workstation\tmeasure-2026-11-25-local-1-services-workstation\tpixel-swarm\t\t\tpostgres:18-alpine\t2026-11-25T07:45:40.53143089Z\t2940277
+#pss
+/meta-measure-2026-11-25-local-1-services-workstation 2948218 199496 137877 56220
+/game-measure-2026-11-25-local-1-services-workstation 2948458 181192 119775 42868
+/console-measure-2026-11-25-local-1-services-workstation 2948340 206188 142784 51712
+/coordinator-measure-2026-11-25-local-1-services-workstation 2948058 181180 121331 45736
+/silo-measure-2026-11-25-local-1-services-workstation 2944849 219204 158542 69752
+/otlp-measure-2026-11-25-local-1-services-workstation 2941391 6520 4771 1660
+/otlp-measure-2026-11-25-local-1-services-workstation 2941421 3496 1905 2148
+/pgbouncer-measure-2026-11-25-local-1-services-workstation 2941487 9656 9298 7560
+/victoriatraces-measure-2026-11-25-local-1-services-workstation 2940155 34660 34648 20588
+/victorialogs-measure-2026-11-25-local-1-services-workstation 2940401 28868 28856 15516
+/postgres-measure-2026-11-25-local-1-services-workstation 2940277 30380 17016 1984
+/postgres-measure-2026-11-25-local-1-services-workstation 2941005 8940 3016 2084
+/postgres-measure-2026-11-25-local-1-services-workstation 2941006 6060 936 2068
+/postgres-measure-2026-11-25-local-1-services-workstation 2941007 5372 665 2044
+/postgres-measure-2026-11-25-local-1-services-workstation 2941008 12204 2970 2188
+/postgres-measure-2026-11-25-local-1-services-workstation 2941009 7036 1093 2056
+/postgres-measure-2026-11-25-local-1-services-workstation 2941011 9732 2402 2060
+/postgres-measure-2026-11-25-local-1-services-workstation 2941012 8712 1443 2364
+/postgres-measure-2026-11-25-local-1-services-workstation 2941013 7884 1260 2328
+/postgres-measure-2026-11-25-local-1-services-workstation 2944506 26200 9133 6216
+/postgres-measure-2026-11-25-local-1-services-workstation 2945080 17388 4261 3772
+/postgres-measure-2026-11-25-local-1-services-workstation 2948327 21892 5896 4136
+/postgres-measure-2026-11-25-local-1-services-workstation 2948574 18668 4663 3920
+/postgres-measure-2026-11-25-local-1-services-workstation 2948594 17628 4091 3464

@@ -1,0 +1,17 @@
+@* The page a game keeps in its console gateway, without the game: theme.css and app.css come from the folder of --console. *@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    <link href="theme.css" rel="stylesheet"/>
+    <link href="_content/BlazorBlueprint.Components/blazorblueprint.css" rel="stylesheet"/>
+    <link href="app.css" rel="stylesheet"/>
+    <HeadOutlet/>
+</head>
+<body class="font-sans antialiased">
+<TelemetryHostRoutes @rendermode="InteractiveServer"/>
+<script src="_framework/blazor.web.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The host of the Coordinator role (a factory of its WebApplication): run alone by Services/Coordinator, next to
+         the other roles by a monolith. -->
+    <PropertyGroup>
+        <AssemblyName>Orchestration.Coordinator</AssemblyName>
+        <RootNamespace>Coordinator</RootNamespace>
+    </PropertyGroup>
+
+    <Import Project="..\Roles.props"/>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Npgsql"/>
+        <PackageReference Include="Npgsql"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\common\framework.common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Extensions\Extensions.csproj" />
+    </ItemGroup>
+
+</Project>

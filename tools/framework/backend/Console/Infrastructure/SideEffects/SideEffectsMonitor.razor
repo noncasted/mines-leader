@@ -1,0 +1,156 @@
+@page "/side-effects"
+@using global::Common.Extensions
+@using global::Internal
+@using global::Infrastructure
+@inherits UiComponent
+
+<PageTitle>Side Effects Monitor</PageTitle>
+<PageHeader Title="Side Effects Monitor"/>
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="grid grid-cols-4 gap-4">
+        <SideEffectsCountTile Icon="inbox" IconBackground="bg-blue-500/15" IconColor="text-blue-400" Title="Queue"
+                              Caption="Pending effects" Value="_aggregate.QueueCount" Known="_aggregate.HasCounts"/>
+        <SideEffectsCountTile Icon="loader" IconBackground="bg-orange-500/15" IconColor="text-orange-400" Title="Processing"
+                              Caption="In-flight effects" Value="_aggregate.ProcessingCount" Known="_aggregate.HasCounts"/>
+        <SideEffectsCountTile Icon="alert-triangle" IconBackground="bg-red-500/15" IconColor="text-red-400" Title="Retry"
+                              Caption="Failed effects awaiting retry" Value="_aggregate.RetryCount" Known="_aggregate.HasCounts"/>
+        <SideEffectsCountTile Icon="skull" IconBackground="bg-purple-500/15" IconColor="text-purple-400" Title="Dead Letter"
+                              Caption="Permanently failed effects" Value="_aggregate.DeadLetterCount" Known="_aggregate.HasCounts" Alarming="true"/>
+    </div>
+
+    <SideEffectsThroughputCard History="_aggregate.AggregatedHistory" MissingServices="_aggregate.MissingServices"/>
+
+    @if (_aggregate.Services.Count > 0)
+    {
+        <div class="flex flex-col gap-3">
+            <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">
+                By Service
+            </h2>
+            <div class="rounded-lg border">
+                <table class="w-full text-sm">
+                    <thead>
+                    <tr class="border-b bg-muted/50">
+                        <th class="h-10 px-4 text-left font-medium text-muted-foreground">Service</th>
+                        <th class="h-10 px-4 text-right font-medium text-muted-foreground">Queue</th>
+                        <th class="h-10 px-4 text-right font-medium text-muted-foreground">Processing</th>
+                        <th class="h-10 px-4 text-right font-medium text-muted-foreground">Retry</th>
+                        <th class="h-10 px-4 text-right font-medium text-muted-foreground">Dead Letter</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var svc in _aggregate.Services)
+                    {
+                        <SideEffectsServiceRow Service="svc"/>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="flex gap-2">
+        <BbButton Variant="ButtonVariant.Secondary" @onclick="RequeueReady" Disabled="_isOperating">
+            <LucideIcon Name="refresh-cw" Size="16" class="mr-2"/>
+            Requeue Ready
+        </BbButton>
+        <BbButton Variant="ButtonVariant.Secondary" @onclick="RequeueStuck" Disabled="_isOperating">
+            <LucideIcon Name="rotate-ccw" Size="16" class="mr-2"/>
+            Requeue Stuck
+        </BbButton>
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">
+            Retry Queue
+            @if (_aggregate.RetryEntries.Count > 0)
+            {
+                <span class="font-normal normal-case tracking-normal ml-2">(@_aggregate.RetryEntries.Count)</span>
+            }
+        </h2>
+
+        <div class="rounded-lg border">
+            <table class="w-full text-sm">
+                <thead>
+                <tr class="border-b bg-muted/50">
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">ID</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Type</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Retries</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Retry After (UTC)</th>
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Created (UTC)</th>
+                    <th class="h-10 px-4 w-24"></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var entry in _aggregate.RetryEntries)
+                {
+                    <SideEffectsRetryRow Entry="entry" Disabled="_isOperating"
+                                         OnRequeue="() => RequeueEntry(entry.Id)"
+                                         OnDrop="() => DropEntry(entry.Id)"/>
+                }
+                @if (_aggregate.RetryEntries.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">No entries in retry queue</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    [Inject] private ISideEffectsAggregator Aggregator { get; set; } = null!;
+    [Inject] private ISideEffectsStorage Storage { get; set; } = null!;
+    [Inject] private ISideEffectsConfig Config { get; set; } = null!;
+    [Inject] private ToastService ToastService { get; set; } = null!;
+
+    private SideEffectsAggregate _aggregate = new();
+    private bool _isOperating;
+
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        // View: the page shows the last aggregate at once, not after the next collect.
+        Aggregator.Aggregate.View(lifetime, value =>
+        {
+            _aggregate = value;
+            InvokeAsync(StateHasChanged).NoAwait();
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private Task RequeueReady() => Operate(() => Storage.RequeueReady(), "Ready entries requeued", "Requeue ready");
+
+    // The same threshold as the workers: an entry its live worker still touches is not taken away from it.
+    private Task RequeueStuck() => Operate(
+        () => Storage.RequeueStuckOlderThan(TimeSpan.FromMinutes(Config.Value.StuckThresholdMinutes)),
+        "Stuck entries requeued",
+        "Requeue stuck");
+
+    private Task RequeueEntry(Guid id) => Operate(() => Storage.RequeueRetryEntry(id), "Entry requeued", "Requeue entry");
+
+    private Task DropEntry(Guid id) => Operate(() => Storage.DropRetryEntry(id), "Entry dropped", "Drop entry");
+
+    private async Task Operate(Func<Task> operation, string done, string name)
+    {
+        _isOperating = true;
+
+        try
+        {
+            await operation();
+            ToastService.Success(done, "Done");
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"{name} failed: {ex.Message}", "Error");
+        }
+        finally
+        {
+            _isOperating = false;
+        }
+    }
+}

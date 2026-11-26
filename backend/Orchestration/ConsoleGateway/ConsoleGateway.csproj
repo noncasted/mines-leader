@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <!-- The host of the ConsoleGateway role (a factory of its WebApplication): run alone by Services/ConsoleGateway,
+         next to the other roles by a monolith. -->
+    <PropertyGroup>
+        <AssemblyName>Orchestration.ConsoleGateway</AssemblyName>
+        <RootNamespace>ConsoleGateway</RootNamespace>
+        <!-- The UI and its wwwroot are served from the root ("css/app.css"), not from _content/<assembly>: the same
+             paths in the separate service and in a monolith. -->
+        <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    </PropertyGroup>
+
+    <Import Project="..\Roles.props"/>
+
+    <ItemGroup>
+        <!-- The mcr.microsoft.com/dotnet/sdk image does not auto-restore
+             Microsoft.AspNetCore.App.Internal.Assets, which is the package that
+             actually contains _framework/blazor.web.js. Without an explicit
+             reference the publish output ends up missing the Blazor framework
+             JS and the admin console 404s on its own bootstrap script. -->
+        <PackageReference Include="Microsoft.AspNetCore.App.Internal.Assets"/>
+        <PackageReference Include="BlazorBlueprint.Components"/>
+        <PackageReference Include="BlazorBlueprint.Primitives"/>
+        <PackageReference Include="BlazorBlueprint.Icons.Lucide"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\..\Console\Console.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Console\Console.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
+        <ProjectReference Include="..\..\Tools\Benchmarks\Benchmarks.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\ClientTelemetry\ClientTelemetry.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\MatchMetrics\MatchMetrics.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\common\framework.common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
+    </ItemGroup>
+
+</Project>

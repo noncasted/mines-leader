@@ -1,0 +1,42 @@
+using System;
+using MemoryPack;
+
+namespace Shared
+{
+    // The answer to a request that failed on the other side: the handler threw, there is no handler for its type, or
+    // the session refused it. Message names the request and the failure in short, without a stack trace (the stack
+    // is in the log of the side that failed). The side that sent the request turns it into NetworkRequestException.
+    // A request refused by the rules of the game is not an error of the request: it is answered with
+    // EmptyResponse.Fail.
+    [MemoryPackable]
+    public partial class ErrorResponse : INetworkContext
+    {
+        public ErrorCode Code { get; set; }
+        public string Message { get; set; }
+
+        public static ErrorResponse Create(ErrorCode code, INetworkContext request, Exception exception)
+        {
+            return new ErrorResponse
+            {
+                Code = code,
+                Message = $"{Describe(request)}: {exception.GetType().Name}: {exception.Message}"
+            };
+        }
+
+        public static ErrorResponse UnknownCommand(INetworkContext request)
+        {
+            return new ErrorResponse
+            {
+                Code = ErrorCode.UnknownCommand,
+                Message = $"{Describe(request)}: no command for this request"
+            };
+        }
+
+        // Contexts are nested types with bare names ("Request"): the owner says which request it was.
+        public static string Describe(INetworkContext context)
+        {
+            var type = context.GetType();
+            return type.DeclaringType == null ? type.Name : $"{type.DeclaringType.Name}.{type.Name}";
+        }
+    }
+}

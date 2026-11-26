@@ -1,0 +1,14 @@
+@using Game.ClientTelemetry
+
+@* The sessions whose client reported this one as its previous session that did not close: the client did not end it itself. *@
+<div class="rounded-lg border px-4 py-2 flex items-center gap-2 text-xs" style="@TelemetryLayoutStyle.Wrap">
+    <span class="font-medium">The client did not close this session, as its next one reports:</span>
+    @foreach (var session in Next)
+    {
+        <a class="underline break-all" href="@ConsoleConstants.Pages.ClientTelemetrySession(session.Id)">@session.Id</a>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required IReadOnlyList<TelemetrySessionInfo> Next { get; set; }
+}

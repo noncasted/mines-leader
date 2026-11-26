@@ -1,0 +1,48 @@
+#host omarchy 2026-11-25T08:36:42Z nproc=24 uptime=74200.55
+               total        used        free      shared  buff/cache   available
+Mem:           63383       35558        9151        1624       23918       27824
+Swap:          96150       42824       53326
+#df
+/dev/mapper/root  952G  851G   77G  92% /
+#stats
+meta-measure-2026-11-25-local-aspire-services-server	112.3MiB / 61.9GiB	2.74%
+console-measure-2026-11-25-local-aspire-services-server	111.5MiB / 61.9GiB	0.24%
+game-measure-2026-11-25-local-aspire-services-server	103.8MiB / 61.9GiB	2.39%
+coordinator-measure-2026-11-25-local-aspire-services-server	89.71MiB / 61.9GiB	0.73%
+silo-measure-2026-11-25-local-aspire-services-server	148.3MiB / 61.9GiB	3.13%
+pgbouncer-measure-2026-11-25-local-aspire-services-server	8.844MiB / 61.9GiB	0.05%
+postgres-measure-2026-11-25-local-aspire-services-server	54.25MiB / 61.9GiB	0.37%
+aspire-dashboard-measure-2026-11-25-local-aspire-services-server	119.1MiB / 61.9GiB	0.28%
+#labels
+/meta-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tbackend-measurements/meta:local\t2026-11-25T08:31:27.514338933Z\t3683446
+/console-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tbackend-measurements/console:local\t2026-11-25T08:31:27.171776099Z\t3683327
+/game-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tbackend-measurements/game:local\t2026-11-25T08:31:27.99875311Z\t3683558
+/coordinator-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tbackend-measurements/coordinator:local\t2026-11-25T08:31:31.802866349Z\t3684110
+/silo-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tbackend-measurements/silo:local\t2026-11-25T08:31:29.967260412Z\t3683830
+/pgbouncer-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-25T08:31:11.230677214Z\t3681088
+/postgres-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tpostgres:18-alpine\t2026-11-25T08:31:06.541145953Z\t3680530
+/aspire-dashboard-measure-2026-11-25-local-aspire-services-server\tmeasure-2026-11-25-local-aspire-services-server\tpixel-swarm\t\t\tmcr.microsoft.com/dotnet/aspire-dashboard:13.6\t2026-11-25T08:31:06.3657402Z\t3680408
+#pss
+/meta-measure-2026-11-25-local-aspire-services-server 3683446 205552 141568 57028
+/console-measure-2026-11-25-local-aspire-services-server 3683327 209628 144635 59856
+/game-measure-2026-11-25-local-aspire-services-server 3683558 195256 132099 52796
+/coordinator-measure-2026-11-25-local-aspire-services-server 3684110 179752 119261 42784
+/silo-measure-2026-11-25-local-aspire-services-server 3683830 241920 180078 87984
+/pgbouncer-measure-2026-11-25-local-aspire-services-server 3681088 9540 9180 7556
+/postgres-measure-2026-11-25-local-aspire-services-server 3680530 30276 16341 1984
+/postgres-measure-2026-11-25-local-aspire-services-server 3680815 8740 2957 2084
+/postgres-measure-2026-11-25-local-aspire-services-server 3680816 5796 861 2068
+/postgres-measure-2026-11-25-local-aspire-services-server 3680817 5108 611 2044
+/postgres-measure-2026-11-25-local-aspire-services-server 3680818 12104 2632 2188
+/postgres-measure-2026-11-25-local-aspire-services-server 3680819 6856 1021 2056
+/postgres-measure-2026-11-25-local-aspire-services-server 3680821 9660 2357 2060
+/postgres-measure-2026-11-25-local-aspire-services-server 3680822 8428 1310 2364
+/postgres-measure-2026-11-25-local-aspire-services-server 3680823 7616 1152 2328
+/postgres-measure-2026-11-25-local-aspire-services-server 3681918 23960 6335 5020
+/postgres-measure-2026-11-25-local-aspire-services-server 3682224 21080 5492 4896
+/postgres-measure-2026-11-25-local-aspire-services-server 3683405 21260 4720 4056
+/postgres-measure-2026-11-25-local-aspire-services-server 3683593 18840 4116 3892
+/postgres-measure-2026-11-25-local-aspire-services-server 3683660 21456 5057 4396
+/postgres-measure-2026-11-25-local-aspire-services-server 3683711 22636 5769 4872
+/postgres-measure-2026-11-25-local-aspire-services-server 3687148 20508 4401 3800
+/aspire-dashboard-measure-2026-11-25-local-aspire-services-server 3680408 145752 145740 94236

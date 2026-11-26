@@ -1,0 +1,202 @@
+#host vps-bf8f6dbe 2026-11-25T07:38:16Z nproc=6 uptime=12042651.57
+               total        used        free      shared  buff/cache   available
+Mem:           11676        3775        2107         779        6922        7900
+Swap:          16383         707       15676
+#df
+/dev/sda1        96G   48G   49G  50% /
+#stats
+backend-c4b3aasq8hoikkbzgloa5ccd-20261125T072614	160.2MiB / 11.4GiB	11.06%
+pgbouncer-c4b3aasq8hoikkbzgloa5ccd-20261125T072614	7.801MiB / 11.4GiB	0.17%
+game-f8yz0we2icjsm7edti3g9zp7-20261125T053928	178MiB / 11.4GiB	4.26%
+meta-f8yz0we2icjsm7edti3g9zp7-20261125T053928	189.4MiB / 11.4GiB	4.35%
+console-f8yz0we2icjsm7edti3g9zp7-20261125T053928	212.4MiB / 11.4GiB	0.35%
+coordinator-f8yz0we2icjsm7edti3g9zp7-20261125T053928	177.3MiB / 11.4GiB	0.39%
+silo-f8yz0we2icjsm7edti3g9zp7-20261125T053928	194.7MiB / 11.4GiB	5.65%
+pgbouncer-f8yz0we2icjsm7edti3g9zp7-20261125T053928	7.895MiB / 11.4GiB	0.15%
+aspire-dashboard-f8yz0we2icjsm7edti3g9zp7-20261125T053928	111.1MiB / 11.4GiB	0.08%
+otlp-oukejx1fbca7wtmycipf9rjt-20261125T051923	3.426MiB / 32MiB	0.00%
+victorialogs-oukejx1fbca7wtmycipf9rjt-20261125T051923	11.1MiB / 256MiB	0.06%
+victoriatraces-oukejx1fbca7wtmycipf9rjt-20261125T051923	28.38MiB / 256MiB	0.16%
+coolify	272.3MiB / 11.4GiB	0.51%
+coolify-db	58.5MiB / 11.4GiB	3.36%
+coolify-redis	5.441MiB / 11.4GiB	0.77%
+web-rp57atznu171qtglsuupajin	2.305MiB / 11.4GiB	0.00%
+meta-cnbvs6gaztztw7hrt9omywvh-20261117T103711	98.29MiB / 11.4GiB	4.51%
+console-cnbvs6gaztztw7hrt9omywvh-20261117T103711	98.19MiB / 11.4GiB	4.99%
+coordinator-cnbvs6gaztztw7hrt9omywvh-20261117T103710	87.21MiB / 11.4GiB	3.99%
+silo-cnbvs6gaztztw7hrt9omywvh-20261117T103710	126MiB / 11.4GiB	5.44%
+pgbouncer-cnbvs6gaztztw7hrt9omywvh-20261117T103710	2.242MiB / 11.4GiB	0.14%
+aspire-dashboard-cnbvs6gaztztw7hrt9omywvh-20261117T103711	65.77MiB / 11.4GiB	0.05%
+web-kxbnp6f7sld3gppbj6ik7as0	2.555MiB / 11.4GiB	0.00%
+vp7mmjzon4ko5gxhx0ntzt2m	25.49MiB / 11.4GiB	0.49%
+vjgu3p4ptf5bxxs7di7f8sw1	67.87MiB / 11.4GiB	0.48%
+coolify-sentinel	18.51MiB / 11.4GiB	0.04%
+w14436sq0m5kp47dadhs533f-proxy	2.203MiB / 11.4GiB	2.70%
+amnezia-awg2	64.71MiB / 11.4GiB	1.97%
+w14436sq0m5kp47dadhs533f	95.29MiB / 11.4GiB	0.60%
+coolify-proxy	54.04MiB / 11.4GiB	4.27%
+amnezia-xray	10.86MiB / 11.4GiB	0.00%
+#labels
+/backend-c4b3aasq8hoikkbzgloa5ccd-20261125T072614\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tpixel-swarm/monolith:latest\t2026-11-25T07:28:34.105197749Z\t343106
+/pgbouncer-c4b3aasq8hoikkbzgloa5ccd-20261125T072614\tc4b3aasq8hoikkbzgloa5ccd\tpixel-swarm\tbackend\tbackend\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-25T07:28:27.134858066Z\t341864
+/game-f8yz0we2icjsm7edti3g9zp7-20261125T053928\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/game:latest\t2026-11-25T05:41:56.695961293Z\t3337465
+/meta-f8yz0we2icjsm7edti3g9zp7-20261125T053928\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/meta:latest\t2026-11-25T05:41:57.029532869Z\t3337565
+/console-f8yz0we2icjsm7edti3g9zp7-20261125T053928\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/console:latest\t2026-11-25T05:41:56.459894668Z\t3337370
+/coordinator-f8yz0we2icjsm7edti3g9zp7-20261125T053928\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/coordinator:latest\t2026-11-25T05:41:55.720143679Z\t3337137
+/silo-f8yz0we2icjsm7edti3g9zp7-20261125T053928\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmines-leader/silo:latest\t2026-11-25T05:41:49.961789571Z\t3336126
+/pgbouncer-f8yz0we2icjsm7edti3g9zp7-20261125T053928\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tedoburu/pgbouncer:v1.26.0-p0\t2026-11-25T05:41:43.004860535Z\t3334701
+/aspire-dashboard-f8yz0we2icjsm7edti3g9zp7-20261125T053928\tf8yz0we2icjsm7edti3g9zp7\tminesleader\tbackend\tbackend\tmcr.microsoft.com/dotnet/aspire-dashboard:13.5\t2026-11-25T05:41:43.21977142Z\t3334810
+/otlp-oukejx1fbca7wtmycipf9rjt-20261125T051923\toukejx1fbca7wtmycipf9rjt\tobservability\tobservability\tobservability\tnginx:1.30.8-alpine-slim\t2026-11-25T05:19:34.542535193Z\t3063893
+/victorialogs-oukejx1fbca7wtmycipf9rjt-20261125T051923\toukejx1fbca7wtmycipf9rjt\tobservability\tobservability\tobservability\tvictoriametrics/victoria-logs:v1.54.0\t2026-11-25T05:19:28.726315026Z\t3062572
+/victoriatraces-oukejx1fbca7wtmycipf9rjt-20261125T051923\toukejx1fbca7wtmycipf9rjt\tobservability\tobservability\tobservability\tvictoriametrics/victoria-traces:v0.13.0\t2026-11-25T05:19:28.466763945Z\t3062459
+/coolify\tsource\t\t\t\tdocker.io/coollabsio/coolify:4.7.6\t2026-11-20T01:20:15.721770186Z\t466095
+/coolify-db\tsource\t\t\t\tpostgres:15-alpine\t2026-11-20T01:20:09.842037603Z\t464859
+/coolify-redis\tsource\t\t\t\tredis:7-alpine\t2026-11-20T01:20:10.014646088Z\t464941
+/web-rp57atznu171qtglsuupajin\trp57atznu171qtglsuupajin\tminesleader\tweb\tclient\tnginx:1.27-alpine\t2026-11-17T15:26:04.059676998Z\t1996213
+/meta-cnbvs6gaztztw7hrt9omywvh-20261117T103711\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/meta:latest\t2026-11-17T10:41:30.841418299Z\t2838575
+/console-cnbvs6gaztztw7hrt9omywvh-20261117T103711\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/console:latest\t2026-11-17T10:41:30.615446551Z\t2838481
+/coordinator-cnbvs6gaztztw7hrt9omywvh-20261117T103710\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/coordinator:latest\t2026-11-17T10:41:29.877514168Z\t2838346
+/silo-cnbvs6gaztztw7hrt9omywvh-20261117T103710\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tautobattler/silo:latest\t2026-11-17T10:41:02.527255054Z\t2834274
+/pgbouncer-cnbvs6gaztztw7hrt9omywvh-20261117T103710\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-17T10:40:55.226279074Z\t2833339
+/aspire-dashboard-cnbvs6gaztztw7hrt9omywvh-20261117T103711\tcnbvs6gaztztw7hrt9omywvh\tautobattler\tbackend\tbackend\tmcr.microsoft.com/dotnet/aspire-dashboard:13.6\t2026-11-17T10:40:54.990758638Z\t2833211
+/web-kxbnp6f7sld3gppbj6ik7as0\tkxbnp6f7sld3gppbj6ik7as0\tpixel-swarm\tweb\tclient\tnginx:1.27-alpine\t2026-11-17T10:36:53.62312912Z\t2799941
+/vp7mmjzon4ko5gxhx0ntzt2m\tvp7mmjzon4ko5gxhx0ntzt2m\tautobattler\tpostgres\tpostgres\tpostgres:17-alpine\t2026-11-17T10:33:09.213497773Z\t2779014
+/vjgu3p4ptf5bxxs7di7f8sw1\tvjgu3p4ptf5bxxs7di7f8sw1\tpixel-swarm\tpostgres\tpostgres\tpostgres:18-alpine\t2026-11-17T10:33:06.393230689Z\t2778512
+/coolify-sentinel\t\t\t\t\tdocker.io/coollabsio/sentinel:1.1.5\t2026-11-09T12:43:22.935672972Z\t3183269
+/w14436sq0m5kp47dadhs533f-proxy\tproxy\t\t\t\tnginx:stable-alpine\t2026-11-04T08:19:24.049162766Z\t2718633
+/amnezia-awg2\t\t\t\t\tamnezia-awg2\t2026-08-26T06:14:05.990672108Z\t197233
+/w14436sq0m5kp47dadhs533f\tw14436sq0m5kp47dadhs533f\tminesleader\tpostgres\tpostgres\tpostgres:18-alpine\t2026-07-08T22:27:35.759822339Z\t2462
+/coolify-proxy\tcoolify-proxy\t\t\t\ttraefik:v3.6\t2026-07-08T22:27:35.789801895Z\t2470
+/amnezia-xray\t\t\t\t\tamnezia-xray\t2026-07-08T22:27:35.774033817Z\t2429
+#pss
+/backend-c4b3aasq8hoikkbzgloa5ccd-20261125T072614 343106 267484 197769 89300
+/pgbouncer-c4b3aasq8hoikkbzgloa5ccd-20261125T072614 341864 9580 8369 7560
+/game-f8yz0we2icjsm7edti3g9zp7-20261125T053928 3337465 269908 206310 125552
+/meta-f8yz0we2icjsm7edti3g9zp7-20261125T053928 3337565 282136 217908 133828
+/console-f8yz0we2icjsm7edti3g9zp7-20261125T053928 3337370 314584 244796 155956
+/coordinator-f8yz0we2icjsm7edti3g9zp7-20261125T053928 3337137 267940 205459 123672
+/silo-f8yz0we2icjsm7edti3g9zp7-20261125T053928 3336126 286948 224131 132024
+/pgbouncer-f8yz0we2icjsm7edti3g9zp7-20261125T053928 3334701 9768 8721 7600
+/aspire-dashboard-f8yz0we2icjsm7edti3g9zp7-20261125T053928 3334810 185776 175224 81108
+/otlp-oukejx1fbca7wtmycipf9rjt-20261125T051923 3063893 2580 1140 1668
+/otlp-oukejx1fbca7wtmycipf9rjt-20261125T051923 3063957 3104 1817 2148
+/victorialogs-oukejx1fbca7wtmycipf9rjt-20261125T051923 3062572 20540 20536 6444
+/victoriatraces-oukejx1fbca7wtmycipf9rjt-20261125T051923 3062459 38888 38884 24396
+/coolify 466095 80 72 24
+/coolify 466391 8 4 4
+/coolify 466393 56 48 4
+/coolify 466403 8 4 4
+/coolify 466404 8 4 4
+/coolify 466405 8 4 4
+/coolify 466406 8 4 4
+/coolify 466407 8 4 4
+/coolify 466408 8 4 4
+/coolify 466409 8 4 4
+/coolify 466410 8 4 4
+/coolify 466417 8 4 4
+/coolify 466444 17872 2456 1500
+/coolify 466777 4404 490 240
+/coolify 466785 1604 364 456
+/coolify 466786 1608 368 460
+/coolify 466787 1620 374 460
+/coolify 466788 1612 372 464
+/coolify 466789 1608 368 460
+/coolify 466790 1652 406 460
+/coolify 468113 35804 35121 9148
+/coolify 468114 22460 8901 2356
+/coolify 468116 36148 22520 7880
+/coolify 468117 25336 11789 3412
+/coolify 468447 35412 21777 8060
+/coolify 1465825 64648 10811 5752
+/coolify 2155284 63464 10276 5552
+/coolify 2874512 61052 10185 5376
+/coolify 4115164 68412 12519 6828
+/coolify 23130 3268 1814 1160
+/coolify 380432 65736 11474 5700
+/coolify 4077641 60912 9702 5468
+/coolify 4171405 66932 13189 6192
+/coolify 390049 73236 15710 7092
+/coolify 390388 63328 10454 5616
+/coolify 3361014 60264 10086 5520
+/coolify 435873 80356 66577 23536
+/coolify-db 464859 19928 8534 844
+/coolify-db 464947 45144 36296 940
+/coolify-db 464948 10096 2180 828
+/coolify-db 464950 8380 1597 796
+/coolify-db 464951 6644 1312 892
+/coolify-db 464952 5920 1065 864
+/coolify-db 435975 16020 8628 2448
+/coolify-redis 464941 8108 8104 4580
+/web-rp57atznu171qtglsuupajin 1996213 1456 298 228
+/web-rp57atznu171qtglsuupajin 1996278 1256 246 372
+/web-rp57atznu171qtglsuupajin 1996279 1256 246 372
+/web-rp57atznu171qtglsuupajin 1996280 1260 250 376
+/web-rp57atznu171qtglsuupajin 1996281 1268 258 384
+/web-rp57atznu171qtglsuupajin 1996282 1256 246 372
+/web-rp57atznu171qtglsuupajin 1996283 1260 250 376
+/meta-cnbvs6gaztztw7hrt9omywvh-20261117T103711 2838575 137788 106815 68740
+/console-cnbvs6gaztztw7hrt9omywvh-20261117T103711 2838481 144272 111491 69768
+/coordinator-cnbvs6gaztztw7hrt9omywvh-20261117T103710 2838346 125792 95589 60576
+/silo-cnbvs6gaztztw7hrt9omywvh-20261117T103710 2834274 161672 131124 84780
+/pgbouncer-cnbvs6gaztztw7hrt9omywvh-20261117T103710 2833339 3040 1821 1048
+/aspire-dashboard-cnbvs6gaztztw7hrt9omywvh-20261117T103711 2833211 94664 94660 41788
+/web-kxbnp6f7sld3gppbj6ik7as0 2799941 1460 293 184
+/web-kxbnp6f7sld3gppbj6ik7as0 2800098 1212 233 320
+/web-kxbnp6f7sld3gppbj6ik7as0 2800099 1232 253 340
+/web-kxbnp6f7sld3gppbj6ik7as0 2800100 1248 269 316
+/web-kxbnp6f7sld3gppbj6ik7as0 2800101 1216 237 324
+/web-kxbnp6f7sld3gppbj6ik7as0 2800103 1232 253 340
+/web-kxbnp6f7sld3gppbj6ik7as0 2800104 1216 237 324
+/vp7mmjzon4ko5gxhx0ntzt2m 2779014 19720 7129 424
+/vp7mmjzon4ko5gxhx0ntzt2m 2779299 12644 3356 452
+/vp7mmjzon4ko5gxhx0ntzt2m 2779300 9560 1787 364
+/vp7mmjzon4ko5gxhx0ntzt2m 2779302 7760 1275 344
+/vp7mmjzon4ko5gxhx0ntzt2m 2779303 6304 1117 492
+/vp7mmjzon4ko5gxhx0ntzt2m 2779304 5508 871 448
+/vp7mmjzon4ko5gxhx0ntzt2m 12757 20352 7328 2540
+/vp7mmjzon4ko5gxhx0ntzt2m 105307 19776 7050 2364
+/vjgu3p4ptf5bxxs7di7f8sw1 2778512 19312 5966 360
+/vjgu3p4ptf5bxxs7di7f8sw1 2778817 4436 378 340
+/vjgu3p4ptf5bxxs7di7f8sw1 2778818 3380 186 272
+/vjgu3p4ptf5bxxs7di7f8sw1 2778819 3792 222 272
+/vjgu3p4ptf5bxxs7di7f8sw1 2778820 27248 14130 496
+/vjgu3p4ptf5bxxs7di7f8sw1 2778821 9764 1451 360
+/vjgu3p4ptf5bxxs7di7f8sw1 2778823 7988 1080 364
+/vjgu3p4ptf5bxxs7di7f8sw1 2778824 6532 756 504
+/vjgu3p4ptf5bxxs7di7f8sw1 2778825 5748 600 444
+/vjgu3p4ptf5bxxs7di7f8sw1 342945 25076 7044 3828
+/vjgu3p4ptf5bxxs7di7f8sw1 343704 21720 5457 2892
+/vjgu3p4ptf5bxxs7di7f8sw1 343730 21848 5346 2852
+/vjgu3p4ptf5bxxs7di7f8sw1 343731 19168 4677 2704
+/vjgu3p4ptf5bxxs7di7f8sw1 343732 34296 12793 3932
+/vjgu3p4ptf5bxxs7di7f8sw1 343925 11308 2395 1684
+/coolify-sentinel 3183269 12620 12616 8104
+/w14436sq0m5kp47dadhs533f-proxy 2718633 3288 2670 44
+/w14436sq0m5kp47dadhs533f-proxy 2718732 1020 326 212
+/w14436sq0m5kp47dadhs533f-proxy 2718733 884 266 204
+/w14436sq0m5kp47dadhs533f-proxy 2718734 900 282 220
+/w14436sq0m5kp47dadhs533f-proxy 2718735 960 296 212
+/w14436sq0m5kp47dadhs533f-proxy 2718736 1012 318 204
+/w14436sq0m5kp47dadhs533f-proxy 2718737 896 278 216
+/amnezia-awg2 197233 4 4 4
+/amnezia-awg2 197273 48 14 4
+/amnezia-awg2 197274 72 34 20
+/amnezia-awg2 198151 48 14 4
+/amnezia-awg2 198182 65716 65712 63276
+/amnezia-awg2 198216 76 38 24
+/w14436sq0m5kp47dadhs533f 2462 19348 6690 368
+/w14436sq0m5kp47dadhs533f 3164 29412 6192 340
+/w14436sq0m5kp47dadhs533f 3169 25752 5105 336
+/w14436sq0m5kp47dadhs533f 3170 25188 4950 336
+/w14436sq0m5kp47dadhs533f 3171 41592 9411 480
+/w14436sq0m5kp47dadhs533f 3172 39680 8088 356
+/w14436sq0m5kp47dadhs533f 3405 8012 1107 356
+/w14436sq0m5kp47dadhs533f 3406 6424 1017 476
+/w14436sq0m5kp47dadhs533f 3408 5524 785 444
+/w14436sq0m5kp47dadhs533f 4085762 32632 7873 2556
+/w14436sq0m5kp47dadhs533f 4140286 34256 8401 2748
+/w14436sq0m5kp47dadhs533f 181572 32072 7742 2516
+/coolify-proxy 2470 82672 82668 32188
+/amnezia-xray 2429 4 4 4
+/amnezia-xray 2960 8 4 4
+/amnezia-xray 3004 8656 8652 5864

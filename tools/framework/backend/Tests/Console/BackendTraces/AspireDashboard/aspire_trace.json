@@ -1,0 +1,171 @@
+{
+ "data": {
+  "resourceSpans": [
+   {
+    "scopeSpans": [
+     {
+      "scope": {
+       "name": "MetaGateway.Connection"
+      },
+      "spans": [
+       {
+        "traceId": "1f3d84b522c4413c10965c00928b3fee",
+        "spanId": "30751cd7aa06e015",
+        "name": "Meta connect",
+        "kind": 2,
+        "startTimeUnixNano": "1794927106092282300",
+        "endTimeUnixNano": "1794927106648181600",
+        "links": [
+         {
+          "traceId": "0a9d3fa7fc86d24739d6dad448a47faa",
+          "spanId": "db9ce5ba4546b546",
+          "traceState": ""
+         }
+        ]
+       },
+       {
+        "traceId": "1f3d84b522c4413c10965c00928b3fee",
+        "spanId": "30cb93fa92590191",
+        "parentSpanId": "30751cd7aa06e015",
+        "name": "Meta read request",
+        "kind": 1,
+        "startTimeUnixNano": "1794927106094302200",
+        "endTimeUnixNano": "1794927106113165400"
+       },
+       {
+        "traceId": "1f3d84b522c4413c10965c00928b3fee",
+        "spanId": "39ca646731c14b67",
+        "parentSpanId": "30751cd7aa06e015",
+        "name": "Meta auth",
+        "kind": 1,
+        "startTimeUnixNano": "1794927106113453700",
+        "endTimeUnixNano": "1794927106436174200",
+        "attributes": [
+         {
+          "key": "meta.auth.guest",
+          "value": {
+           "stringValue": "new"
+          }
+         },
+         {
+          "key": "meta.auth.status",
+          "value": {
+           "stringValue": "Ok"
+          }
+         }
+        ]
+       },
+       {
+        "traceId": "1f3d84b522c4413c10965c00928b3fee",
+        "spanId": "c5af7a01d5e08ab1",
+        "parentSpanId": "30751cd7aa06e015",
+        "name": "Meta send response",
+        "kind": 1,
+        "startTimeUnixNano": "1794927106436643400",
+        "endTimeUnixNano": "1794927106445803300"
+       },
+       {
+        "traceId": "1f3d84b522c4413c10965c00928b3fee",
+        "spanId": "b5186dbc66a40974",
+        "parentSpanId": "30751cd7aa06e015",
+        "name": "Meta projections",
+        "kind": 1,
+        "startTimeUnixNano": "1794927106447134200",
+        "endTimeUnixNano": "1794927106648105700"
+       }
+      ]
+     },
+     {
+      "scope": {
+       "name": "Infrastructure.Transactions"
+      },
+      "spans": [
+       {
+        "traceId": "1f3d84b522c4413c10965c00928b3fee",
+        "spanId": "177723020db16b50",
+        "parentSpanId": "39ca646731c14b67",
+        "name": "Transaction.Process",
+        "kind": 1,
+        "startTimeUnixNano": "1794927106116483700",
+        "endTimeUnixNano": "1794927106434985500",
+        "attributes": [
+         {
+          "key": "transaction.id",
+          "value": {
+           "stringValue": "f07021c4-7dcc-4992-b2e5-c99f1e8c8284"
+          }
+         },
+         {
+          "key": "participant.count",
+          "value": {
+           "stringValue": "7"
+          }
+         }
+        ]
+       },
+       {
+        "traceId": "1f3d84b522c4413c10965c00928b3fee",
+        "spanId": "56822745959424cf",
+        "parentSpanId": "b5186dbc66a40974",
+        "name": "Transaction.Process",
+        "kind": 1,
+        "startTimeUnixNano": "1794927106541254500",
+        "endTimeUnixNano": "1794927106545322100",
+        "attributes": [
+         {
+          "key": "transaction.id",
+          "value": {
+           "stringValue": "c7783eba-e336-4f13-9614-4b4e3fdeccd9"
+          }
+         },
+         {
+          "key": "participant.count",
+          "value": {
+           "stringValue": "6"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "resource": {
+     "attributes": [
+      {
+       "key": "service.name",
+       "value": {
+        "stringValue": "meta"
+       }
+      },
+      {
+       "key": "service.instance.id",
+       "value": {
+        "stringValue": "htgmrygq"
+       }
+      },
+      {
+       "key": "telemetry.sdk.language",
+       "value": {
+        "stringValue": "dotnet"
+       }
+      },
+      {
+       "key": "telemetry.sdk.name",
+       "value": {
+        "stringValue": "opentelemetry"
+       }
+      },
+      {
+       "key": "telemetry.sdk.version",
+       "value": {
+        "stringValue": "1.20.1"
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "totalCount": 7,
+ "returnedCount": 7
+}

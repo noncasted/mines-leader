@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Infrastructure</AssemblyName>
+        <RootNamespace>Infrastructure</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+        <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Npgsql"/>
+        <PackageReference Include="Marten"/>
+        <PackageReference Include="Marten.Newtonsoft"/>
+        <PackageReference Include="Microsoft.Diagnostics.Runtime"/>
+    </ItemGroup>
+
+    <!-- The OpenTelemetry defaults of the hosts (Telemetry/): instrumentation and the OTLP exporter. -->
+    <ItemGroup>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\common\framework.common.csproj"/>
+        <ProjectReference Include="..\Common\Common.csproj"/>
+    </ItemGroup>
+
+</Project>

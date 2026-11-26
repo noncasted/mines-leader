@@ -1,0 +1,65 @@
+#host noncasted.hlab.kz 2026-11-25T07:36:30Z nproc=4 uptime=2559591.36
+               total        used        free      shared  buff/cache   available
+Mem:            7837        4830         530         585        3379        3006
+Swap:          16383        5722       10661
+#df
+/dev/vda3        79G   44G   32G  58% /
+#stats
+coolify	204.5MiB / 7.654GiB	4.36%
+coolify-db	38.02MiB / 7.654GiB	2.27%
+coolify-redis	8.746MiB / 7.654GiB	0.57%
+coolify-sentinel	38.75MiB / 7.654GiB	0.09%
+coolify-proxy-error-pages	392KiB / 7.654GiB	0.00%
+coolify-proxy-logrotate	628KiB / 7.654GiB	0.00%
+coolify-proxy	77.95MiB / 7.654GiB	2.00%
+#labels
+/coolify\tsource\t\t\t\tdocker.io/coollabsio/coolify:4.7.6\t2026-11-20T01:24:28.650917179Z\t954646
+/coolify-db\tsource\t\t\t\tpostgres:15-alpine\t2026-11-20T01:24:22.77123561Z\t953347
+/coolify-redis\tsource\t\t\t\tredis:7-alpine\t2026-11-20T01:24:22.941634023Z\t953460
+/coolify-sentinel\t\t\t\t\tdocker.io/coollabsio/sentinel:1.1.5\t2026-11-09T12:42:53.081836049Z\t3370043
+/coolify-proxy-error-pages\t\t\t\t\tbusybox:musl\t2026-11-04T08:20:15.730124809Z\t1356833
+/coolify-proxy-logrotate\tcoolify-proxy\t\t\t\talpine:3.24\t2026-11-04T08:20:05.323825366Z\t1353266
+/coolify-proxy\tcoolify-proxy\t\t\t\ttraefik:v3.6\t2026-11-04T08:20:05.324496742Z\t1353273
+#pss
+/coolify 954646 80 72 24
+/coolify 954970 8 4 4
+/coolify 954974 8 4 4
+/coolify 954982 8 4 4
+/coolify 954983 8 4 4
+/coolify 954984 8 4 4
+/coolify 954985 8 4 4
+/coolify 954986 8 4 4
+/coolify 954987 8 4 4
+/coolify 954988 8 4 4
+/coolify 954989 8 4 4
+/coolify 954996 8 4 4
+/coolify 955023 16784 2871 1152
+/coolify 955034 61376 21665 6320
+/coolify 955295 4132 492 208
+/coolify 955299 1484 397 424
+/coolify 955300 1488 401 428
+/coolify 955301 1488 401 428
+/coolify 955302 1492 405 432
+/coolify 955846 56640 18242 5456
+/coolify 956791 17188 16541 6444
+/coolify 956792 27540 14196 4508
+/coolify 956793 18008 4772 1044
+/coolify 956794 18748 5637 1348
+/coolify 957157 20584 7077 1816
+/coolify 2868580 58388 18212 6740
+/coolify 41957 2648 1247 524
+/coolify 3400428 61844 21137 7380
+/coolify 882592 80372 66757 23536
+/coolify-db 953347 18200 8775 388
+/coolify-db 953453 27320 19052 440
+/coolify-db 953454 9380 2087 348
+/coolify-db 953456 7736 1588 336
+/coolify-db 953457 6120 1342 440
+/coolify-db 953458 5464 1114 416
+/coolify-db 882788 15696 8982 2104
+/coolify-redis 953460 8696 8692 5128
+/coolify-sentinel 3370043 28860 28856 17564
+/coolify-proxy-error-pages 1356833 72 72 20
+/coolify-proxy-logrotate 1353266 904 308 60
+/coolify-proxy-logrotate 884199 1056 435 52
+/coolify-proxy 1353273 57312 57308 32484

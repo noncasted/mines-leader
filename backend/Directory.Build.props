@@ -1,0 +1,16 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.csproj.DotSettings"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Analyzer Include="$(MSBuildThisFileDirectory)../tools/framework/client/core/Analyzers/Framework.Analyzers.dll"/>
+    </ItemGroup>
+</Project>

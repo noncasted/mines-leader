@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <!-- The separate service of the MetaGateway role: its host (MetaGateway/) alone in the process. The assembly keeps the name
+         of the role: the Dockerfile and the compose start it as MetaGateway.dll. -->
+    <PropertyGroup>
+        <AssemblyName>MetaGateway</AssemblyName>
+        <RootNamespace>MetaGateway.Service</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\MetaGateway\MetaGateway.csproj"/>
+    </ItemGroup>
+
+</Project>

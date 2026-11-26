@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The same sources are compiled by Unity through Framework.Common.asmdef: C# 9, no implicit usings, nullable off,
+         netstandard2.1 - the dotnet build refuses what Unity cannot compile. Tests~ is ignored by Unity and is its own
+         project (Tests~/Framework.Common.Tests.csproj). -->
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>9.0</LangVersion>
+        <AssemblyName>Framework.Common</AssemblyName>
+        <RootNamespace>Internal</RootNamespace>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="Tests~/**"/>
+        <None Remove="Tests~/**"/>
+        <None Remove="**\*.meta"/>
+        <None Remove="**\*.asmdef"/>
+        <None Remove="package.json"/>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <AssemblyName>Console</AssemblyName>
+        <RootNamespace>Console</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BlazorBlueprint.Components"/>
+        <PackageReference Include="BlazorBlueprint.Primitives"/>
+        <PackageReference Include="BlazorBlueprint.Icons.Lucide"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Common\Common.csproj"/>
+        <ProjectReference Include="..\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\ClientTelemetry\ClientTelemetry.csproj"/>
+        <ProjectReference Include="..\..\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\common\framework.common.csproj"/>
+    </ItemGroup>
+
+</Project>

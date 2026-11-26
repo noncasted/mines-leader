@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>Tests</AssemblyName>
+        <RootNamespace>Tests</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="xunit.runner.visualstudio">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="Testcontainers.PostgreSql"/>
+        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="Microsoft.Orleans.TestingHost"/>
+        <PackageReference Include="Microsoft.Orleans.Sdk"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\shared\shared.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\common\framework.common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Common\Common.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\ClientTelemetry\ClientTelemetry.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\MatchMetrics\MatchMetrics.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Session\Session.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\shared\SessionCore\framework.session.core.csproj"/>
+        <ProjectReference Include="..\..\Game\Game.csproj"/>
+        <ProjectReference Include="..\..\Meta\Meta.csproj"/>
+        <ProjectReference Include="..\..\Orchestration\MetaGateway\MetaGateway.csproj"/>
+        <ProjectReference Include="..\..\Orchestration\GameGateway\GameGateway.csproj"/>
+        <ProjectReference Include="..\..\Orchestration\Coordinator\Coordinator.csproj"/>
+        <ProjectReference Include="..\..\Orchestration\Extensions\Extensions.csproj"/>
+        <ProjectReference Include="..\DeploySetup\DeploySetup.csproj"/>
+        <ProjectReference Include="..\Generators\Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+
+</Project>

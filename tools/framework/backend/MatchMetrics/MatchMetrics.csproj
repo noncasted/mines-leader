@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The game data of matches (module match-metrics): the handling of the streams of the clients on the meta socket, with
+         the limits of what a client may send, the stream of the server, the storage in tables of Postgres of their own
+         (not states of grains): append-only chunks of series, totals, events. Who may write into a match is the game's
+         answer (IMatchMetricsAdmission). -->
+    <PropertyGroup>
+        <AssemblyName>Framework.MatchMetrics</AssemblyName>
+        <RootNamespace>Game.MatchMetrics</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <InternalsVisibleTo Include="Framework.Tests"/>
+        <InternalsVisibleTo Include="Tests"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\framework.shared.csproj"/>
+        <ProjectReference Include="..\..\common\framework.common.csproj"/>
+        <ProjectReference Include="..\Common\Common.csproj"/>
+    </ItemGroup>
+
+</Project>

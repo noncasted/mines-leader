@@ -1,0 +1,17 @@
+<div class="flex items-center justify-center gap-2">
+    <BbButton Size="ButtonSize.Small"
+              Variant="@(Value == OnlineScale.Hours ? ButtonVariant.Default : ButtonVariant.Outline)"
+              @onclick="@(() => ValueChanged.InvokeAsync(OnlineScale.Hours))">
+        Hours
+    </BbButton>
+    <BbButton Size="ButtonSize.Small"
+              Variant="@(Value == OnlineScale.Days ? ButtonVariant.Default : ButtonVariant.Outline)"
+              @onclick="@(() => ValueChanged.InvokeAsync(OnlineScale.Days))">
+        Days
+    </BbButton>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required OnlineScale Value { get; set; }
+    [Parameter, EditorRequired] public required EventCallback<OnlineScale> ValueChanged { get; set; }
+}

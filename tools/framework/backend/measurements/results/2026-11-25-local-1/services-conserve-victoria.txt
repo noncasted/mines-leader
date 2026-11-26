@@ -1,0 +1,53 @@
+#host omarchy 2026-11-25T07:57:30Z nproc=24 uptime=71848.33
+               total        used        free      shared  buff/cache   available
+Mem:           63383       34803        4778        4333       31757       28580
+Swap:          96150       37859       58291
+#df
+/dev/mapper/root  952G  849G   79G  92% /
+#stats
+meta-measure-2026-11-25-local-1-services-conserve	98.91MiB / 61.9GiB	2.14%
+game-measure-2026-11-25-local-1-services-conserve	91.62MiB / 61.9GiB	2.24%
+console-measure-2026-11-25-local-1-services-conserve	104.1MiB / 61.9GiB	2.19%
+coordinator-measure-2026-11-25-local-1-services-conserve	91.5MiB / 61.9GiB	5.22%
+silo-measure-2026-11-25-local-1-services-conserve	120.7MiB / 61.9GiB	0.89%
+otlp-measure-2026-11-25-local-1-services-conserve	3.23MiB / 32MiB	1.64%
+pgbouncer-measure-2026-11-25-local-1-services-conserve	9.238MiB / 61.9GiB	1.73%
+postgres-measure-2026-11-25-local-1-services-conserve	48.26MiB / 61.9GiB	0.24%
+victorialogs-measure-2026-11-25-local-1-services-conserve	18.82MiB / 256MiB	0.02%
+victoriatraces-measure-2026-11-25-local-1-services-conserve	28.3MiB / 256MiB	0.19%
+#labels
+/meta-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tbackend-measurements/meta:local\t2026-11-25T07:52:23.832328467Z\t3050081
+/game-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tbackend-measurements/game:local\t2026-11-25T07:52:24.315819244Z\t3050282
+/console-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tbackend-measurements/console:local\t2026-11-25T07:52:24.062096141Z\t3050162
+/coordinator-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tbackend-measurements/coordinator:local\t2026-11-25T07:52:22.840960398Z\t3049723
+/silo-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tbackend-measurements/silo:local\t2026-11-25T07:52:16.952379831Z\t3048462
+/otlp-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tnginx:1.30.8-alpine-slim\t2026-11-25T07:52:05.87081695Z\t3046734
+/pgbouncer-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-25T07:52:07.021097918Z\t3046940
+/postgres-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tpostgres:18-alpine\t2026-11-25T07:52:00.351082798Z\t3045910
+/victorialogs-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tvictoriametrics/victoria-logs:v1.54.0\t2026-11-25T07:52:00.164677011Z\t3045839
+/victoriatraces-measure-2026-11-25-local-1-services-conserve\tmeasure-2026-11-25-local-1-services-conserve\tpixel-swarm\t\t\tvictoriametrics/victoria-traces:v0.13.0\t2026-11-25T07:51:59.993829008Z\t3045722
+#pss
+/meta-measure-2026-11-25-local-1-services-conserve 3050081 192444 130719 49224
+/game-measure-2026-11-25-local-1-services-conserve 3050282 183420 122176 45600
+/console-measure-2026-11-25-local-1-services-conserve 3050162 207984 145009 54812
+/coordinator-measure-2026-11-25-local-1-services-conserve 3049723 181148 121229 45488
+/silo-measure-2026-11-25-local-1-services-conserve 3048462 210332 150249 61904
+/otlp-measure-2026-11-25-local-1-services-conserve 3046734 6604 4826 1660
+/otlp-measure-2026-11-25-local-1-services-conserve 3046813 3488 1872 2148
+/pgbouncer-measure-2026-11-25-local-1-services-conserve 3046940 9596 9228 7556
+/postgres-measure-2026-11-25-local-1-services-conserve 3045910 30428 17001 1984
+/postgres-measure-2026-11-25-local-1-services-conserve 3046824 8860 2978 2076
+/postgres-measure-2026-11-25-local-1-services-conserve 3046825 5988 921 2060
+/postgres-measure-2026-11-25-local-1-services-conserve 3046826 5428 671 2036
+/postgres-measure-2026-11-25-local-1-services-conserve 3046827 12120 2983 2184
+/postgres-measure-2026-11-25-local-1-services-conserve 3046828 6928 1067 2048
+/postgres-measure-2026-11-25-local-1-services-conserve 3046830 9852 2442 2060
+/postgres-measure-2026-11-25-local-1-services-conserve 3046831 8672 1441 2364
+/postgres-measure-2026-11-25-local-1-services-conserve 3046832 7844 1258 2328
+/postgres-measure-2026-11-25-local-1-services-conserve 3048092 25212 8322 6072
+/postgres-measure-2026-11-25-local-1-services-conserve 3048997 23644 7146 5176
+/postgres-measure-2026-11-25-local-1-services-conserve 3050164 18168 4474 3816
+/postgres-measure-2026-11-25-local-1-services-conserve 3050375 16424 3649 3236
+/postgres-measure-2026-11-25-local-1-services-conserve 3050393 21572 5686 4208
+/victorialogs-measure-2026-11-25-local-1-services-conserve 3045839 26516 26504 13168
+/victoriatraces-measure-2026-11-25-local-1-services-conserve 3045722 36120 36108 22048

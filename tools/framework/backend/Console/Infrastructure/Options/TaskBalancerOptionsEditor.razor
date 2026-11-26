@@ -1,0 +1,26 @@
+@using global::Infrastructure.Execution
+<div class="rounded-lg border bg-card p-4 flex flex-col gap-3">
+    <div class="flex items-center gap-2">
+        <div class="rounded-md bg-violet-500/15 p-1.5">
+            <LucideIcon Name="gauge" Size="14" class="text-violet-400" />
+        </div>
+        <h2 class="text-sm font-semibold">Task Balancer</h2>
+    </div>
+    <div class="flex flex-col">
+        <OptionNumberRow Icon="timer" Label="Empty Queue Delay (ms)" Value="Value.EmptyDelayMs"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { EmptyDelayMs = v })"/>
+        <OptionNumberRow Icon="skip-forward" Label="Next Task Delay (ms)" Value="Value.NextDelayMs"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { NextDelayMs = v })"/>
+        <OptionNumberRow Icon="plus" Label="Iteration Score" Value="Value.IterationScore"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { IterationScore = v })"/>
+        <OptionNumberRow Icon="minus" Label="Exception Penalty" Value="Value.ExceptionPenalty"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { ExceptionPenalty = v })"/>
+        <OptionNumberRow Icon="layers" Label="Concurrent Tasks" Value="Value.ConcurrentTasks"
+                         Changed="v => ValueChanged.InvokeAsync(Value with { ConcurrentTasks = v })"/>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public TaskBalancerOptions Value { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback<TaskBalancerOptions> ValueChanged { get; set; }
+}

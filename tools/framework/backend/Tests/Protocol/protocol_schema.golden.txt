@@ -1,0 +1,141 @@
+enum Shared.ErrorCode System.Byte Internal=1,UnknownCommand=2,InvalidRequest=3,Forbidden=4,NotFound=5
+enum Shared.SessionAuthStatus System.Int32 Ok=0,InvalidTicket=1,Expired=2,NoReservation=3,Closed=4
+enum Shared.SharedClientTelemetry+ErrorLevel System.Byte Error=1,Exception=2,Warning=3
+enum Shared.SharedMatchMetrics+MatchMetricsStatus System.Byte Ok=0,Duplicate=1,Rejected=2,Closed=3,NotInMatch=4
+enum Shared.SharedMatchMetrics+MatchSeriesKind System.Byte Counter=0,Gauge=1
+enum Shared.SharedMatchMetrics+MatchStreamKind System.Byte Client=0,Server=1
+enum Shared.SharedSessionPeer+SignalKind System.Byte Description=0,Candidate=1
+enum Shared.SharedSessionRequests+EntryStatus System.Int32 Ok=0,NotFound=1,Full=2,Started=3
+type Framework.Tests.Protocol.TestEntityPayload Kind:System.Int32
+type Framework.Tests.Protocol.TestEventPayload Value:System.Int32
+type Shared.EmptyResponse HasError:System.Boolean,Message:System.String
+type Shared.EmptyStatePayload
+type Shared.ErrorResponse Code:Shared.ErrorCode,Message:System.String
+type Shared.LobbyCountdownState IsActive:System.Boolean,SecondsLeft:System.Int32
+type Shared.LobbyGameState ServerUrl:System.String,SessionId:System.Guid,PlayersCount:System.Int32
+type Shared.LobbyStartState IsStarting:System.Boolean
+type Shared.LobbyState Code:System.String,OwnerIndex:System.Int32,IsRunning:System.Boolean,IsRunOver:System.Boolean
+type Shared.LobbyVisibilityState IsOpen:System.Boolean
+type Shared.OneWayMessageFromClient Context:Shared.INetworkContext
+type Shared.OneWayMessageFromServer Context:Shared.INetworkContext
+type Shared.RequestMessageFromClient Context:Shared.INetworkContext,RequestId:System.Int32
+type Shared.RequestMessageFromServer Context:Shared.INetworkContext,RequestId:System.Int32
+type Shared.ResponseMessageFromClient Context:Shared.INetworkContext,RequestId:System.Int32
+type Shared.ResponseMessageFromServer Context:Shared.INetworkContext,RequestId:System.Int32
+type Shared.SharedClientTelemetry+Batch SessionId:System.Guid,Names:Shared.SharedClientTelemetry+MetricName[],Samples:Shared.SharedClientTelemetry+Sample[],Errors:Shared.SharedClientTelemetry+Error[],Marks:Shared.SharedClientTelemetry+Mark[]
+type Shared.SharedClientTelemetry+BatchResult Enabled:System.Boolean
+type Shared.SharedClientTelemetry+Device Platform:System.String,BuildVersion:System.String,Browser:System.String,BrowserMajor:System.Int32,Os:System.String,OsMajor:System.Int32,Gpu:System.String,Cores:System.Int32,MemoryClass:System.Double,ScreenWidth:System.Int32,ScreenHeight:System.Int32,Dpr:System.Double
+type Shared.SharedClientTelemetry+Error Time:System.Int64,Level:Shared.SharedClientTelemetry+ErrorLevel,Message:System.String,Stack:System.String,Repeat:System.Int32,Category:System.String
+type Shared.SharedClientTelemetry+Mark Time:System.Int64,Name:System.String,Detail:System.String,DurationMs:System.Nullable<System.Int64>
+type Shared.SharedClientTelemetry+MetricName Name:System.String,Unit:System.String
+type Shared.SharedClientTelemetry+PreviousSession SessionId:System.Guid,Tags:System.String[],LastSampleTime:System.Int64,SinceMs:System.Int64,Marks:Shared.SharedClientTelemetry+Mark[],SampleNames:System.String[],Samples:Shared.SharedClientTelemetry+Sample[]
+type Shared.SharedClientTelemetry+Sample Time:System.Int64,Values:System.Double[],Hidden:System.Boolean
+type Shared.SharedClientTelemetry+SessionEnd SessionId:System.Guid
+type Shared.SharedClientTelemetry+SessionStart Device:Shared.SharedClientTelemetry+Device,Tags:System.String[],StartupId:System.Guid,Previous:Shared.SharedClientTelemetry+PreviousSession
+type Shared.SharedClientTelemetry+SessionStarted Enabled:System.Boolean,SessionId:System.Guid
+type Shared.SharedClientTelemetry+StartupSpan ParentIndex:System.Int32,Name:System.String,StartMs:System.Double,DurationMs:System.Double,Frames:System.Int32,Unfinished:System.Boolean,AllocBytes:System.Int64,File:System.String,TransferBytes:System.Int64,Cached:System.Boolean
+type Shared.SharedClientTelemetry+StartupTrace StartupId:System.Guid,Device:Shared.SharedClientTelemetry+Device,Name:System.String,Final:System.Boolean,DurationMs:System.Double,Frames:System.Int32,Spans:Shared.SharedClientTelemetry+StartupSpan[]
+type Shared.SharedClientTelemetry+StartupTraceResult Enabled:System.Boolean,StartupId:System.Guid
+type Shared.SharedLobbies+CreateLobby
+type Shared.SharedLobbies+Entry Code:System.String,LeaderName:System.String,PlayersCount:System.Int32,MaxPlayers:System.Int32,IsRunning:System.Boolean
+type Shared.SharedLobbies+JoinLobby Code:System.String
+type Shared.SharedLobbies+JoinMatch Code:System.String
+type Shared.SharedLobbies+List Entries:System.Collections.Generic.List<Shared.SharedLobbies+Entry>
+type Shared.SharedLobbies+Subscribe
+type Shared.SharedLobbies+Unsubscribe
+type Shared.SharedMatchMetrics+Batch StreamId:System.Guid,Seq:System.Int32,Series:Shared.SharedMatchMetrics+MatchSeriesDecl[],Chunks:Shared.SharedMatchMetrics+MatchChunk[],Events:Shared.SharedMatchMetrics+MatchEvent[]
+type Shared.SharedMatchMetrics+BatchResult Status:Shared.SharedMatchMetrics+MatchMetricsStatus
+type Shared.SharedMatchMetrics+MatchChunk Slot:System.Int32,Start:System.Int32,AgeMs:System.Int64,Values:System.Single[]
+type Shared.SharedMatchMetrics+MatchEvent Name:System.String,Time:System.Single,AgeMs:System.Int64,Fields:Shared.SharedMatchMetrics+MatchEventField[]
+type Shared.SharedMatchMetrics+MatchEventField Key:System.String,Number:System.Double,Text:System.String
+type Shared.SharedMatchMetrics+MatchSeriesDecl Slot:System.Int32,Name:System.String,Kind:Shared.SharedMatchMetrics+MatchSeriesKind,TagKeys:System.String[],TagValues:System.String[]
+type Shared.SharedMatchMetrics+Open MatchId:System.Guid,WriterId:System.Guid,Kind:Shared.SharedMatchMetrics+MatchStreamKind
+type Shared.SharedMatchMetrics+Opened Status:Shared.SharedMatchMetrics+MatchMetricsStatus,StreamId:System.Guid,LastSeq:System.Int32
+type Shared.SharedSessionAuth+Request Ticket:System.String
+type Shared.SharedSessionAuth+Response Status:Shared.SessionAuthStatus
+type Shared.SharedSessionEntity+CreateRequest Id:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>,Payload:Shared.IEntityPayload
+type Shared.SharedSessionEntity+CreateResponse EntityId:System.Int32
+type Shared.SharedSessionEntity+CreatedOverview OwnerId:System.Int32,EntityId:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>,Payload:Shared.IEntityPayload
+type Shared.SharedSessionEntity+Destroy EntityId:System.Int32
+type Shared.SharedSessionEntity+DestroyUpdate EntityId:System.Int32
+type Shared.SharedSessionLatency+PeerEcho Id:System.Int32,SenderIndex:System.Int32,ServerTimestamp:System.Int64,ResponderPingMs:System.Single,ResponderIndex:System.Int32,ResponderLegMs:System.Single
+type Shared.SharedSessionLatency+PeerProbe Id:System.Int32,SenderIndex:System.Int32,ServerTimestamp:System.Int64
+type Shared.SharedSessionLatency+Ping Id:System.Int32
+type Shared.SharedSessionLatency+Pong Id:System.Int32
+type Shared.SharedSessionObject+Event ObjectId:System.Int32,Value:System.Byte[]
+type Shared.SharedSessionObject+PropertyUpdate ObjectId:System.Int32,PropertyId:System.Int32,Value:System.Byte[],Version:System.Int32
+type Shared.SharedSessionObject+SetProperties Entries:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+SetProperty>
+type Shared.SharedSessionObject+SetProperty ObjectId:System.Int32,PropertyId:System.Int32,Value:System.Byte[]
+type Shared.SharedSessionPeer+Signal TargetIndex:System.Int32,SenderIndex:System.Int32,Kind:Shared.SharedSessionPeer+SignalKind,Type:System.String,Value:System.String,Mid:System.String
+type Shared.SharedSessionPeer+Tunnel TargetIndex:System.Int32,SenderIndex:System.Int32,Frame:System.Byte[]
+type Shared.SharedSessionPlayer+Leave
+type Shared.SharedSessionPlayer+LocalUpdate Index:System.Int32,Id:System.Guid,EntityCounter:System.Int32,IsReturn:System.Boolean,SeatEntities:System.Int32
+type Shared.SharedSessionPlayer+RemoteAway Index:System.Int32
+type Shared.SharedSessionPlayer+RemoteDisconnect Index:System.Int32
+type Shared.SharedSessionPlayer+RemoteUpdate Index:System.Int32,Id:System.Guid
+type Shared.SharedSessionRequests+CreateSolo
+type Shared.SharedSessionRequests+Result ServerUrl:System.String,SessionId:System.Guid,Code:System.String,Status:Shared.SharedSessionRequests+EntryStatus,Ticket:System.String,IsLobby:System.Boolean
+type Shared.SharedSessionRequests+Search Queue:System.Int32
+type Shared.SharedSessionRequests+TicketRequest SessionId:System.Guid
+type Shared.SharedSessionRequests+TicketResponse Ticket:System.String
+type Shared.SharedSessionService+GetRequest Key:System.String,PropertiesIds:System.Collections.Generic.IReadOnlyList<System.Int32>
+type Shared.SharedSessionService+GetResponse Key:System.String,Id:System.Int32,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>
+type Shared.SharedSessionService+Overview Key:System.String,Properties:System.Collections.Generic.IReadOnlyList<Shared.SharedSessionObject+PropertyUpdate>
+union Shared.IEntityPayload 0 Framework.Tests.Protocol.TestEntityPayload
+union Shared.IEventPayload 0 Framework.Tests.Protocol.TestEventPayload
+union Shared.IMessageFromClient 0 Shared.OneWayMessageFromClient
+union Shared.IMessageFromClient 1 Shared.RequestMessageFromClient
+union Shared.IMessageFromClient 2 Shared.ResponseMessageFromClient
+union Shared.IMessageFromServer 0 Shared.OneWayMessageFromServer
+union Shared.IMessageFromServer 1 Shared.ResponseMessageFromServer
+union Shared.IMessageFromServer 2 Shared.RequestMessageFromServer
+union Shared.INetworkContext 0 Shared.EmptyResponse
+union Shared.INetworkContext 1 Shared.ErrorResponse
+union Shared.INetworkContext 10 Shared.SharedSessionAuth+Request
+union Shared.INetworkContext 11 Shared.SharedSessionAuth+Response
+union Shared.INetworkContext 150 Shared.SharedSessionRequests+Search
+union Shared.INetworkContext 151 Shared.SharedSessionRequests+Result
+union Shared.INetworkContext 152 Shared.SharedLobbies+CreateLobby
+union Shared.INetworkContext 153 Shared.SharedLobbies+JoinLobby
+union Shared.INetworkContext 154 Shared.SharedSessionRequests+TicketRequest
+union Shared.INetworkContext 155 Shared.SharedSessionRequests+TicketResponse
+union Shared.INetworkContext 180 Shared.SharedLobbies+Subscribe
+union Shared.INetworkContext 181 Shared.SharedLobbies+Unsubscribe
+union Shared.INetworkContext 182 Shared.SharedLobbies+List
+union Shared.INetworkContext 183 Shared.SharedLobbies+JoinMatch
+union Shared.INetworkContext 184 Shared.SharedSessionRequests+CreateSolo
+union Shared.INetworkContext 20 Shared.SharedSessionEntity+CreateRequest
+union Shared.INetworkContext 200 Shared.SharedClientTelemetry+SessionStart
+union Shared.INetworkContext 201 Shared.SharedClientTelemetry+SessionStarted
+union Shared.INetworkContext 202 Shared.SharedClientTelemetry+Batch
+union Shared.INetworkContext 203 Shared.SharedClientTelemetry+BatchResult
+union Shared.INetworkContext 204 Shared.SharedClientTelemetry+SessionEnd
+union Shared.INetworkContext 205 Shared.SharedClientTelemetry+StartupTrace
+union Shared.INetworkContext 206 Shared.SharedClientTelemetry+StartupTraceResult
+union Shared.INetworkContext 21 Shared.SharedSessionEntity+CreateResponse
+union Shared.INetworkContext 22 Shared.SharedSessionEntity+CreatedOverview
+union Shared.INetworkContext 220 Shared.SharedMatchMetrics+Open
+union Shared.INetworkContext 221 Shared.SharedMatchMetrics+Opened
+union Shared.INetworkContext 222 Shared.SharedMatchMetrics+Batch
+union Shared.INetworkContext 223 Shared.SharedMatchMetrics+BatchResult
+union Shared.INetworkContext 23 Shared.SharedSessionEntity+Destroy
+union Shared.INetworkContext 24 Shared.SharedSessionEntity+DestroyUpdate
+union Shared.INetworkContext 30 Shared.SharedSessionObject+SetProperty
+union Shared.INetworkContext 31 Shared.SharedSessionObject+PropertyUpdate
+union Shared.INetworkContext 32 Shared.SharedSessionObject+Event
+union Shared.INetworkContext 33 Shared.SharedSessionObject+SetProperties
+union Shared.INetworkContext 40 Shared.SharedSessionPlayer+LocalUpdate
+union Shared.INetworkContext 41 Shared.SharedSessionPlayer+RemoteUpdate
+union Shared.INetworkContext 42 Shared.SharedSessionPlayer+RemoteDisconnect
+union Shared.INetworkContext 43 Shared.SharedSessionPlayer+RemoteAway
+union Shared.INetworkContext 44 Shared.SharedSessionPlayer+Leave
+union Shared.INetworkContext 50 Shared.SharedSessionService+GetRequest
+union Shared.INetworkContext 51 Shared.SharedSessionService+GetResponse
+union Shared.INetworkContext 52 Shared.SharedSessionService+Overview
+union Shared.INetworkContext 60 Shared.SharedSessionLatency+Ping
+union Shared.INetworkContext 61 Shared.SharedSessionLatency+Pong
+union Shared.INetworkContext 62 Shared.SharedSessionLatency+PeerProbe
+union Shared.INetworkContext 63 Shared.SharedSessionLatency+PeerEcho
+union Shared.INetworkContext 70 Shared.SharedSessionPeer+Signal
+union Shared.INetworkContext 71 Shared.SharedSessionPeer+Tunnel
+union Shared.IStatePayload 0 Shared.EmptyStatePayload

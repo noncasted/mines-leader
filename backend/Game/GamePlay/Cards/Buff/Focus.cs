@@ -1,0 +1,41 @@
+using Cluster.Configs;
+using Shared;
+
+namespace Game.GamePlay;
+
+/// <summary>
+/// Applies a one-time mana cost discount to the next card played via the NextCardDiscount modifier.
+/// </summary>
+public class Focus : ICard<CardUsePayload.Focus>
+{
+    public Focus(ICardConfigs configs, IRoundActionService roundActionService)
+    {
+        _configs = configs;
+        _roundActionService = roundActionService;
+    }
+
+    private readonly ICardConfigs _configs;
+    private readonly IRoundActionService _roundActionService;
+
+    public CardUseResult Use(CardUseContext context, CardUsePayload.Focus payload)
+    {
+        var invoker = context.Invoker;
+        var snapshot = context.Snapshot;
+        var config = _configs.Value.Focus_Normal;
+
+        var source = new DurationModifierSource(PlayerModifier.NextCardDiscount, config.Discount, "focus", 1);
+        invoker.Modifiers.Add(snapshot, source);
+
+        _roundActionService.Schedule(new ModifierRoundAction(invoker, source));
+
+        snapshot.RecordCardUse(invoker.User.Id, context.CardId, new CardActionSnapshot.Focus()
+        {
+            TargetPlayer = invoker.User.Id
+        });
+
+        return new CardUseResult
+        {
+            Result = EmptyResponse.Ok
+        };
+    }
+}

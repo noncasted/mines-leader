@@ -1,0 +1,18 @@
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2.5 text-xs font-medium">@Service.ServiceTag</td>
+    @if (Service.Failure != null)
+    {
+        <td colspan="4" class="px-4 py-2.5 text-xs text-right text-destructive" title="@Service.Failure">failed: no snapshot</td>
+    }
+    else
+    {
+        <td class="px-4 py-2.5 text-xs text-right">@Service.Data.QueueCount</td>
+        <td class="px-4 py-2.5 text-xs text-right">@Service.Data.ProcessingCount</td>
+        <td class="px-4 py-2.5 text-xs text-right">@Service.Data.RetryCount</td>
+        <td class="px-4 py-2.5 text-xs text-right @(Service.Data.DeadLetterCount > 0 ? "text-destructive" : "")">@Service.Data.DeadLetterCount</td>
+    }
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public PerServiceSideEffects Service { get; set; } = null!;
+}

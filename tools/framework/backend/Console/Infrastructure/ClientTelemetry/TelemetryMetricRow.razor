@@ -1,0 +1,18 @@
+@using Game.ClientTelemetry
+
+<tr class="border-b last:border-b-0 hover:bg-muted/30">
+    <td class="px-4 py-2 text-xs font-medium break-all">@Metric.Name</td>
+    <td class="px-4 py-2 text-xs text-right">@Value(Metric.Average)</td>
+    <td class="px-4 py-2 text-xs text-right">@Value(Metric.P50)</td>
+    <td class="px-4 py-2 text-xs text-right">@Value(Metric.P95)</td>
+    <td class="px-4 py-2 text-xs text-right">@Value(Metric.Min)</td>
+    <td class="px-4 py-2 text-xs text-right">@Value(Metric.Max)</td>
+    <td class="px-4 py-2 text-xs text-right">@TelemetryValueFormat.Optional(Metric.Growth, Metric.Unit)</td>
+    <td class="px-4 py-2 text-xs text-right text-muted-foreground">@Metric.Count</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public required TelemetryMetricSummary Metric { get; set; }
+
+    private string Value(double value) => TelemetryValueFormat.Value(value, Metric.Unit);
+}

@@ -1,0 +1,97 @@
+@page "/discovery"
+@using global::Infrastructure
+@using Cluster.Coordination
+@using Cluster.Deploy
+@using Cluster.Discovery
+@using global::Common.Extensions
+@using global::Internal
+@inherits UiComponent
+
+<PageTitle>Discovery</PageTitle>
+<PageHeader Title="Discovery"/>
+
+@if (_services.Count == 0)
+{
+    <div class="container mx-auto max-w-5xl px-4 py-4">
+        <div class="rounded-lg border p-8 text-center text-muted-foreground">
+            No services discovered
+        </div>
+    </div>
+    return;
+}
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="flex items-center gap-3">
+        <div class="rounded-md bg-green-500/15 p-2">
+            <LucideIcon Name="radar" Size="20" class="text-green-400"/>
+        </div>
+        <div>
+            <span class="text-2xl font-bold">@_services.Count</span>
+            <span class="text-sm text-muted-foreground ml-2">services</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @foreach (var service in _services)
+        {
+            <DiscoveryServiceCard Service="service"
+                                  IsSelf="@(service.Id == ServiceDiscovery.Self.Id)"
+                                  CanDisconnect="@(DeployContext.DeployId != Guid.Empty)"
+                                  Disconnecting="@(_disconnectingId == service.Id)"
+                                  OnDisconnect="() => DisconnectService(service.Id)"/>
+        }
+    </div>
+
+</div>
+
+@code {
+    [Inject] private IServiceDiscovery ServiceDiscovery { get; set; } = null!;
+    [Inject] private IOrleans Orleans { get; set; } = null!;
+    [Inject] private IDeployContext DeployContext { get; set; } = null!;
+    [Inject] private IClusterStartupConfig StartupConfig { get; set; } = null!;
+    [Inject] private ToastService ToastService { get; set; } = null!;
+
+    private IReadOnlyList<IServiceOverview> _services = [];
+    private Guid _disconnectingId;
+
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        RefreshLoop(lifetime).NoAwait();
+        return Task.CompletedTask;
+    }
+
+    // IServiceDiscovery has no observable of its entries, so the page reads them every 5 s.
+    private async Task RefreshLoop(IReadOnlyLifetime lifetime)
+    {
+        while (lifetime.IsTerminated == false)
+        {
+            _services = ServiceDiscovery.Entries.Values.OrderByRole(StartupConfig.RequiredServices).ToList();
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(5000, lifetime.Token);
+        }
+    }
+
+    private async Task DisconnectService(Guid serviceId)
+    {
+        _disconnectingId = serviceId;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var grain = Orleans.GetGrain<IServiceDiscoveryStorage>(DeployContext.DeployId);
+            await grain.Unregister(serviceId);
+            _services = ServiceDiscovery.Entries.Values.OrderByRole(StartupConfig.RequiredServices).ToList();
+            ToastService.Success($"Service {serviceId} disconnected", "Done");
+        }
+        catch (Exception e)
+        {
+            ToastService.Error($"[Discovery] Failed to disconnect service {serviceId}: {e.Message}", "Error");
+        }
+        finally
+        {
+            _disconnectingId = Guid.Empty;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

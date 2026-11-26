@@ -1,0 +1,100 @@
+using Infrastructure.State;
+using Meta.Matches;
+using Meta.Users;
+using Microsoft.Extensions.Logging;
+
+namespace Benchmarks;
+
+public class TestCleanup
+{
+    public TestCleanup(IStateStorage stateStorage, ILogger<TestCleanup> logger)
+    {
+        _stateStorage = stateStorage;
+        _logger = logger;
+    }
+
+    private readonly IStateStorage _stateStorage;
+    private readonly ILogger<TestCleanup> _logger;
+    private readonly Lock _lock = new();
+    private readonly List<StateIdentity> _identities = new();
+
+    public void Track<TState>(Guid key) where TState : IStateValue, new()
+    {
+        var stateInfo = _stateStorage.Registry.Get<TState>();
+
+        lock (_lock)
+        {
+            _identities.Add(new StateIdentity
+            {
+                Key = key,
+                Type = stateInfo.Name,
+                TableName = stateInfo.TableName,
+                Extension = null
+            });
+        }
+    }
+
+    public void Track<TState>(string key) where TState : IStateValue, new()
+    {
+        var stateInfo = _stateStorage.Registry.Get<TState>();
+
+        lock (_lock)
+        {
+            _identities.Add(new StateIdentity
+            {
+                Key = key,
+                Type = stateInfo.Name,
+                TableName = stateInfo.TableName,
+                Extension = null
+            });
+        }
+    }
+
+    public void Track(StateIdentity identity)
+    {
+        lock (_lock)
+        {
+            _identities.Add(identity);
+        }
+    }
+
+    public void TrackUser(Guid userId)
+    {
+        Track<UserState>(userId);
+        Track<UserAuthState>(userId);
+        Track<UserStatsState>(userId);
+        Track<UserInGameAchievementsState>(userId);
+        Track<UserRatingState>(userId);
+        Track<UserMatchHistoryAggregate>(userId);
+        Track<UserDeckState>(userId);
+    }
+
+    public void TrackMatch(Guid matchId)
+    {
+        Track<MatchState>(matchId);
+    }
+
+    public async Task Execute()
+    {
+        List<StateIdentity> snapshot;
+        lock (_lock)
+        {
+            if (_identities.Count == 0)
+                return;
+
+            snapshot = _identities.ToList();
+            _identities.Clear();
+        }
+
+        _logger.LogInformation("[TestCleanup] Deleting {Count} state records", snapshot.Count);
+
+        const int batchSize = 1000;
+        for (var i = 0; i < snapshot.Count; i += batchSize)
+        {
+            var batch = snapshot.Skip(i).Take(batchSize).ToList();
+            await _stateStorage.Delete(batch);
+        }
+
+        _logger.LogInformation("[TestCleanup] Cleanup complete");
+    }
+}

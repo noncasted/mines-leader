@@ -1,0 +1,123 @@
+@page "/features"
+@using Cluster.State
+@using Game.ClientTelemetry
+@using global::Common.Extensions
+@using global::Internal
+@inherits UiComponent
+
+<PageTitle>Features</PageTitle>
+<PageHeader Title="Features"/>
+
+@if (!ClusterFeatures.IsInitialized)
+{
+    <div class="flex items-center justify-center py-16">
+        <LucideIcon Name="loader-circle" Size="32" class="animate-spin text-primary"/>
+    </div>
+    return;
+}
+
+<div class="container mx-auto max-w-3xl px-4 py-4 flex flex-col gap-4">
+    <div class="rounded-lg border bg-card p-6 flex flex-col gap-4">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Cluster</h2>
+
+        <FeatureToggle
+            Label="Accepting Connections"
+            Description="Allow new player connections to the cluster"
+            Value="_state.AcceptingConnections"
+            OnToggle="ToggleAcceptingConnections"
+            Saving="_isSaving" />
+
+        <FeatureToggle
+            Label="Side Effects"
+            Description="Allow the side effects worker to process queued effects"
+            Value="_state.SideEffectsEnabled"
+            OnToggle="ToggleSideEffectsEnabled"
+            Saving="_isSaving" />
+
+        @if (_state.CoordinatorUnhealthy)
+        {
+            <p class="text-sm text-destructive">Coordinator heartbeat is stale: gateways refuse new connections until it recovers</p>
+        }
+    </div>
+
+    @if (GameFlags.Any())
+    {
+        <div class="rounded-lg border bg-card p-6 flex flex-col gap-4">
+            <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">Game</h2>
+
+            @foreach (var flag in GameFlags)
+            {
+                var enabled = IsEnabled(flag);
+
+                <FeatureToggle
+                    Label="@flag.Label"
+                    Description="@flag.Description"
+                    Value="enabled"
+                    OnToggle="() => Toggle(flag.Name, v => ClusterFeatures.SetGameFlag(flag.Name, v), !enabled)"
+                    Saving="_isSaving" />
+            }
+        </div>
+    }
+
+    @foreach (var telemetry in TelemetrySwitches)
+    {
+        <ClientTelemetryToggle
+            Switch="telemetry"
+            OnToggle="() => Toggle(ClientTelemetryAuditName, telemetry.Set, !telemetry.IsEnabled)"
+            Saving="_isSaving" />
+    }
+</div>
+
+@code {
+    [Inject] private IClusterFeatures ClusterFeatures { get; set; } = null!;
+    [Inject] private ToastService ToastService { get; set; } = null!;
+    [Inject] private IAuditLogStorage AuditLog { get; set; } = null!;
+    [Inject] private IEnumerable<ConsoleGameFlag> GameFlags { get; set; } = null!;
+
+    // Empty on the console of a game without the telemetry (AddClientTelemetryReader registers it).
+    [Inject] private IEnumerable<IClientTelemetrySwitch> TelemetrySwitches { get; set; } = null!;
+
+    private const string ClientTelemetryAuditName = "ClientTelemetry";
+
+    private ClusterFeaturesState _state = new();
+    private bool _isSaving;
+
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        ClusterFeatures.View(lifetime, state =>
+        {
+            _state = state;
+            InvokeAsync(StateHasChanged).NoAwait();
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleAcceptingConnections() => Toggle("AcceptingConnections", v => ClusterFeatures.SetAcceptingConnections(v), !_state.AcceptingConnections);
+
+    private Task ToggleSideEffectsEnabled() => Toggle("SideEffects", v => ClusterFeatures.SetSideEffectsEnabled(v), !_state.SideEffectsEnabled);
+
+    private async Task Toggle(string name, Func<bool, Task> setter, bool newValue)
+    {
+        _isSaving = true;
+
+        try
+        {
+            await setter(newValue);
+        }
+        catch (Exception ex)
+        {
+            ToastService.Error($"[Features] Failed to toggle feature: {ex.Message}", "Error");
+            return;
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+
+        await AuditLog.Report(ToastService, "FeatureToggled", $"{name} set to {newValue}", "Feature updated");
+    }
+
+    private bool IsEnabled(ConsoleGameFlag flag) => _state.GameFlags.TryGetValue(flag.Name, out var enabled) && enabled;
+
+}

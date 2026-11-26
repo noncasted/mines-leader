@@ -1,0 +1,105 @@
+@page "/online"
+@using Cluster.Deploy
+@using Cluster.Monitoring.Online
+@using global::Common.Extensions
+@using global::Internal
+@inherits UiComponent
+
+<PageTitle>Online</PageTitle>
+<PageHeader Title="Online"/>
+
+@if (_data.UpdatedAt == default)
+{
+    <div class="container mx-auto max-w-5xl px-4 py-4">
+        <div class="rounded-lg border p-8 text-center text-muted-foreground">
+            No online statistics yet: the coordinator writes them when the game calls AddOnlineTracker
+        </div>
+    </div>
+    return;
+}
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
+    <div class="flex items-center gap-3">
+        <div class="rounded-md bg-green-500/15 p-2">
+            <LucideIcon Name="activity" Size="20" class="text-green-400"/>
+        </div>
+        <div>
+            <span class="text-2xl font-bold">@_data.Current</span>
+            <span class="text-sm text-muted-foreground ml-2">users online, updated @OnlinePeriodFormat.Updated(_data.UpdatedAt, _zone)</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4">
+        <OnlineSummaryTile Label="Peak today" Value="@_data.Days[^1].Peak" Hint="Users online at the same time"/>
+        <OnlineSummaryTile Label="Peak this hour" Value="@_data.Hours[^1].Peak" Hint="Users online at the same time"/>
+        <OnlineSummaryTile Label="Peak 30 days" Value="@_data.Days.Max(day => day.Peak)" Hint="Highest day of the period"/>
+        <OnlineSummaryTile Label="Unique today" Value="@_data.Days[^1].UniqueUsers" Hint="Different users since 00:00 UTC"/>
+        <OnlineSummaryTile Label="Unique 7 days" Value="@_data.UniqueLast7Days" Hint="Different users, today included"/>
+        <OnlineSummaryTile Label="Unique 30 days" Value="@_data.UniqueLast30Days" Hint="Different users, today included"/>
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">
+            Last 48 hours (@_zone.Name())
+        </h2>
+        <OnlineChart Periods="@_data.Hours" Scale="OnlineScale.Hours" Height="200px" Zone="@_zone"/>
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">
+            Last 30 days (UTC)
+        </h2>
+        <OnlineChart Periods="@_data.Days" Scale="OnlineScale.Days" Height="200px" Zone="@_zone"/>
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b pb-2">
+            By day
+        </h2>
+        <div class="rounded-lg border">
+            <table class="w-full text-sm">
+                <thead>
+                <tr class="border-b bg-muted/50">
+                    <th class="h-10 px-4 text-left font-medium text-muted-foreground">Day (UTC)</th>
+                    <th class="h-10 px-4 text-right font-medium text-muted-foreground">Peak online</th>
+                    <th class="h-10 px-4 text-right font-medium text-muted-foreground">Unique users</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var day in Enumerable.Reverse(_data.Days))
+                {
+                    <OnlinePeriodRow @key="day.Start" Period="day"/>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject] private IDeploymentState<OnlineStatsLiveData> State { get; set; } = null!;
+    [Inject] private IBrowserTime BrowserTime { get; set; } = null!;
+
+    private OnlineStatsLiveData _data = new();
+    private BrowserTimeZone _zone = BrowserTimeZone.Utc;
+
+    protected override Task OnSetup(IReadOnlyLifetime lifetime)
+    {
+        State.View(lifetime, data =>
+        {
+            _data = data;
+            InvokeAsync(StateHasChanged).NoAwait();
+        });
+
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender == false)
+            return;
+
+        _zone = await BrowserTime.Zone();
+        StateHasChanged();
+    }
+}

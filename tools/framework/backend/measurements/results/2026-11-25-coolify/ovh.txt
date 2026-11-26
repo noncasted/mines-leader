@@ -1,0 +1,66 @@
+#host vps-bf8f6dbe 2026-11-25T07:36:23Z nproc=6 uptime=12042539.44
+               total        used        free      shared  buff/cache   available
+Mem:           11676        3741        2143         780        6921        7935
+Swap:          16383         707       15676
+#df
+/dev/sda1        96G   48G   49G  50% /
+#stats
+coolify	274.3MiB / 11.4GiB	0.37%
+coolify-db	58.88MiB / 11.4GiB	0.02%
+coolify-redis	5.621MiB / 11.4GiB	0.73%
+coolify-sentinel	18.48MiB / 11.4GiB	0.03%
+coolify-proxy	54.69MiB / 11.4GiB	0.51%
+#labels
+/coolify\tsource\t\t\t\tdocker.io/coollabsio/coolify:4.7.6\t2026-11-20T01:20:15.721770186Z\t466095
+/coolify-db\tsource\t\t\t\tpostgres:15-alpine\t2026-11-20T01:20:09.842037603Z\t464859
+/coolify-redis\tsource\t\t\t\tredis:7-alpine\t2026-11-20T01:20:10.014646088Z\t464941
+/coolify-sentinel\t\t\t\t\tdocker.io/coollabsio/sentinel:1.1.5\t2026-11-09T12:43:22.935672972Z\t3183269
+/coolify-proxy\tcoolify-proxy\t\t\t\ttraefik:v3.6\t2026-07-08T22:27:35.789801895Z\t2470
+#pss
+/coolify 466095 80 72 24
+/coolify 466391 8 4 4
+/coolify 466393 56 48 4
+/coolify 466403 8 4 4
+/coolify 466404 8 4 4
+/coolify 466405 8 4 4
+/coolify 466406 8 4 4
+/coolify 466407 8 4 4
+/coolify 466408 8 4 4
+/coolify 466409 8 4 4
+/coolify 466410 8 4 4
+/coolify 466417 8 4 4
+/coolify 466444 17872 2446 1500
+/coolify 466777 4404 487 240
+/coolify 466785 1604 364 456
+/coolify 466786 1608 368 460
+/coolify 466787 1620 374 460
+/coolify 466788 1612 372 464
+/coolify 466789 1608 368 460
+/coolify 466790 1652 406 460
+/coolify 468113 35804 35122 9148
+/coolify 468114 22460 8878 2356
+/coolify 468116 36148 22462 7880
+/coolify 468117 25336 11796 3412
+/coolify 468447 35412 21790 8060
+/coolify 1465825 64648 10811 5752
+/coolify 2155284 63464 10276 5552
+/coolify 2874512 61052 10186 5376
+/coolify 4115164 68412 12521 6828
+/coolify 23130 3268 1815 1160
+/coolify 380432 65736 11474 5700
+/coolify 4077641 60912 9701 5468
+/coolify 4171405 66932 13190 6192
+/coolify 390049 73236 15710 7092
+/coolify 390388 63328 10453 5616
+/coolify 3361014 60264 10086 5520
+/coolify 415985 82960 69011 23924
+/coolify-db 464859 19928 8470 844
+/coolify-db 464947 45144 35965 940
+/coolify-db 464948 10096 2148 828
+/coolify-db 464950 8380 1597 796
+/coolify-db 464951 6644 1312 892
+/coolify-db 464952 5920 1064 864
+/coolify-db 416062 17992 10066 2820
+/coolify-redis 464941 8292 8288 4764
+/coolify-sentinel 3183269 12480 12476 7964
+/coolify-proxy 2470 83320 83316 32836

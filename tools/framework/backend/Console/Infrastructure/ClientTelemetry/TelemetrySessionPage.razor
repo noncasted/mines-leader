@@ -1,0 +1,197 @@
+@page "/client-telemetry/sessions/{Id:guid}"
+@using Game.ClientTelemetry
+@inherits TelemetryLivePage
+
+<PageTitle>Client Session</PageTitle>
+<PageHeader Title="Client Session" BackHref="@ConsoleConstants.Pages.ClientTelemetry"/>
+
+@if (_log?.Info is not { } info)
+{
+    <div class="container mx-auto px-4 py-4">
+        <TelemetryRefreshError Message="@RefreshError"/>
+        @if (_isLoaded && RefreshError == null)
+        {
+            <BbAlert Variant="AlertVariant.Danger">
+                <ChildContent>
+                    <BbAlertTitle>Not Found</BbAlertTitle>
+                    <BbAlertDescription>No session @Id: a closed session goes after the retention days</BbAlertDescription>
+                </ChildContent>
+            </BbAlert>
+        }
+        @if (_isLoaded == false)
+        {
+            <TelemetrySpinner/>
+        }
+    </div>
+    return;
+}
+
+<div class="container mx-auto px-4 py-4 flex flex-col gap-6">
+    <TelemetryRefreshError Message="@RefreshError"/>
+
+    <div class="flex items-center justify-between gap-4" style="@TelemetryLayoutStyle.Wrap">
+        <div class="flex items-center gap-3">
+            <TelemetryStatusBadge Status="info.Status"/>
+            <TelemetryTagList Tags="info.Tags"/>
+            <span class="text-xs text-muted-foreground break-all">@info.Id</span>
+            @if (_log.IsLive)
+            {
+                <span class="text-xs text-muted-foreground">updates every 2 seconds</span>
+            }
+            @if (info.Status == TelemetrySessionStatus.Lost)
+            {
+                <span class="text-xs text-muted-foreground">@TelemetrySessionFacts.LostMeaning</span>
+            }
+        </div>
+        <div class="flex items-center gap-4">
+            @if (info.StartupId is { } startup)
+            {
+                <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetryStartup(startup)">Startup trace</a>
+            }
+            <a class="text-sm underline" href="@ConsoleConstants.Pages.ClientTelemetry">All sessions</a>
+        </div>
+    </div>
+
+    @if (info.Previous is { } previous)
+    {
+        <TelemetryPreviousSessionView Previous="previous"/>
+    }
+    @if (_next is { Count: > 0 } next)
+    {
+        <TelemetryNextSessionView Next="next"/>
+    }
+
+    <TelemetrySessionSummaryView Info="info" Summary="_log.Summary" Errors="ErrorCount(info)" Marks="@(info.Digest?.Marks ?? _log.Marks.Count)"/>
+
+    @if (_charts is { } charts)
+    {
+        <TelemetryTimelineView Timeline="charts.Timeline" HiddenSpans="charts.HiddenSpans"/>
+
+        <div style="@TelemetryLayoutStyle.Charts">
+            @foreach (var data in charts.Charts)
+            {
+                <TelemetryMetricChartView
+                    @key="data.Name.Slot"
+                    Data="data"
+                    Timeline="charts.Timeline"
+                    HiddenSpans="charts.HiddenSpans"
+                    Metric="@_log.Summary.Metrics.FirstOrDefault(metric => metric.Name == data.Name.Name)"/>
+            }
+        </div>
+    }
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Metric</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Average</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">P50</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">P95</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Min</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Max</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Growth</th>
+                <th class="h-10 px-4 text-right font-medium text-muted-foreground">Samples</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var metric in _log.Summary.Metrics)
+            {
+                <TelemetryMetricRow @key="metric.Name" Metric="metric"/>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="rounded-lg border">
+        <div class="border-b bg-muted/50 px-4 py-2 text-sm font-medium text-muted-foreground">Errors</div>
+        @foreach (var error in _log.Errors.OrderBy(row => row.Time))
+        {
+            <TelemetryErrorRow Error="error" LinksToGroup="info.Digest != null"/>
+        }
+        @if (_log.Errors.Count == 0)
+        {
+            <div class="px-4 py-8 text-center text-sm text-muted-foreground">No errors</div>
+        }
+    </div>
+
+    <div class="rounded-lg border">
+        <div class="border-b bg-muted/50 px-4 py-2 text-sm font-medium text-muted-foreground">Marks</div>
+        <div class="px-4 py-2 flex gap-4 text-xs" style="@TelemetryLayoutStyle.Wrap">
+            @foreach (var mark in _log.Marks.OrderBy(row => row.Time).Take(ShownMarks))
+            {
+                <span class="flex gap-2"><span class="text-muted-foreground">@TelemetryValueFormat.Time(mark.Time)</span><span>@mark.Name</span></span>
+            }
+            @if (_log.Marks.Count == 0)
+            {
+                <span class="text-muted-foreground">No marks</span>
+            }
+            @if (_log.Marks.Count > ShownMarks)
+            {
+                <span class="text-muted-foreground">+@(_log.Marks.Count - ShownMarks), on the timeline</span>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    [Inject] private IClientTelemetryReader Reader { get; set; } = null!;
+
+    private const int ShownMarks = 200;
+    private const int MaxNext = 4;
+
+    private TelemetrySessionLog? _log;
+    private TelemetrySessionCharts? _charts;
+    private IReadOnlyList<TelemetrySessionInfo>? _next;
+    private bool _isLoaded;
+
+    // The read after the close has taken the last rows.
+    protected override bool KeepsRefreshing => _log?.IsLive == true;
+
+    // The previous and the next session are links to this route: the router keeps the component and sets the new Id.
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_log == null || _log.Id == Id)
+            return;
+
+        _log = null;
+        _charts = null;
+        _next = null;
+        _isLoaded = false;
+
+        await Restart();
+    }
+
+    protected override async Task Refresh()
+    {
+        var log = _log ??= new TelemetrySessionLog(Reader, Id);
+        var changed = await log.Refresh();
+
+        // The Id changed during the read: the new log is read by its own loop.
+        if (log != _log)
+            return;
+
+        if (changed && log.Info is { } info)
+            _charts = TelemetrySessionCharts.Of(log, info.Names);
+
+        // A next session starts when this one is over on the client: asked once, after the close.
+        if (_next == null && log.Info is { Status: not TelemetrySessionStatus.Live })
+        {
+            var next = await Reader.GetSessions(new TelemetrySessionFilter { PreviousId = log.Id, Limit = MaxNext });
+
+            if (log != _log)
+                return;
+
+            _next = next;
+        }
+
+        _isLoaded = true;
+    }
+
+    private long ErrorCount(TelemetrySessionInfo info)
+    {
+        return info.Digest?.ErrorCount ?? _log!.Errors.Where(error => error.Level != TelemetryErrorLevel.Warning).Sum(error => (long)error.Repeat);
+    }
+}

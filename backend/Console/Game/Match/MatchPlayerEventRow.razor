@@ -1,0 +1,11 @@
+@using Meta.Matches
+
+<tr class="border-b last:border-b-0">
+    <td class="px-4 py-2 text-xs text-muted-foreground">@Moment.Time.ToString("0.0")</td>
+    <td class="px-4 py-2 text-xs font-mono">@Moment.Name</td>
+    <td class="px-4 py-2 text-xs font-mono">@Moment.Fields.GetRawText()</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public MatchPlayerMoment Moment { get; set; } = null!;
+}

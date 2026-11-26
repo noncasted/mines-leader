@@ -1,0 +1,24 @@
+<div class="flex items-start justify-between gap-3">
+    <div class="flex items-center gap-3 cursor-pointer" @onclick="@(() => Navigation.NavigateTo(ConsoleConstants.Pages.Online))">
+        <div class="rounded-lg bg-green-500/15 p-2">
+            <LucideIcon Name="activity" Size="18" class="text-green-400"/>
+        </div>
+        <div>
+            <h2 class="text-sm font-semibold">Online</h2>
+            <p class="text-xs text-muted-foreground">Unique users online right now</p>
+        </div>
+    </div>
+
+    <div class="text-right">
+        @* Inline: not every game has leading-none in its app.css. *@
+        <div class="text-2xl font-bold" style="line-height: 1">@Current</div>
+        <div class="text-xs text-muted-foreground">@Updated</div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required int Current { get; set; }
+    [Parameter, EditorRequired] public required string Updated { get; set; }
+
+    [Inject] private IConsoleNavigation Navigation { get; set; } = null!;
+}

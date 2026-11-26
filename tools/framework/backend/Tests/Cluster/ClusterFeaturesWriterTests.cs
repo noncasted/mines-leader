@@ -1,0 +1,89 @@
+using Cluster.State;
+using Internal;
+using FluentAssertions;
+using Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
+using Framework.Tests.Fixtures;
+using Xunit;
+
+namespace Framework.Tests.Cluster;
+
+[Collection(nameof(OrleansIntegrationCollection))]
+public class ClusterFeaturesWriterTests(OrleansTestClusterFixture fixture)
+    : IntegrationTestBase<OrleansTestClusterFixture>(fixture)
+{
+    [Fact]
+    public async Task ConcurrentPatches_FromServicesWithStaleCopies_KeepEveryFlag()
+    {
+        var deployId = Guid.NewGuid();
+        var lifetime = TestLifetime.Child();
+
+        // Two services of one deploy, each with its own local copy of the row.
+        var coordinator = await Attach(deployId, lifetime);
+        var gateway = await Attach(deployId, lifetime);
+
+        // Both copies are stale for each other's change: a read-modify-write from the local copy
+        // would write back the other flag with its old value.
+        await Task.WhenAll(
+            coordinator.SetSideEffectsEnabled(true),
+            gateway.SetAcceptingConnections(true),
+            gateway.SetCoordinatorUnhealthy(true));
+
+        var reloaded = await Attach(deployId, lifetime);
+
+        reloaded.Value.SideEffectsEnabled.Should().BeTrue();
+        reloaded.Value.AcceptingConnections.Should().BeTrue();
+        reloaded.Value.CoordinatorUnhealthy.Should().BeTrue();
+        reloaded.IsAcceptingConnections.Should().BeFalse();
+
+        await TestWait.Until(() => coordinator.Value.AcceptingConnections && coordinator.Value.CoordinatorUnhealthy);
+        await TestWait.Until(() => gateway.Value.SideEffectsEnabled);
+
+        lifetime.Terminate();
+    }
+
+    [Fact]
+    public async Task SequentialPatches_FromDifferentServices_AllApplied()
+    {
+        var deployId = Guid.NewGuid();
+        var lifetime = TestLifetime.Child();
+
+        var first = await Attach(deployId, lifetime);
+        var second = await Attach(deployId, lifetime);
+
+        for (var i = 0; i < 10; i++)
+        {
+            var value = i % 2 == 0;
+            await first.SetSideEffectsEnabled(value);
+            await second.SetAcceptingConnections(value == false);
+        }
+
+        var reloaded = await Attach(deployId, lifetime);
+
+        reloaded.Value.SideEffectsEnabled.Should().BeFalse();
+        reloaded.Value.AcceptingConnections.Should().BeTrue();
+
+        lifetime.Terminate();
+    }
+
+    [Fact]
+    public async Task SetValue_IsRejected()
+    {
+        var features = await Attach(Guid.NewGuid(), TestLifetime);
+
+        var act = () => features.SetValue(new ClusterFeaturesState());
+
+        await act.Should().ThrowAsync<NotSupportedException>();
+    }
+
+    private async Task<ClusterFeatures> Attach(Guid deployId, IReadOnlyLifetime lifetime)
+    {
+        var features = new ClusterFeatures(
+            GetSiloService<IOrleans>(),
+            GetSiloService<IMessaging>(),
+            NullLoggerFactory.Instance);
+
+        await features.OnDeployChanged(deployId, lifetime);
+        return features;
+    }
+}

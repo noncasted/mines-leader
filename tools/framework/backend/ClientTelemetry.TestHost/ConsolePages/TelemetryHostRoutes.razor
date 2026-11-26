@@ -1,0 +1,5 @@
+<Router AppAssembly="@typeof(TelemetryHostRoutes).Assembly" AdditionalAssemblies="new[] { typeof(global::Console.Infrastructure.InfrastructureDashboard).Assembly }">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(TelemetryHostLayout)"/>
+    </Found>
+</Router>

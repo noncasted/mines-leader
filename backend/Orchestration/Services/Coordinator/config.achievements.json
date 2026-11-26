@@ -1,0 +1,1458 @@
+{
+  "$type": "Shared.InGameAchievementOptions, Shared",
+  "Groups": {
+    "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementGroupConfig, Shared]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 100,
+        "Name": "Flag Bearer",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Set 10 flags",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 100,
+                "Required": 10
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Set 100 flags",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 100,
+                "Required": 100
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Set 1000 flags",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 100,
+                "Required": 1000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Set 10000 flags",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 100,
+                "Required": 10000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Set 100000 flags",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 100,
+                "Required": 100000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 200,
+        "Name": "Excavator",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Open 50 cells",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 200,
+                "Required": 50
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Open 500 cells",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 200,
+                "Required": 500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Open 5000 cells",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 200,
+                "Required": 5000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Open 50000 cells",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 200,
+                "Required": 50000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Open 500000 cells",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 200,
+                "Required": 500000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 300,
+        "Name": "Bomb Squad",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Detonate 5 mines",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 210,
+                "Required": 5
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Detonate 50 mines",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 210,
+                "Required": 50
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Detonate 500 mines",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 210,
+                "Required": 500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Detonate 5000 mines",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 210,
+                "Required": 5000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Detonate 50000 mines",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 210,
+                "Required": 50000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 400,
+        "Name": "Card Slinger",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Play 25 cards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 300,
+                "Required": 25
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Play 250 cards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 300,
+                "Required": 250
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Play 2500 cards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 300,
+                "Required": 2500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Play 25000 cards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 300,
+                "Required": 25000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Play 250000 cards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 300,
+                "Required": 250000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 500,
+        "Name": "Empowered",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Receive 10 buffs",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 400,
+                "Required": 10
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Receive 100 buffs",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 400,
+                "Required": 100
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Receive 1000 buffs",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 400,
+                "Required": 1000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Receive 10000 buffs",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 400,
+                "Required": 10000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Receive 100000 buffs",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 400,
+                "Required": 100000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 600,
+        "Name": "Saboteur",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Plant 10 cells on enemy boards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 320,
+                "Required": 10
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Plant 100 cells on enemy boards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 320,
+                "Required": 100
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Plant 1000 cells on enemy boards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 320,
+                "Required": 1000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Plant 10000 cells on enemy boards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 320,
+                "Required": 10000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Plant 100000 cells on enemy boards",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 320,
+                "Required": 100000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 700,
+        "Name": "Mana Burner",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Spend 100 mana",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 500,
+                "Required": 100
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Spend 1000 mana",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 500,
+                "Required": 1000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Spend 10000 mana",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 500,
+                "Required": 10000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Spend 100000 mana",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 500,
+                "Required": 100000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Spend 1000000 mana",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 500,
+                "Required": 1000000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 800,
+        "Name": "Veteran",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Play 1 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 600,
+                "Required": 1
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Play 10 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 600,
+                "Required": 10
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Play 100 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 600,
+                "Required": 100
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Play 1000 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 600,
+                "Required": 1000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Play 10000 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 600,
+                "Required": 10000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 900,
+        "Name": "Champion",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Win 1 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 610,
+                "Required": 1
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Win 10 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 610,
+                "Required": 10
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Win 100 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 610,
+                "Required": 100
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Win 1000 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 610,
+                "Required": 1000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Win 10000 matches",
+              "Condition": {
+                "$type": "Shared.StatThresholdCondition, Shared",
+                "Stat": 610,
+                "Required": 10000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": []
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 1000,
+        "Name": "Pathfinder",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Play 5 Scout cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 100,
+                "Required": 5
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    100
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Play 50 Scout cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 100,
+                "Required": 50
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    100
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Play 500 Scout cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 100,
+                "Required": 500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    100
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Play 5000 Scout cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 100,
+                "Required": 5000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    100
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Play 50000 Scout cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 100,
+                "Required": 50000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    100
+                  ]
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 1100,
+        "Name": "Bulwark",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Play 5 Defense cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 200,
+                "Required": 5
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    200
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Play 50 Defense cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 200,
+                "Required": 50
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    200
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Play 500 Defense cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 200,
+                "Required": 500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    200
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Play 5000 Defense cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 200,
+                "Required": 5000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    200
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Play 50000 Defense cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 200,
+                "Required": 50000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    200
+                  ]
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 1200,
+        "Name": "Warmonger",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Play 5 Attack cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 300,
+                "Required": 5
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    300
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Play 50 Attack cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 300,
+                "Required": 50
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    300
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Play 500 Attack cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 300,
+                "Required": 500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    300
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Play 5000 Attack cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 300,
+                "Required": 5000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    300
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Play 50000 Attack cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 300,
+                "Required": 50000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    300
+                  ]
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 1300,
+        "Name": "Enchanter",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Play 5 Buff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 400,
+                "Required": 5
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    400
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Play 50 Buff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 400,
+                "Required": 50
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    400
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Play 500 Buff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 400,
+                "Required": 500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    400
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Play 5000 Buff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 400,
+                "Required": 5000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    400
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Play 50000 Buff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 400,
+                "Required": 50000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    400
+                  ]
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$type": "Shared.InGameAchievementGroupConfig, Shared",
+        "Type": 1400,
+        "Name": "Hexweaver",
+        "Tiers": {
+          "$type": "System.Collections.Generic.List`1[[Shared.InGameAchievementTierConfig, Shared]], System.Private.CoreLib",
+          "$values": [
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 1,
+              "Description": "Play 5 Debuff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 500,
+                "Required": 5
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    500
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 2,
+              "Description": "Play 50 Debuff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 500,
+                "Required": 50
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    500
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 3,
+              "Description": "Play 500 Debuff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 500,
+                "Required": 500
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    500
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 4,
+              "Description": "Play 5000 Debuff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 500,
+                "Required": 5000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    500
+                  ]
+                },
+                "RewardType": 100
+              }
+            },
+            {
+              "$type": "Shared.InGameAchievementTierConfig, Shared",
+              "Tier": 5,
+              "Description": "Play 50000 Debuff cards",
+              "Condition": {
+                "$type": "Shared.CardGroupPlayedCondition, Shared",
+                "Group": 500,
+                "Required": 50000
+              },
+              "Reward": {
+                "$type": "Shared.CardUnlockReward, Shared",
+                "PossibleGroups": {
+                  "$type": "System.Collections.Generic.List`1[[Shared.CardGroup, Shared]], System.Private.CoreLib",
+                  "$values": [
+                    500
+                  ]
+                },
+                "RewardType": 100
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

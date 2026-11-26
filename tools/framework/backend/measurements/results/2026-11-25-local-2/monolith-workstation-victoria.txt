@@ -1,0 +1,43 @@
+#host omarchy 2026-11-25T08:30:00Z nproc=24 uptime=73799.10
+               total        used        free      shared  buff/cache   available
+Mem:           63383       33034        5558        1415       29827       30348
+Swap:          96150       42515       53635
+#df
+/dev/mapper/root  952G  851G   78G  92% /
+#stats
+backend-measure-2026-11-25-local-2-monolith-workstation	155.1MiB / 61.9GiB	6.69%
+otlp-measure-2026-11-25-local-2-monolith-workstation	2.809MiB / 32MiB	0.00%
+pgbouncer-measure-2026-11-25-local-2-monolith-workstation	8.16MiB / 61.9GiB	1.64%
+victorialogs-measure-2026-11-25-local-2-monolith-workstation	14.02MiB / 256MiB	0.02%
+victoriatraces-measure-2026-11-25-local-2-monolith-workstation	17.84MiB / 256MiB	0.07%
+postgres-measure-2026-11-25-local-2-monolith-workstation	52.29MiB / 61.9GiB	0.36%
+#labels
+/backend-measure-2026-11-25-local-2-monolith-workstation\tmeasure-2026-11-25-local-2-monolith-workstation\tpixel-swarm\t\t\tbackend-measurements/backend:local\t2026-11-25T08:24:55.150229671Z\t3634590
+/otlp-measure-2026-11-25-local-2-monolith-workstation\tmeasure-2026-11-25-local-2-monolith-workstation\tpixel-swarm\t\t\tnginx:1.30.8-alpine-slim\t2026-11-25T08:24:48.20292517Z\t3633319
+/pgbouncer-measure-2026-11-25-local-2-monolith-workstation\tmeasure-2026-11-25-local-2-monolith-workstation\tpixel-swarm\t\t\tedoburu/pgbouncer:v1.26.1-p0\t2026-11-25T08:24:45.543210411Z\t3632806
+/victorialogs-measure-2026-11-25-local-2-monolith-workstation\tmeasure-2026-11-25-local-2-monolith-workstation\tpixel-swarm\t\t\tvictoriametrics/victoria-logs:v1.54.0\t2026-11-25T08:24:41.148040337Z\t3632366
+/victoriatraces-measure-2026-11-25-local-2-monolith-workstation\tmeasure-2026-11-25-local-2-monolith-workstation\tpixel-swarm\t\t\tvictoriametrics/victoria-traces:v0.13.0\t2026-11-25T08:24:42.241086752Z\t3632511
+/postgres-measure-2026-11-25-local-2-monolith-workstation\tmeasure-2026-11-25-local-2-monolith-workstation\tpixel-swarm\t\t\tpostgres:18-alpine\t2026-11-25T08:24:40.222071081Z\t3632139
+#pss
+/backend-measure-2026-11-25-local-2-monolith-workstation 3634590 262116 249916 85712
+/otlp-measure-2026-11-25-local-2-monolith-workstation 3633319 6568 4817 1664
+/otlp-measure-2026-11-25-local-2-monolith-workstation 3633352 3456 1868 2148
+/pgbouncer-measure-2026-11-25-local-2-monolith-workstation 3632806 9600 9272 7556
+/victorialogs-measure-2026-11-25-local-2-monolith-workstation 3632366 23112 23100 9676
+/victoriatraces-measure-2026-11-25-local-2-monolith-workstation 3632511 30140 30128 16328
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632139 30060 16532 1988
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632683 8824 2898 2088
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632684 5952 882 2072
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632685 5072 609 2048
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632686 11332 2715 2156
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632687 6832 1022 2060
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632689 9496 2375 2064
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632690 8392 1310 2368
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3632691 7452 1131 2332
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3634435 24684 7342 5480
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3634757 24192 7233 5784
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3634758 17256 3813 3760
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3634760 16144 3269 3344
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3634761 17436 3854 3768
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3634769 20092 4618 3824
+/postgres-measure-2026-11-25-local-2-monolith-workstation 3634770 16772 3332 3244

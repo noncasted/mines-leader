@@ -1,0 +1,65 @@
+using MemoryPack;
+
+namespace Shared
+{
+    [MemoryPackable]
+    [MemoryPackUnion(0, typeof(CardConfigOptions.Bloodhound))]
+    [MemoryPackUnion(1, typeof(CardConfigOptions.Trebuchet))]
+    [MemoryPackUnion(2, typeof(CardConfigOptions.TrebuchetAimer))]
+    [MemoryPackUnion(3, typeof(CardConfigOptions.ErosionDozer))]
+    [MemoryPackUnion(4, typeof(CardConfigOptions.Gravedigger))]
+    [MemoryPackUnion(5, typeof(CardConfigOptions.ZipZap))]
+    [MemoryPackUnion(6, typeof(CardConfigOptions.OpponentFlagErase))]
+    [MemoryPackUnion(7, typeof(CardConfigOptions.OpponentFlagReshuffle))]
+    [MemoryPackUnion(8, typeof(CardConfigOptions.OpponentBomb))]
+    [MemoryPackUnion(9, typeof(CardConfigOptions.Smoke))]
+    [MemoryPackUnion(10, typeof(CardConfigOptions.Medic))]
+    [MemoryPackUnion(11, typeof(CardConfigOptions.MinefieldScout))]
+    [MemoryPackUnion(13, typeof(CardConfigOptions.Siphon))]
+    [MemoryPackUnion(16, typeof(CardConfigOptions.ChainReaction))]
+    [MemoryPackUnion(17, typeof(CardConfigOptions.Overclock))]
+    [MemoryPackUnion(18, typeof(CardConfigOptions.FogOfWar))]
+    [MemoryPackUnion(19, typeof(CardConfigOptions.Scavenger))]
+    [MemoryPackUnion(20, typeof(CardConfigOptions.HandScramble))]
+    [MemoryPackUnion(21, typeof(CardConfigOptions.Lockdown))]
+    [MemoryPackUnion(23, typeof(CardConfigOptions.Sonar))]
+    [MemoryPackUnion(24, typeof(CardConfigOptions.Purge))]
+    [MemoryPackUnion(25, typeof(CardConfigOptions.Adrenaline))]
+    [MemoryPackUnion(26, typeof(CardConfigOptions.ManaSurge))]
+    [MemoryPackUnion(27, typeof(CardConfigOptions.BloodPact))]
+    [MemoryPackUnion(28, typeof(CardConfigOptions.CoinToss))]
+    [MemoryPackUnion(29, typeof(CardConfigOptions.ManaFountain))]
+    [MemoryPackUnion(30, typeof(CardConfigOptions.Focus))]
+    [MemoryPackUnion(31, typeof(CardConfigOptions.Shield))]
+    [MemoryPackUnion(32, typeof(CardConfigOptions.PowerSurge))]
+    [MemoryPackUnion(33, typeof(CardConfigOptions.Embargo))]
+    [MemoryPackUnion(34, typeof(CardConfigOptions.Recycler))]
+    [MemoryPackUnion(35, typeof(CardConfigOptions.MysticDraw))]
+    [MemoryPackUnion(36, typeof(CardConfigOptions.DoubleOrNothing))]
+    [MemoryPackUnion(37, typeof(CardConfigOptions.GamblersRuin))]
+    [MemoryPackUnion(38, typeof(CardConfigOptions.Excavator))]
+    [MemoryPackUnion(39, typeof(CardConfigOptions.ThermalVision))]
+    [MemoryPackUnion(40, typeof(CardConfigOptions.ChaosDiamond))]
+    [MemoryPackUnion(41, typeof(CardConfigOptions.ChaosScout))]
+    [MemoryPackUnion(42, typeof(CardConfigOptions.MineCluster))]
+    [MemoryPackUnion(43, typeof(CardConfigOptions.CarpetBomb))]
+    [MemoryPackUnion(44, typeof(CardConfigOptions.FortuneBlast))]
+    [MemoryPackUnion(45, typeof(CardConfigOptions.ChaosFog))]
+    [MemoryPackUnion(46, typeof(CardConfigOptions.Frost))]
+    [MemoryPackUnion(47, typeof(CardConfigOptions.Blackout))]
+    [MemoryPackUnion(48, typeof(CardConfigOptions.FortuneCookie))]
+    [MemoryPackUnion(49, typeof(CardConfigOptions.Salvage))]
+    [MemoryPackUnion(50, typeof(CardConfigOptions.CardThief))]
+    [MemoryPackUnion(51, typeof(CardConfigOptions.SabotageDeck))]
+    [MemoryPackUnion(52, typeof(CardConfigOptions.Dud))]
+    [MemoryPackUnion(53, typeof(CardConfigOptions.SoulLink))]
+    [MemoryPackUnion(54, typeof(CardConfigOptions.MirrorMatch))]
+    [MemoryPackUnion(55, typeof(CardConfigOptions.DimensionRift))]
+    public partial interface ICardConfig
+    {
+        CardType Type { get; set; }
+        CardGroup Group { get; }
+        int ManaCost { get; set; }
+        CardTarget Target { get; }
+    }
+}

@@ -1,0 +1,117 @@
+@page "/match-history"
+@using Meta.Matches
+
+<PageTitle>Match History</PageTitle>
+<PageHeader Title="Match History"/>
+
+<div class="container mx-auto max-w-5xl px-4 py-4 flex flex-col gap-6">
+
+    <div class="flex items-center gap-4">
+        <input class="h-9 rounded-md border bg-transparent px-3 text-sm w-72"
+               placeholder="Player: meta id or nickname"
+               @bind="_player" @bind:event="oninput" @bind:after="Apply"/>
+        <select class="h-9 rounded-md border bg-transparent px-2 text-sm" @bind="_status" @bind:after="Apply">
+            <option value="all">All</option>
+            <option value="running">Running</option>
+            <option value="winner">Closed with a winner</option>
+            <option value="nowinner">Closed without a winner</option>
+        </select>
+        <span class="text-sm text-muted-foreground">@_total matches</span>
+    </div>
+
+    <div class="rounded-lg border">
+        <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b bg-muted/50">
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Started</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Type</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Players</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Winner</th>
+                <th class="h-10 px-4 text-left font-medium text-muted-foreground">Duration</th>
+                <th class="h-10 px-4 w-10"></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var entry in _entries)
+            {
+                <MatchHistoryRow MatchId="@entry.Key" Match="@entry.Value"/>
+            }
+            @if (_entries.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">No matches found</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (_totalPages > 1)
+    {
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">Page @(_page + 1) / @_totalPages</span>
+            <div class="flex items-center gap-1">
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" Disabled="@(_page == 0)" @onclick="PrevPage">
+                    <LucideIcon Name="chevron-left" Size="14"/>
+                </BbButton>
+                <BbButton Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" Disabled="@(_page >= _totalPages - 1)" @onclick="NextPage">
+                    <LucideIcon Name="chevron-right" Size="14"/>
+                </BbButton>
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    [Inject] public IMatchSummaryCollection Summaries { get; set; } = null!;
+
+    private const int PageSize = 20;
+
+    private string _player = string.Empty;
+    private string _status = "all";
+    private IReadOnlyList<KeyValuePair<Guid, MatchState>> _entries = [];
+    private int _total;
+    private int _page;
+    private int _totalPages = 1;
+
+    protected override void OnInitialized()
+    {
+        Load();
+    }
+
+    // The records in memory of the host, newest first (the same filter as /api/match-history/matches).
+    private void Load()
+    {
+        var filter = new MatchListFilter
+        {
+            IsClosed = _status switch { "running" => false, "winner" or "nowinner" => true, _ => null },
+            HasWinner = _status switch { "winner" => true, "nowinner" => false, _ => null }
+        };
+
+        if (string.IsNullOrWhiteSpace(_player) == false)
+            filter = filter.WithPlayer(_player.Trim());
+
+        _total = filter.Count(Summaries.Values);
+        _totalPages = _total == 0 ? 1 : (_total + PageSize - 1) / PageSize;
+        _entries = (filter with { Offset = _page * PageSize, Limit = PageSize }).Apply(Summaries);
+    }
+
+    private void Apply()
+    {
+        _page = 0;
+        Load();
+    }
+
+    private void PrevPage()
+    {
+        _page--;
+        Load();
+    }
+
+    private void NextPage()
+    {
+        _page++;
+        Load();
+    }
+}

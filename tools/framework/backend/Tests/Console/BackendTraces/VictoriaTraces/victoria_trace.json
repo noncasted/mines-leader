@@ -1,0 +1,275 @@
+{
+ "data": [
+  {
+   "processes": {
+    "p1": {
+     "serviceName": "meta",
+     "tags": [
+      {
+       "key": "deployment.environment",
+       "type": "string",
+       "value": "test"
+      },
+      {
+       "key": "service.namespace",
+       "type": "string",
+       "value": "fixture"
+      }
+     ]
+    },
+    "p2": {
+     "serviceName": "silo",
+     "tags": [
+      {
+       "key": "deployment.environment",
+       "type": "string",
+       "value": "test"
+      },
+      {
+       "key": "service.namespace",
+       "type": "string",
+       "value": "fixture"
+      }
+     ]
+    }
+   },
+   "spans": [
+    {
+     "duration": 195000,
+     "logs": [],
+     "operationName": "Meta projections",
+     "processID": "p1",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "spanID": "30751cd7aa06e015",
+       "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+      }
+     ],
+     "spanID": "5d1a2b3c4d5e6f70",
+     "startTime": 1795586888436000,
+     "tags": [
+      {
+       "key": "otel.scope.name",
+       "type": "string",
+       "value": "MetaGateway.Connection"
+      },
+      {
+       "key": "error",
+       "type": "string",
+       "value": "true"
+      },
+      {
+       "key": "otel.status_description",
+       "type": "string",
+       "value": "projection failed"
+      }
+     ],
+     "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+     "warnings": null
+    },
+    {
+     "duration": 270000,
+     "logs": [],
+     "operationName": "Transaction.Process",
+     "processID": "p2",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "spanID": "39ca646731c14b67",
+       "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+      }
+     ],
+     "spanID": "6a7b8c9d0e1f2a3b",
+     "startTime": 1795586888121000,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.scope.name",
+       "type": "string",
+       "value": "Orleans.Runtime"
+      },
+      {
+       "key": "error",
+       "type": "string",
+       "value": "unset"
+      }
+     ],
+     "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+     "warnings": null
+    },
+    {
+     "duration": 150000,
+     "logs": [],
+     "operationName": "Transaction.Process",
+     "processID": "p2",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "spanID": "5d1a2b3c4d5e6f70",
+       "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+      }
+     ],
+     "spanID": "7b8c9d0e1f2a3b4c",
+     "startTime": 1795586888441000,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "client"
+      },
+      {
+       "key": "otel.scope.name",
+       "type": "string",
+       "value": "Orleans.Runtime"
+      },
+      {
+       "key": "error",
+       "type": "string",
+       "value": "false"
+      }
+     ],
+     "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+     "warnings": null
+    },
+    {
+     "duration": 550000,
+     "logs": [],
+     "operationName": "Meta connect",
+     "processID": "p1",
+     "references": [
+      {
+       "refType": "FOLLOWS_FROM",
+       "spanID": "db9ce5ba4546b546",
+       "traceID": "0a9d3fa7fc86d24739d6dad448a47faa"
+      }
+     ],
+     "spanID": "30751cd7aa06e015",
+     "startTime": 1795586888091000,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "server"
+      },
+      {
+       "key": "otel.scope.name",
+       "type": "string",
+       "value": "MetaGateway.Connection"
+      },
+      {
+       "key": "error",
+       "type": "string",
+       "value": "unset"
+      }
+     ],
+     "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+     "warnings": null
+    },
+    {
+     "duration": 18000,
+     "logs": [],
+     "operationName": "Meta read request",
+     "processID": "p1",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "spanID": "30751cd7aa06e015",
+       "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+      }
+     ],
+     "spanID": "30cb93fa92590191",
+     "startTime": 1795586888093000,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.scope.name",
+       "type": "string",
+       "value": "MetaGateway.Connection"
+      },
+      {
+       "key": "meta.request.bytes",
+       "type": "string",
+       "value": "512"
+      },
+      {
+       "key": "meta.request.gzip",
+       "type": "string",
+       "value": "true"
+      },
+      {
+       "key": "meta.request.ratio",
+       "type": "string",
+       "value": "0.25"
+      },
+      {
+       "key": "error",
+       "type": "string",
+       "value": "unset"
+      }
+     ],
+     "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+     "warnings": null
+    },
+    {
+     "duration": 319000,
+     "logs": [],
+     "operationName": "Meta auth",
+     "processID": "p1",
+     "references": [
+      {
+       "refType": "CHILD_OF",
+       "spanID": "30751cd7aa06e015",
+       "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+      }
+     ],
+     "spanID": "39ca646731c14b67",
+     "startTime": 1795586888112000,
+     "tags": [
+      {
+       "key": "span.kind",
+       "type": "string",
+       "value": "internal"
+      },
+      {
+       "key": "otel.scope.name",
+       "type": "string",
+       "value": "MetaGateway.Connection"
+      },
+      {
+       "key": "meta.auth.guest",
+       "type": "string",
+       "value": "new"
+      },
+      {
+       "key": "meta.auth.status",
+       "type": "string",
+       "value": "Ok"
+      },
+      {
+       "key": "error",
+       "type": "string",
+       "value": "unset"
+      }
+     ],
+     "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+     "warnings": null
+    }
+   ],
+   "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+   "warnings": null
+  }
+ ],
+ "errors": null,
+ "limit": 0,
+ "offset": 0,
+ "total": 1
+}

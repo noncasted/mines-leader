@@ -1,0 +1,21 @@
+<Project>
+
+    <!-- The libraries of the roles (Silo, Coordinator, MetaGateway, GameGateway, ConsoleGateway): ASP.NET Core and the
+         implicit usings of the Web SDK, which their code was written with. The exes are Services/<Role>. -->
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="System.Net.Http.Json"/>
+        <Using Include="Microsoft.AspNetCore.Builder"/>
+        <Using Include="Microsoft.AspNetCore.Hosting"/>
+        <Using Include="Microsoft.AspNetCore.Http"/>
+        <Using Include="Microsoft.AspNetCore.Routing"/>
+        <Using Include="Microsoft.Extensions.Configuration"/>
+        <Using Include="Microsoft.Extensions.DependencyInjection"/>
+        <Using Include="Microsoft.Extensions.Hosting"/>
+        <Using Include="Microsoft.Extensions.Logging"/>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,47 @@
+using Game.Session;
+using Shared;
+
+namespace Game.Global;
+
+public interface ISessionSearch
+{
+    // S4: the place of the user is reserved in the lobby it gets.
+    Guid GetOrCreateLobby(Guid userId);
+}
+
+public class SessionSearch : ISessionSearch
+{
+    public SessionSearch(ISessionFactory factory, ISessionsCollection collection)
+    {
+        _factory = factory;
+        _collection = collection;
+    }
+
+    private readonly ISessionFactory _factory;
+    private readonly ISessionsCollection _collection;
+
+    public Guid GetOrCreateLobby(Guid userId)
+    {
+        foreach (var (id, session) in _collection.Entries)
+        {
+            if (session.Type != SessionType.Lobby || session.Lifetime.IsTerminated == true)
+                continue;
+
+            // Closed in between: the next one.
+            if (session.Reserve(userId) != SessionReservation.Reserved)
+                continue;
+
+            return id;
+        }
+
+        var lobbyId = _factory.CreateLobby(new LobbyCreateOptions());
+
+        if (_collection.TryGet(lobbyId, out var created) == false)
+            throw new InvalidOperationException($"Created lobby {lobbyId} is not in the collection");
+
+        if (created.Reserve(userId) != SessionReservation.Reserved)
+            throw new InvalidOperationException($"A place in the created lobby {lobbyId} is refused");
+
+        return lobbyId;
+    }
+}

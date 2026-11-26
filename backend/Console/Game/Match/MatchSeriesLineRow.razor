@@ -1,0 +1,10 @@
+@using Meta.Matches
+
+<tr class="border-b last:border-b-0">
+    <td class="px-4 py-2 text-xs font-mono">@Line.Key</td>
+    <td class="px-4 py-2 text-xs text-muted-foreground">@string.Join("  ", Line.Points.Select(point => $"{point.Time}: {point.Value:0.##}"))</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public MatchPlayerLine Line { get; set; } = null!;
+}

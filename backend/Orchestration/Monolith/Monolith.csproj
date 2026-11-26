@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <!-- All roles of the game in one process (MonolithRunner of the framework, backend/Cluster/CLAUDE.md § Monolith),
+         for the test deploys: the same host factories the separate services of Services/<Role> run alone. -->
+    <PropertyGroup>
+        <AssemblyName>Monolith</AssemblyName>
+        <RootNamespace>Monolith</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Silo\Silo.csproj"/>
+        <ProjectReference Include="..\Coordinator\Coordinator.csproj"/>
+        <ProjectReference Include="..\MetaGateway\MetaGateway.csproj"/>
+        <ProjectReference Include="..\GameGateway\GameGateway.csproj"/>
+        <ProjectReference Include="..\ConsoleGateway\ConsoleGateway.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Cluster\Cluster.csproj"/>
+        <ProjectReference Include="..\..\Cluster.Game\Cluster.Game.csproj"/>
+    </ItemGroup>
+
+    <!-- The static files of a Razor class library reach the manifest of the exe only from a direct reference
+         (DisableTransitiveProjectReferences): the console pages of the framework and of the game, as in
+         Services/ConsoleGateway. The console host is named after this exe, whose manifest holds them (Program.cs). -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\Console\Console.csproj"/>
+        <ProjectReference Include="..\..\..\tools\framework\backend\Console\Console.csproj"/>
+    </ItemGroup>
+
+    <!-- Card icons served at /card-icons: the same copy as in Services/ConsoleGateway. -->
+    <ItemGroup>
+        <Content Include="..\..\..\docs\obsidian\game\cards\icons\*.png"
+                 LinkBase="card-icons"
+                 CopyToOutputDirectory="PreserveNewest"
+                 CopyToPublishDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <!-- The content root of each host (Monolith:Hosts:<Tag>:ContentRoot defaults to hosts/<Tag>): the appsettings of the
+         separate service of the role, and the cluster configs of the coordinator. -->
+    <ItemGroup>
+        <Content Remove="hosts\**"/>
+        <None Include="..\Services\Silo\appsettings*.json" Link="hosts\Silo\%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+        <None Include="..\Services\Coordinator\appsettings*.json" Link="hosts\Coordinator\%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+        <None Include="..\Services\Coordinator\config.*.json" Link="hosts\Coordinator\%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+        <None Include="..\Services\MetaGateway\appsettings*.json" Link="hosts\Meta\%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+        <None Include="..\Services\GameGateway\appsettings*.json" Link="hosts\Game\%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+        <None Include="..\Services\ConsoleGateway\appsettings*.json" Link="hosts\Console\%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+</Project>

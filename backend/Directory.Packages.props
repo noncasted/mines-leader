@@ -1,0 +1,4 @@
+<Project>
+  <!-- Package versions come from the framework; add here only the packages the framework does not use. -->
+  <Import Project="..\tools\framework\Directory.Packages.props" />
+</Project>
