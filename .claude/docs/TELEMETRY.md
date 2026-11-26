@@ -58,7 +58,7 @@ backend/.telemetry/
 
 Three kinds of data live on the backend, not in `backend/.telemetry`; an agent reads them itself over GET of the meta
 (MetaGateway), all under the token `CONSOLE_TOKEN` (header `Authorization: Bearer <token>`, `RequireConsoleToken()` in
-`backend/Orchestration/MetaGateway/Program.cs`, the same token as the console):
+`backend/Orchestration/MetaGateway/MetaHost.cs`, the same token as the console):
 
 | Data | API | Skill | Contract |
 |------|-----|-------|----------|
@@ -93,16 +93,18 @@ Reading: skill `client-telemetry` (`.claude/skills/client-telemetry/SKILL.md`).
   `client/Assets/WebGLTemplates/Default/index.html` (`window.startupTrace`) come first. `$T startups`, `$T startup <id>`.
   `BackendTraceId` of the record is the trace of the root span `Meta connect` of that socket (MetaGateway, source
   `MetaGateway.Connection`, `UserFlow/Connection/MetaConnectTrace.cs`: read request, auth, send response, projections): find it
-  by the id in the Aspire dashboard -> Traces.
-- Backend trace in the console: the page of a startup record shows its `BackendTraceId` trace read from the telemetry HTTP
-  API of the Aspire dashboard (`GET <Url>/api/telemetry/traces/{id}`, header `x-api-key`), configuration section
-  `AspireDashboard` (`Url`, `ApiKey`; env `AspireDashboard__Url`, `AspireDashboard__ApiKey`), plugged in by the
-  `AddConsoleBackendTraces(builder.Configuration.GetSection("AspireDashboard"))` in `ConsoleGateway/Program.cs`. Prod: `http://aspire-dashboard:18888` and the
-  secret `ASPIRE_API_KEY` (the same value is `DASHBOARD__API__PRIMARYAPIKEY` of the dashboard, `docker-compose.yaml`).
-  Locally the AppHost passes both (`SetupDashboardApi` in `Aspire/Program.cs`): the URL is its `ASPNETCORE_URLS`
-  (`http://localhost:7300`), the key is `AppHost:DashboardApiKey` that Aspire generates once into the user secrets of the
-  AppHost and gives the dashboard itself. The dashboard keeps telemetry only in memory: after its restart or past its
-  limits the trace is gone, while the startup record lives 7 days.
+  by the id in the VictoriaTraces of the host (skill `backend-logs`: `prod trace <id>`, `prod around <id>`).
+- Backend trace in the console: the page of a startup record shows its `BackendTraceId` trace. The source depends on the
+  environment, chosen in `ConsoleGateway`:
+  - Development: the telemetry HTTP API of the Aspire dashboard (`GET <Url>/api/telemetry/traces/{id}`, header
+    `x-api-key`), configuration section `AspireDashboard` (`Url`, `ApiKey`; env `AspireDashboard__Url`,
+    `AspireDashboard__ApiKey`), `AddConsoleAspireDashboardTraces`. The AppHost passes both (`SetupDashboardApi` in
+    `Aspire/Program.cs`): the URL is its `ASPNETCORE_URLS` (`http://localhost:7300`), the key is `AppHost:DashboardApiKey`
+    that Aspire generates once into the user secrets of the AppHost and gives the dashboard itself.
+  - Deploy: the Jaeger query API of VictoriaTraces of the observability stack, section `BackendTraces` (`Url`; env
+    `BackendTraces__Url`, `http://victoriatraces:10428` in the compose), `AddConsoleVictoriaTraces`. No key: the port is
+    not published outside the host. A trace is there 20-30 s after its last span.
+  Telemetry in the local dashboard lives in memory only, in VictoriaTraces 14 days; the startup record lives 7 days.
 - Frame: `enableFrameTimingStats` is on in `ProjectSettings.asset` and in the build profile `web_dev - Desktop - Development`
   (a profile keeps its own copy of the value).
 - In the editor the telemetry is off by default (`ClientTelemetryOptions`): a local check needs a WebGL build or the option
@@ -161,7 +163,7 @@ Server stream: `Game.Session.SessionMetrics` (`backend/Game/Session/Metrics`, `I
 winner_index}` (-1 without a winner). Its axis is the server time since the open of the stream; the `seconds` of its fields
 are of the clock of the match.
 
-Backend wiring: MetaGateway `Program.cs` - `AddMatchMetricsCommands()` (intake over the meta socket),
+Backend wiring: `Orchestration/MetaGateway/MetaHost.cs` - `AddMatchMetricsCommands()` (intake over the meta socket),
 `AddMatchMetricsAdmission<MatchMetricsAdmission>()` (`backend/Meta/Matches/MatchMetricsAdmission.cs`: a user may write
 metrics of a match while it is a participant of its record `IMatch` and the match is not closed), `AddMatchMetricsReader()`,
 `MapMatchMetricsRead().RequireConsoleToken()`; ConsoleGateway - `AddMatchMetricsReader()`. Tables `match_metric_*`:

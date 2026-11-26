@@ -63,6 +63,18 @@ check is on and the env file takes that value). The telemetry is off in the edit
 (`ClientTelemetryOptions`): a local check needs a WebGL build or the option turned on for the time of the check.
 The same section gives the address and the token to the skill `match-history`.
 
+## backend-logs
+
+- project key: `mines-leader` (entry of `tools/framework/deploy/registry.json`: server `ovh`, ssh alias `ovh`,
+  `service.namespace=mines-leader`)
+- the production token: the same `~/.config/mines-leader/deploy.env` as § client-telemetry (for the console APIs, not for
+  the log stores: those are read over an ssh tunnel, no token)
+- Coolify tokens for `prod registry verify`: `~/.claude/mcp/coolify.json`
+
+The services export logs and traces into the observability stack of the host (`otlp:4318`, network `observability`) since
+the framework 0.18.0. Logs are searchable seconds after they are written, a trace 20-30 s after its last span. The stack is
+deployed on `ovh` (uuid in `servers.ovh.observability.coolify` of the registry).
+
 ## start-cluster, control
 
 The local cluster has its own ports (the table below), so it runs next to the clusters of the other games on the

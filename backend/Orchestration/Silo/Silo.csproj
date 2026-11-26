@@ -1,9 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
+    <!-- The host of the Silo role (a factory of its WebApplication): run alone by Services/Silo, next to the other
+         roles by a monolith. -->
     <PropertyGroup>
-        <AssemblyName>Silo</AssemblyName>
+        <AssemblyName>Orchestration.Silo</AssemblyName>
         <RootNamespace>Silo</RootNamespace>
     </PropertyGroup>
+
+    <Import Project="..\Roles.props"/>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>

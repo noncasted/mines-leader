@@ -10,8 +10,8 @@ Two parallel deployment models that **do not share a runtime**:
 | Orchestrator | Aspire AppHost + dcp | Docker Compose + Coolify Traefik |
 | Postgres | Aspire-managed container | External Coolify-managed resource |
 | PgBouncer | Aspire `AddContainer` sidecar | First-class compose service |
-| Dashboard | AppHost-spawned dashboard | Standalone `mcr.microsoft.com/dotnet/aspire-dashboard` container |
-| Resources tab | Native AppHost resource service | Not available (no resource service — see below) |
+| Telemetry | AppHost-spawned dashboard | VictoriaLogs + VictoriaTraces (the `observability` stack of the host, shared by its games) |
+| Resources tab | Native AppHost resource service | Not available |
 | TLS / routing | `localhost:<port>` | Coolify Traefik + Let's Encrypt |
 || Migrations | `PostResourcesSetup.Run` via `--migrate` mode | `migrator` init-container (`Aspire.AppHost --migrate`) |
 
@@ -53,7 +53,20 @@ backend/
             PostgreSQL-Main.sql            # OrleansQuery table (dotnet/orleans v10.1.0)
             PostgreSQL-Clustering.sql      # membership tables + 8 stored queries
             PostgreSQL-Supplemental.sql    # our addition: CleanupDefunctSiloEntriesKey (missing upstream)
-    Dockerfile                # shared multi-stage image for prod services
+    Silo/                     # the library of a role: <Role>Host.Build(WebApplicationOptions)
+    Coordinator/
+    MetaGateway/
+    GameGateway/
+    ConsoleGateway/           # also the Blazor UI (Razor class library, StaticWebAssetBasePath "/")
+    Services/
+      Silo/                   # the exe of a role: Program.cs -> <Role>Host.Build(args), appsettings, Properties
+      Coordinator/            # ...and the cluster configs config.*.json (the content root of the host)
+      MetaGateway/
+      GameGateway/
+      ConsoleGateway/         # also the card icons Content (a copy per console exe)
+    Monolith/                 # every role in one process (MonolithRunner), hosts/<Tag> content roots
+    Roles.props               # ASP.NET Core + the Web SDK implicit usings of the role libraries
+    Dockerfile                # shared multi-stage image for prod services (+ target `monolith`)
     Dockerfile.prebuilt       # runtime-only image for local compose smoke tests
     Extensions/
       ServiceDefaultsExtensions.cs   # OTel + health endpoints
@@ -62,7 +75,8 @@ backend/
       CoordinatorReadyHealthCheck.cs # /ready additionally requires DeployId
       OrleansSetupExtensions.cs      # dev uses localhost clustering, prod uses AdoNet
     deploy/
-      docker-compose.yaml      # Coolify-targeted prod compose
+      docker-compose.yaml      # Coolify-targeted prod compose (services mode)
+      docker-compose.monolith.yaml # the same application in monolith mode (one `backend` container)
       docker-compose.local.yaml # overlay for local smoke tests using prebuilt binaries
       .env.example              # env template (tracked)
       .env.local                # local creds (gitignored)
@@ -74,7 +88,8 @@ tools/scripts/
 
 ## Dockerfile layering (production)
 
-One Dockerfile serves six containers: `silo`, `coordinator`, `meta`, `game`, `console`, `migrator`. The image a container ends up as is selected through the `ASSEMBLY_NAME` build-arg passed from compose.
+One Dockerfile serves six containers: `silo`, `coordinator`, `meta`, `game`, `console`, `migrator`; with `target: monolith`
+it serves the single `backend` container instead (its own `publish-monolith` and `monolith` stages). The image a container ends up as is selected through the `ASSEMBLY_NAME` build-arg passed from compose.
 
 ```dockerfile
 # syntax=docker/dockerfile:1.7-labs      # labs flag — enables COPY --parents
@@ -116,7 +131,7 @@ Why this shape beats the naive “one build stage per service”:
 
 ```yaml
 x-service-build: &service-build      # shared build spec: context = repo root, one Dockerfile.
-x-service-env:   &service-env        # ASPNETCORE_*, OTLP endpoint + API key, pgbouncer conn-string.
+x-service-env:   &service-env        # ASPNETCORE_*, OTLP endpoint to the observability stack, metrics off, pgbouncer conn-string.
 x-service-healthcheck: &service-healthcheck   # curl -fsS /ready, interval 2s, retries 60, start_period 10s.
 ```
 
@@ -125,17 +140,22 @@ x-service-healthcheck: &service-healthcheck   # curl -fsS /ready, interval 2s, r
 ```yaml
 networks:
   mines-leader-production:
-    external: true                    # Coolify Destination — sole network
+    external: true                    # Coolify Destination — our application only
+  observability:
+    external: true                    # the logs and traces stack of the host, shared by its games
 ```
 
-The app, pgbouncer, managed Postgres, and `coolify-proxy` all live in a **single dedicated Coolify Destination** (`mines-leader-production`). Every service explicitly lists it:
+The app, pgbouncer, managed Postgres, and `coolify-proxy` all live in a **single dedicated Coolify Destination** (`mines-leader-production`). Every service explicitly lists it; the five .NET services that export telemetry also join `observability`, with the Destination keeping a higher `gw_priority` so a short name (`silo`, `pgbouncer`, `coordinator`) resolves to this stack first:
 
 ```yaml
 services:
   pgbouncer:
     networks: [mines-leader-production]
   silo:
-    networks: [mines-leader-production]
+    networks:
+      mines-leader-production:
+        gw_priority: 100
+      observability: {}
   ...
 ```
 
@@ -170,9 +190,9 @@ coordinator (ASSEMBLY_NAME=Coordinator)
   ▼
 meta / game / console (three parallel leaves)
 
-aspire-dashboard (mcr.microsoft.com/dotnet/aspire-dashboard:13.5)
-  - publishes OTLP endpoint on :18889 for every service
-  - telemetry only; Resources tab is empty (no resource service)
+observability stack of the host (network `observability`, tools/framework/deploy/observability/CLAUDE.md)
+  - every .NET service exports OTLP/HTTP to `otlp:4318`; metrics are off (`Telemetry__ExportMetrics: "false"`)
+  - logs and traces are read with the skill `backend-logs`, not from a browser page
 ```
 
 Dependencies use `depends_on.condition: service_healthy` — matches the old AppHost `WaitFor(...)` semantics without needing AppHost.
@@ -187,9 +207,8 @@ All services declare `expose:` (internal) — no `ports:` mapped to host. TLS / 
 | silo | 8080 | /alive /ready /health for compose healthcheck |
 | coordinator | 8080 | same |
 | meta / game / console | 8080 | same, plus user traffic via Traefik |
-| aspire-dashboard | 18888 (frontend), 18889 (OTLP gRPC), 18890 (OTLP HTTP) | 18888 user, 18889 app→dashboard |
 
-When a container exposes **more than one** port, Coolify cannot guess which one Traefik should forward to. The UI Domain field must include `:port` in those cases (currently only `aspire-dashboard` — `https://aspire.<domain>:18888`).
+Every public container exposes one port, so a Domain entry needs no `:port`.
 
 For services with one port (8080) the Coolify magic variable `SERVICE_FQDN_<NAME>_<PORT>: /` in compose + a matching Domain entry in the UI together generate the right Traefik labels.
 
@@ -201,9 +220,6 @@ CONSOLE_TOKEN                                  # blazor admin login + Bearer tok
 SESSION_TICKET_SECRET                          # HMAC key of the game session tickets (base64, >= 32 bytes), same for meta / game
 CORS_ALLOWED_ORIGINS                           # optional, default https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone: Cors__AllowedOrigins of meta / game
 GAME_SERVER_URL                                # public URL announced to the Unity client
-ASPIRE_TOKEN                                   # aspire-dashboard browser token
-OTEL_API_KEY                                   # services → dashboard OTLP header
-ASPIRE_API_KEY                                 # dashboard telemetry API key (x-api-key), console reads startup backend traces
 ```
 
 `CONSOLE_TOKEN` (`ConsoleAccess`, `Orchestration/Extensions/ConsoleAccess.cs`): empty or `local-dev-token` turns console auth and the internal endpoint check off, which is allowed only in Development; console, meta and game fail at startup with such a value in any other environment. Locally the dev token comes from `Aspire/appsettings.json`, so `curl http://localhost:7302/api/sessions` works without a header; in prod it needs `-H "Authorization: Bearer $CONSOLE_TOKEN"`.
@@ -212,7 +228,7 @@ ASPIRE_API_KEY                                 # dashboard telemetry API key (x-
 
 `SESSION_TICKET_SECRET` (`SessionTicketsSetup`, `Orchestration/Extensions/SessionTicketsSetup.cs`): the key of the signed tickets of the game sessions (S4), `openssl rand -base64 48`. Meta signs a ticket for every participant of a match / lobby result, game signs the rematch tickets and verifies all of them, so both need the same value. Empty in Development = a fixed development key (Aspire passes it explicitly); outside Development an empty, short, non-base64 or development key fails startup. Rotating it only fails the tickets issued in the last minute (a player in the middle of entering a match).
 
-All `${NAME:?}` variables in the compose (`DB_*`, `CONSOLE_TOKEN`, `SESSION_TICKET_SECRET`, `GAME_SERVER_URL`, `ASPIRE_TOKEN`, `OTEL_API_KEY`, `ASPIRE_API_KEY`) are required: compose fails instead of falling back to an empty or dev value.
+All `${NAME:?}` variables in the compose (`DB_*`, `CONSOLE_TOKEN`, `SESSION_TICKET_SECRET`, `GAME_SERVER_URL`) are required: compose fails instead of falling back to an empty or dev value.
 
 ### Guest secret (S3) and session tickets (S4)
 
@@ -230,12 +246,11 @@ Everything else is literal or derived inside compose (`x-service-env`). Secrets 
 
 ### Persistent volumes
 
-Two named volumes carry ASP.NET Core DataProtection keyrings across redeploys:
+One named volume carries the ASP.NET Core DataProtection keyring across redeploys:
 
 | Volume | Mount | Why |
 |---|---|---|
-| `aspire-dashboard-keys` | `aspire-dashboard:/root/.aspnet/DataProtection-Keys` | Without it, every redeploy invalidates dashboard browser cookies — every page throws `CryptographicException`. |
-| `console-keys` | `console:/root/.aspnet/DataProtection-Keys` | Same mechanism: Blazor antiforgery + auth cookies become undecryptable, all admin buttons silently fail (`AntiforgeryValidationException`). |
+| `console-keys` | `console:/root/.aspnet/DataProtection-Keys` | Blazor antiforgery + auth cookies become undecryptable without it, all admin buttons silently fail (`AntiforgeryValidationException`). |
 
 Both services also set `user: root` because the runtime image drops privileges by default and the `/root/...` directory is root-owned, so the volume mount would be read-only otherwise.
 
@@ -255,10 +270,10 @@ docker run --rm <image> ls /app/wwwroot/_framework/
 
 ### Profiles (or lack of)
 
-Earlier we used `profiles: [with-dashboard]` on the dashboard (and the since-removed resource-service) so they were optional. That felt wrong because the dashboard is the primary observability surface and we always want it up. The profiles were dropped; the dashboard boots on every deploy.
+No service is optional: the deploy since 0.18.0 has no dashboard and no profiling toggle, everything in the compose runs.
 
-If you ever want to make a service optional again:
-1. Add `profiles: [some-name]` back to the service block.
+If you ever want to make a service optional:
+1. Add `profiles: [some-name]` to the service block.
 2. In Coolify set env `COMPOSE_PROFILES=some-name` (Coolify respects it) — or add `--profile some-name` to the build/up command override.
 
 ## docker-compose.local.yaml overlay
@@ -277,8 +292,28 @@ docker compose \
 The overlay:
 
 - Swaps `Dockerfile` → `Dockerfile.prebuilt` (runtime-only; copies pre-published binaries from host). Docker build finishes in seconds.
-- Overrides the prod `default → coolify external` network with a local bridge (`mines-leader-local`) because the `coolify` network does not exist outside the Coolify host.
-- Adds host-port maps on `meta:7100`, `game:7101`, `console:7102`, `aspire-dashboard:7200/7201` so you can open them in a browser from the host.
+- Renames the prod external network to a local bridge (`mines-leader-local`) because the Coolify Destination does not exist outside the Coolify host.
+- Adds host-port maps on `meta:7100`, `game:7101`, `console:7102` so you can open them in a browser from the host.
+- Both networks stay external: create them once with `docker network create mines-leader-local && docker network create observability`. The observability stack itself is optional locally; without it the services start and only their logs and traces are missing.
+
+## Monolith mode
+
+`backend/Tools/deploy/docker-compose.monolith.yaml` runs every role in ONE container `backend`
+(`Orchestration/Monolith` -> `MonolithRunner` of the framework, `tools/framework/backend/Cluster/CLAUDE.md` § Monolith).
+It is the other Compose Location of the same Coolify application; pgbouncer and migrator stay separate.
+
+- One port per role: `Monolith:Hosts:<Tag>:Port` — meta 8081, game 8082, console 8083, silo 8084, coordinator 8085. No
+  shared `/ready`: the healthcheck curls all five.
+- Content roots: `hosts/<Tag>` next to the binaries, filled by `Monolith.csproj` from `Services/<Role>` (the
+  `appsettings*.json` of the role and the coordinator `config.*.json`); a missing file throws.
+- Routing: the Domains of `backend` in Coolify stay empty; the compose carries the Traefik routers for meta, game and
+  console (`mines-leader-production`, let's encrypt).
+- Telemetry: one process-wide provider (`SERVICE_NAME=mines-leader`), logs per role; metrics off as in the services
+  compose.
+- The console sets a fixed DataProtection application name (`mines-leader-console`) and both composes mount the same
+  `console-keys` volume, so the cookies survive a switch between the modes.
+- `DOTNET_gcServer=0`, `stop_grace_period: 30s` (the runner stops every host and exits 0).
+- The registry (`tools/framework/deploy/registry.json`) has `mode: monolith` and `compose.services` / `compose.monolith`.
 
 ## Coolify application configuration
 
@@ -288,7 +323,7 @@ See `backend/Tools/deploy/COOLIFY.md` for the full runbook. One-liner summary:
 - Base Directory: `/backend/Tools/deploy`
 - Docker Compose Location: `/docker-compose.yaml`
 - Custom Docker Options: empty (no `--privileged`)
-- Domains: per-service in UI, **include `:port` for multi-port containers**
+- Domains: per-service in UI (one port each, no `:port` needed)
 - Env vars: the set above, secrets marked
 - Resource Postgres: same Project/Environment as the App, Coolify-managed
 
@@ -307,7 +342,10 @@ Checks registered:
 
 Console has an auth middleware that redirects everything except `/login` and `/_/css/*` to the login screen. Explicit allowlist was added for `/health`, `/alive`, `/ready` — without it Docker healthcheck saw 302 redirects and marked the container unhealthy.
 
-## Resources tab: not wired up (removed 2026-09-03)
+## Resources tab: historical, the dashboard is gone (0.18.0)
+
+The standalone Aspire dashboard left the deploy in the framework release 0.18.0 (it kept its telemetry in memory without a
+limit; the project now exports into the observability stack of the host). This section is kept for the reasons below only.
 
 Aspire's standalone dashboard only shows telemetry (Structured logs / Traces / Metrics) by default — the Resources tab stays empty unless `DASHBOARD__RESOURCESERVICECLIENT__URL` points at a gRPC server implementing the Aspire resource service contract.
 
@@ -328,7 +366,8 @@ If the Resources tab is ever wanted back, do **not** reintroduce a remote git bu
 | 5 game services | 870 MB Debug | 576 MiB Release | 940 MiB Release |
 | └── of which silo | — | 113 MiB | **531 MiB** ← benchmark-driven grain caches |
 | Aspire host + dashboard + dcp + 6× dotnet run | ~1.6 GB | — | — |
-| aspire-dashboard (+ resource-service, since removed) | — | 156 MiB | 197 MiB |
+| aspire-dashboard (removed in 0.18.0) | — | 156 MiB | 197 MiB |
+| observability stack (otlp + victorialogs + victoriatraces, shared by the host) | — | ~32 MiB | ~32 MiB |
 | pgbouncer | 3 MB | 1.7 MiB | 1.9 MiB |
 | migrator (runs then exits) | N/A | 0 MiB | 0 MiB |
 | **Total project footprint** | ~2.47 GB | **~734 MiB** | ~1.14 GiB |

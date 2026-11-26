@@ -4,7 +4,7 @@ using Tests.Fixtures;
 namespace Tests.Game;
 
 /// <summary>
-/// Cached card configs loaded from Orchestration/Coordinator/config.cards.json.
+/// Cached card configs loaded from Orchestration/Services/Coordinator/config.cards.json.
 /// Same values as production.
 /// </summary>
 public static class CardConfigs

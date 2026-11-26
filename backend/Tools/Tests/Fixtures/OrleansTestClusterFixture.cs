@@ -177,7 +177,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
 
     private static void RegisterTestConfigs(IServiceCollection services)
     {
-        // Infrastructure configs — loaded from Orchestration/Coordinator JSON files
+        // Infrastructure configs — loaded from Orchestration/Services/Coordinator JSON files
         RegisterConfig<ISideEffectsConfig, SideEffectsOptions>(services, "config.sideEffects");
 
         RegisterConfig<ITransactionConfig, TransactionOptions>(services, "config.transaction",
@@ -189,7 +189,7 @@ public class OrleansTestClusterFixture : IAsyncLifetime
         RegisterConfig<IRuntimePipeConfig, RuntimePipeOptions>(services);
         RegisterConfig<IRuntimeChannelConfig, RuntimeChannelOptions>(services);
 
-        // Game configs — loaded from Orchestration/Coordinator JSON files
+        // Game configs — loaded from Orchestration/Services/Coordinator JSON files
         RegisterConfig<ICardConfigs, CardConfigOptions>(services, "config.cards");
         RegisterConfig<IBotConfig, BotConfigOptions>(services, "config.bot");
         RegisterConfig<IGameModeConfig, GameModeOptions>(services, "config.gameMode");

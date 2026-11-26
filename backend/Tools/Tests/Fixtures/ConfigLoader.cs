@@ -3,7 +3,7 @@ using Common.Extensions;
 namespace Tests.Fixtures;
 
 /// <summary>
-/// Loads config JSON files from Orchestration/Coordinator directory.
+/// Loads config JSON files from Orchestration/Services/Coordinator (the content root of the coordinator host).
 /// Uses the same JsonUtils.Deserialize (Newtonsoft with TypeNameHandling.All)
 /// as ClusterConfigsSetup does in production.
 /// </summary>
@@ -33,7 +33,7 @@ public static class ConfigLoader
 
         while (current != null)
         {
-            var candidate = Path.Combine(current.FullName, "backend", "Orchestration", "Coordinator");
+            var candidate = Path.Combine(current.FullName, "backend", "Orchestration", "Services", "Coordinator");
 
             if (Directory.Exists(candidate))
                 return candidate;
@@ -43,12 +43,12 @@ public static class ConfigLoader
 
         // Fallback: try relative from working directory
         var fallback = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
-            "Orchestration", "Coordinator"));
+            "Orchestration", "Services", "Coordinator"));
 
         if (Directory.Exists(fallback))
             return fallback;
 
-        throw new DirectoryNotFoundException("Could not find Orchestration/Coordinator config directory. " +
+        throw new DirectoryNotFoundException("Could not find Orchestration/Services/Coordinator config directory. " +
                                              $"Searched from: {AppContext.BaseDirectory}");
     }
 }

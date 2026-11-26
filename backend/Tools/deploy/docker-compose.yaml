@@ -14,9 +14,8 @@
 name: mines-leader
 
 # Networks:
-#   `coolify`   — shared bridge where managed Postgres + coolify-proxy live.
-#                 We join it explicitly so pgbouncer can resolve the managed
-#                 DB hostname and the proxy can reach our gateways.
+#   `mines-leader-production` — our dedicated Coolify Destination (managed Postgres + coolify-proxy live there too).
+#   `observability`           — the logs and traces stack of the host, shared by its games.
 #
 # We deliberately do NOT leave Compose to create a `<project>_default`
 # network. Reason: Coolify also attaches each container to its own
@@ -25,7 +24,7 @@ name: mines-leader
 # a backend IP from `_default` — a network the proxy does not belong to —
 # and every HTTPS request to that backend hangs indefinitely. Symptom: a
 # single service (console, game, etc.) randomly stops responding after a
-# redeploy. Listing `coolify` on every service below prevents Compose from
+# redeploy. Listing a network on every service below prevents Compose from
 # inventing a default network for them.
 networks:
   # Dedicated Coolify Destination — contains our whole application
@@ -34,6 +33,12 @@ networks:
   # Traefik's Docker provider a single deterministic network to pick
   # the backend IP from.
   mines-leader-production:
+    external: true
+  # The logs and traces stack of the host (tools/framework/deploy/observability/CLAUDE.md): created once per host, shared
+  # by every game there. The exporting services join it next to `mines-leader-production`, which keeps a higher
+  # gw_priority so that short names (silo, pgbouncer, coordinator) resolve to this stack first, not to another game's
+  # containers.
+  observability:
     external: true
 
 x-service-build: &service-build
@@ -46,10 +51,13 @@ x-service-env: &service-env
   ASPNETCORE_URLS: http://0.0.0.0:8080
   ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
   DOTNET_RUNNING_IN_CONTAINER: "true"
-  OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
-  OTEL_EXPORTER_OTLP_PROTOCOL: grpc
-  OTEL_EXPORTER_OTLP_HEADERS: "x-otlp-api-key=${OTEL_API_KEY:?}"
+  # Logs and traces to the router of the observability stack (OTLP/HTTP protobuf only: VictoriaLogs rejects OTLP JSON).
+  # service.name is SERVICE_NAME of each service (the role); the stack takes no metrics, so their export is off.
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otlp:4318
+  OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+  OTEL_RESOURCE_ATTRIBUTES: service.namespace=mines-leader,deployment.environment=production
   OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: in_memory
+  Telemetry__ExportMetrics: "false"
   ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
   postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
   # Orleans membership rows are keyed by ClusterId: another game on the same Postgres must use other values.
@@ -128,7 +136,9 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
     networks:
-      - mines-leader-production
+      mines-leader-production:
+        gw_priority: 100
+      observability: {}
     healthcheck:
       <<: *service-healthcheck
 
@@ -150,7 +160,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - mines-leader-production
+      mines-leader-production:
+        gw_priority: 100
+      observability: {}
     healthcheck:
       <<: *service-healthcheck
 
@@ -191,7 +203,9 @@ services:
         condition: service_started
     restart: unless-stopped
     networks:
-      - mines-leader-production
+      mines-leader-production:
+        gw_priority: 100
+      observability: {}
     labels:
       # Pin Traefik's Docker provider to our dedicated Destination network.
       # Needed because a service may be on multiple networks and Traefik
@@ -234,7 +248,9 @@ services:
         condition: service_started
     restart: unless-stopped
     networks:
-      - mines-leader-production
+      mines-leader-production:
+        gw_priority: 100
+      observability: {}
     labels:
       # Pin Traefik's Docker provider to our dedicated Destination network.
       # Needed because a service may be on multiple networks and Traefik
@@ -256,10 +272,9 @@ services:
       # Required: outside Development ConsoleGateway refuses to start with an empty
       # token or the dev value "local-dev-token".
       CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
-      # Backend traces of the client startup records are read from the telemetry API of the
-      # dashboard (same network, no depends_on: the console lives without the dashboard).
-      AspireDashboard__Url: http://aspire-dashboard:18888
-      AspireDashboard__ApiKey: ${ASPIRE_API_KEY:?}
+      # Backend traces of the client startup records are read from VictoriaTraces of the observability stack
+      # (same network, no depends_on: the console lives without the stack).
+      BackendTraces__Url: http://victoriatraces:10428
       SERVICE_FQDN_CONSOLE_8080: /
     expose:
       - "8080"
@@ -285,7 +300,9 @@ services:
         condition: service_started
     restart: unless-stopped
     networks:
-      - mines-leader-production
+      mines-leader-production:
+        gw_priority: 100
+      observability: {}
     labels:
       # Pin Traefik's Docker provider to our dedicated Destination network.
       # Needed because a service may be on multiple networks and Traefik
@@ -295,47 +312,5 @@ services:
     healthcheck:
       <<: *service-healthcheck
 
-  # Required secrets, no defaults: the dashboard has a public domain.
-  aspire-dashboard:
-    image: mcr.microsoft.com/dotnet/aspire-dashboard:13.5
-    environment:
-      DASHBOARD__FRONTEND__AUTHMODE: BrowserToken
-      DASHBOARD__FRONTEND__BROWSERTOKEN: ${ASPIRE_TOKEN:?}
-      DASHBOARD__OTLP__AUTHMODE: ApiKey
-      DASHBOARD__OTLP__PRIMARYAPIKEY: ${OTEL_API_KEY:?}
-      # Telemetry HTTP API (/api/telemetry/*, header x-api-key) on the frontend port 18888,
-      # read by the console. Without a key the API would be open on the public domain.
-      DASHBOARD__API__AUTHMODE: ApiKey
-      DASHBOARD__API__PRIMARYAPIKEY: ${ASPIRE_API_KEY:?}
-      DASHBOARD__OTLP__ENDPOINTURL: http://0.0.0.0:18889
-      DASHBOARD__FRONTEND__ENDPOINTURLS: http://0.0.0.0:18888
-      # No DASHBOARD__RESOURCESERVICECLIENT__*: we do not run a resource service,
-      # so the dashboard's Resources tab stays empty by design. Structured logs,
-      # Traces and Metrics (the surfaces we actually use) come over OTLP and work
-      # without it.
-      SERVICE_FQDN_ASPIREDASHBOARD_18888: /
-    expose:
-      - "18888"
-      - "18889"
-    user: root
-    volumes:
-      # Persist DataProtection keyring across redeploys.
-      # Without it, every container restart generates a new keyring → all
-      # ProtectedBrowserStorage cookies set by the previous instance become
-      # undecryptable and every dashboard page throws CryptographicException.
-      # `user: root` is required because the aspire-dashboard image runs as a
-      # non-root user by default and cannot write to /root/.aspnet/.
-      - aspire-dashboard-keys:/root/.aspnet/DataProtection-Keys
-    restart: unless-stopped
-    networks:
-      - mines-leader-production
-    labels:
-      # Pin Traefik's Docker provider to our dedicated Destination network.
-      # Needed because a service may be on multiple networks and Traefik
-      # otherwise selects a backend IP arbitrarily — sometimes from a
-      # network where the proxy is not a member.
-      - "traefik.docker.network=mines-leader-production"
-
 volumes:
-  aspire-dashboard-keys:
   console-keys:

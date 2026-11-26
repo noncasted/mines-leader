@@ -1,10 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
+    <!-- The host of the MetaGateway role (a factory of its WebApplication): run alone by Services/MetaGateway, next to
+         the other roles by a monolith. -->
     <PropertyGroup>
-        <AssemblyName>MetaGateway</AssemblyName>
+        <AssemblyName>Orchestration.MetaGateway</AssemblyName>
         <RootNamespace>MetaGateway</RootNamespace>
         <NoWarn>$(NoWarn);CS0436</NoWarn>
     </PropertyGroup>
+
+    <Import Project="..\Roles.props"/>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>

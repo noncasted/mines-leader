@@ -46,8 +46,10 @@ FILES=(.dockerignore .editorconfig)
 
 # The backend part of the framework submodule, copied as plain files at the commit the source ref pins: the
 # deploy branch has no submodules, so Coolify needs no access to the framework repository.
+# client/core/Analyzers/Framework.Analyzers.dll is the one file of the Unity part the backend compiles with
+# (backend/Directory.Build.props).
 FRAMEWORK=tools/framework
-FRAMEWORK_PATHS=(backend shared common Directory.Build.props Directory.Packages.props global.json)
+FRAMEWORK_PATHS=(backend shared common Directory.Build.props Directory.Packages.props global.json client/core/Analyzers/Framework.Analyzers.dll)
 
 LFS_POINTER_HEADER='version https://git-lfs.github.com/spec/v1'
 

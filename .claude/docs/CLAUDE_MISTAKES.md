@@ -903,3 +903,24 @@ Russian, next to English ones in the same file (about 300 lines across client, b
 Prose of answers and docs of the game is Russian; identifiers and comments in code are English. A comment explains "why"
 and is written in English from the start. String literals with UI texts are content and stay as they are.
 `/validate` and the analyzer FWR004 report Cyrillic in comments.
+
+## Lesson 25: A Web SDK exe Turned into a Library Keeps Exe-Only Assumptions
+
+### Mistake Made
+The role projects (`Orchestration/<Role>`) became class libraries so a monolith could run their `Build(WebApplicationOptions)`
+factories, and the build failed: `Routes.razor` had `typeof(Program).Assembly` — there is no `Program` in a library (CS0246).
+Two more things would have failed silently: the card icons `Content` item stayed in the library and never reached the exe's
+publish output (Content does not flow through a `ProjectReference`), and the appsettings moved to the library folder while the
+content root is the exe's folder.
+
+### Correct Pattern
+```razor
+<Router AppAssembly="@typeof(App).Assembly" ...>
+```
+
+### Rule
+When a `Microsoft.NET.Sdk.Web` exe becomes a class library, go through everything that belonged to the exe and move it:
+`typeof(Program)` (use the app component or the host class), `AppContext.BaseDirectory` paths, `Content` /
+`CopyToPublishDirectory` items (duplicate into every exe that publishes), `appsettings*.json` and `Properties/launchSettings.json`
+(the content root is the exe folder), and the static web assets manifest (`<ApplicationName>.staticwebassets.endpoints.json`
+only exists in the exe — a monolith names the console host after itself).

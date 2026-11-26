@@ -11,9 +11,6 @@ namespace Orchestration;
 
 public static class ServiceDefaultsExtensions
 {
-    private const string HealthEndpointPath = "/health";
-    private const string AlivenessEndpointPath = "/alive";
-
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         // The INetworkContext union of the game: registered before any socket reads a message.
@@ -44,18 +41,16 @@ public static class ServiceDefaultsExtensions
         }
     }
 
-    private const string ReadyEndpointPath = "/ready";
-
     public static void MapDefaultEndpoints(this WebApplication app)
     {
-        app.MapHealthChecks(HealthEndpointPath);
+        app.MapHealthChecks(TelemetryInstrumentation.HealthEndpointPath);
 
-        app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
+        app.MapHealthChecks(TelemetryInstrumentation.AlivenessEndpointPath, new HealthCheckOptions
         {
             Predicate = r => r.Tags.Contains("live")
         });
 
-        app.MapHealthChecks(ReadyEndpointPath, new HealthCheckOptions
+        app.MapHealthChecks(TelemetryInstrumentation.ReadyEndpointPath, new HealthCheckOptions
         {
             Predicate = r => r.Tags.Contains("ready")
         });

@@ -108,6 +108,6 @@ PvP-режим с таймером в 30 секунд на каждый ход �
 | `backend/Game/GamePlay/Context/Rounds/TimeLimitedRound.cs` | Реализация TimeLimited |
 | `backend/Game/GamePlay/Context/Rounds/LastManStandingRound.cs` | Реализация LastManStanding |
 | `backend/Game/Global/SessionFactory.cs` | Выбор режима при создании сессии |
-| `backend/Orchestration/Coordinator/config.gameMode.json` | JSON-конфиг режимов |
-| `backend/Orchestration/Coordinator/config.matchMaking.json` | JSON-конфиг доступных режимов матчмейкинга |
-| `backend/Orchestration/Coordinator/config.player.json` | JSON-конфиг игрока |
+| `backend/Orchestration/Services/Coordinator/config.gameMode.json` | JSON-конфиг режимов |
+| `backend/Orchestration/Services/Coordinator/config.matchMaking.json` | JSON-конфиг доступных режимов матчмейкинга |
+| `backend/Orchestration/Services/Coordinator/config.player.json` | JSON-конфиг игрока |

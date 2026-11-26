@@ -27,11 +27,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ConsoleGateway\ConsoleGateway.csproj" />
-        <ProjectReference Include="..\Coordinator\Coordinator.csproj" />
-        <ProjectReference Include="..\GameGateway\GameGateway.csproj" />
-        <ProjectReference Include="..\MetaGateway\MetaGateway.csproj" />
-        <ProjectReference Include="..\Silo\Silo.csproj" />
+        <ProjectReference Include="..\Services\ConsoleGateway\ConsoleGateway.Service.csproj" />
+        <ProjectReference Include="..\Services\Coordinator\Coordinator.Service.csproj" />
+        <ProjectReference Include="..\Services\GameGateway\GameGateway.Service.csproj" />
+        <ProjectReference Include="..\Services\MetaGateway\MetaGateway.Service.csproj" />
+        <ProjectReference Include="..\Services\Silo\Silo.Service.csproj" />
     </ItemGroup>
 
     <ItemGroup>

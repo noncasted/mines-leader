@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <!-- The separate service of the GameGateway role: its host (GameGateway/) alone in the process. The assembly keeps the name
+         of the role: the Dockerfile and the compose start it as GameGateway.dll. -->
+    <PropertyGroup>
+        <AssemblyName>GameGateway</AssemblyName>
+        <RootNamespace>GameGateway.Service</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\GameGateway\GameGateway.csproj"/>
+    </ItemGroup>
+
+</Project>

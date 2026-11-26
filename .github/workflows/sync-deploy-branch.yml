@@ -61,7 +61,7 @@ jobs:
           sha=$(git -C src rev-parse HEAD:tools/framework)
           git init -q framework
           cd framework
-          git sparse-checkout set --no-cone /backend/ /shared/ /common/ /Directory.Build.props /Directory.Packages.props /global.json
+          git sparse-checkout set --no-cone /backend/ /shared/ /common/ /Directory.Build.props /Directory.Packages.props /global.json /client/core/Analyzers/Framework.Analyzers.dll
           # The token goes in a header, not in the URL: a secret saved with a trailing newline makes the URL malformed.
           token="$(printf '%s' "$FRAMEWORK_TOKEN" | tr -d '[:space:]')"
           auth="$(printf 'x-access-token:%s' "$token" | base64 -w0)"
@@ -93,6 +93,10 @@ jobs:
             fi
             cp -r "framework/$path" out/tools/framework/
           done
+
+          # The Roslyn analyzer the backend compiles with (backend/Directory.Build.props): the one file of the Unity
+          # part of the framework an image needs, copied with its path.
+          (cd framework && cp --parents client/core/Analyzers/Framework.Analyzers.dll ../out/tools/framework/)
 
           # LFS files (none today) would be checked out as pointers. Replace them with their
           # content, so the mirror builds with LFS off in Coolify; .gitattributes is not mirrored.

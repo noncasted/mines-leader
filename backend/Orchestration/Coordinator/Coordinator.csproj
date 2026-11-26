@@ -1,16 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
+    <!-- The host of the Coordinator role (a factory of its WebApplication): run alone by Services/Coordinator, next to
+         the other roles by a monolith. -->
     <PropertyGroup>
-        <AssemblyName>Coordinator</AssemblyName>
+        <AssemblyName>Orchestration.Coordinator</AssemblyName>
         <RootNamespace>Coordinator</RootNamespace>
     </PropertyGroup>
+
+    <Import Project="..\Roles.props"/>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
         <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>
         <PackageReference Include="Microsoft.Orleans.Sdk"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Aspire.Npgsql"/>
         <PackageReference Include="Npgsql"/>

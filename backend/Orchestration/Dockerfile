@@ -8,6 +8,8 @@
 #     incremental output is reused for shared projects, so each subsequent publish only
 #     compiles its own entry-point csproj.
 #   - runtime stages just copy their service's publish output, selected via ASSEMBLY_NAME.
+#   - the monolith (all roles in one process, Orchestration/Monolith) has its own publish and runtime stages,
+#     built only with `target: monolith` (docker-compose.monolith.yaml); the default target stays the services one.
 
 ARG DOTNET_VERSION=10.0
 # Pinned rather than floating on `latest`: 10.0.202 shipped a regression that dropped
@@ -29,11 +31,12 @@ COPY --parents \
     **/*.csproj \
     ./
 
-RUN dotnet restore backend/Orchestration/Silo/Silo.csproj \
- && dotnet restore backend/Orchestration/Coordinator/Coordinator.csproj \
- && dotnet restore backend/Orchestration/MetaGateway/MetaGateway.csproj \
- && dotnet restore backend/Orchestration/GameGateway/GameGateway.csproj \
- && dotnet restore backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj
+RUN dotnet restore backend/Orchestration/Services/Silo/Silo.Service.csproj \
+ && dotnet restore backend/Orchestration/Services/Coordinator/Coordinator.Service.csproj \
+ && dotnet restore backend/Orchestration/Services/MetaGateway/MetaGateway.Service.csproj \
+ && dotnet restore backend/Orchestration/Services/GameGateway/GameGateway.Service.csproj \
+ && dotnet restore backend/Orchestration/Services/ConsoleGateway/ConsoleGateway.Service.csproj \
+ && dotnet restore backend/Orchestration/Monolith/Monolith.csproj
 
 # Stage 2: publish every service inside a single RUN so msbuild's incremental compilation
 # reuses shared project outputs across services.
@@ -44,11 +47,11 @@ COPY --link . .
 
 RUN set -e; \
     for pair in \
-      "backend/Orchestration/Silo/Silo.csproj:Silo" \
-      "backend/Orchestration/Coordinator/Coordinator.csproj:Coordinator" \
-      "backend/Orchestration/MetaGateway/MetaGateway.csproj:MetaGateway" \
-      "backend/Orchestration/GameGateway/GameGateway.csproj:GameGateway" \
-      "backend/Orchestration/ConsoleGateway/ConsoleGateway.csproj:ConsoleGateway"; do \
+      "backend/Orchestration/Services/Silo/Silo.Service.csproj:Silo" \
+      "backend/Orchestration/Services/Coordinator/Coordinator.Service.csproj:Coordinator" \
+      "backend/Orchestration/Services/MetaGateway/MetaGateway.Service.csproj:MetaGateway" \
+      "backend/Orchestration/Services/GameGateway/GameGateway.Service.csproj:GameGateway" \
+      "backend/Orchestration/Services/ConsoleGateway/ConsoleGateway.Service.csproj:ConsoleGateway"; do \
       proj=${pair%:*}; name=${pair##*:}; \
       # Wipe StaticWebAssets incremental tracking so each publish actually
       # copies wwwroot/_framework/* into its output. Without this, only the
@@ -62,6 +65,38 @@ RUN set -e; \
         --no-restore \
         /p:UseAppHost=false; \
     done
+
+# Monolith: one publish (the static web assets of the console go into the manifest of Monolith itself, so the
+# wipe of the services loop is not needed), then a runtime that starts Monolith.dll with every role. Ports, content
+# roots and the addresses of the console's peers come from the compose (Monolith:Hosts:<Tag>:Port).
+FROM restore AS publish-monolith
+ARG CONFIGURATION=Release
+
+COPY --link . .
+
+RUN dotnet publish backend/Orchestration/Monolith/Monolith.csproj \
+      -c "${CONFIGURATION}" \
+      -o /app/out/Monolith \
+      --no-restore \
+      /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS monolith
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=publish-monolith /app/out/Monolith/ .
+
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+# The base image binds 8080 by default; each host gets its own --urls from the runner.
+ENV ASPNETCORE_HTTP_PORTS=
+
+# exec form without a shell: SIGTERM reaches the runner, which stops every host and exits 0.
+ENTRYPOINT ["dotnet", "Monolith.dll"]
 
 # Stage 3: lean runtime. Compose selects service via build-arg ASSEMBLY_NAME.
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS runtime

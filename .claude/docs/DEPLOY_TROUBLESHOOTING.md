@@ -90,10 +90,10 @@ networks:
     external: true            # single network for the whole stack
 
 services:
-  pgbouncer / silo / coordinator / meta / game / console / aspire-dashboard / migrator:
+  pgbouncer / silo / coordinator / meta / game / console / migrator:
     networks: [mines-leader-production]
 
-  meta / game / console / aspire-dashboard:
+  meta / game / console:
     labels:
       - "traefik.docker.network=mines-leader-production"   # hardcoded name; no UUID, no substitution needed
 ```
@@ -196,7 +196,7 @@ This is the short version of everything the saga above taught us. Follow it when
    # expect: coolify-proxy + every app container + managed DB + (possibly) UUID-injected container
 
    # label sanity on every public service
-   for svc in meta game console aspire-dashboard; do
+   for svc in meta game console; do
      C=$(sudo docker ps --format '{{.Names}}' | grep -m1 "^$svc-")
      echo "$svc: $(sudo docker inspect $C --format '{{index .Config.Labels "traefik.docker.network"}}')"
    done
@@ -252,7 +252,7 @@ Double-check with `psql` against the actual managed Postgres after a deploy: `\d
 
 Verify: edit a `.cs` file, rerun `docker build` locally, confirm the `restore` step shows `CACHED`. If not, the `COPY --parents` glob is wrong.
 
-## Aspire Dashboard Resources tab is empty (and Console Logs tab is dead)
+## Aspire Dashboard Resources tab is empty (and Console Logs tab is dead) [historical: the dashboard left the deploy in 0.18.0]
 
 **Symptom.** Telemetry tabs (Structured logs, Traces, Metrics) work; Resources and Console Logs show nothing.
 
@@ -274,9 +274,9 @@ A cosmetic tab was taking prod deploys down, so the service, its `depends_on`, a
 
 **Cause.** Console gateway has an auth middleware that redirects every unauthenticated request to `/login`. Health endpoints were not on its allowlist.
 
-**Fix.** `ConsoleGateway/Program.cs` registers an explicit allowlist for `/health`, `/alive`, `/ready` before the auth middleware. If you add a new health route, add it to the allowlist too.
+**Fix.** `ConsoleGateway/ConsoleHost.cs` registers an explicit allowlist for `/health`, `/alive`, `/ready` before the auth middleware. If you add a new health route, add it to the allowlist too.
 
-## Aspire Dashboard browser nags about insecure OTLP
+## Aspire Dashboard browser nags about insecure OTLP [historical: the dashboard left the deploy in 0.18.0]
 
 **Symptom.** Dashboard console / browser warning about OTLP API key over plain HTTP.
 
@@ -328,7 +328,7 @@ If you ever bump to a newer syntax version (e.g. `1.8`), check that it is a `-la
 
 **Fix (historical, superseded).** The current Dockerfile avoids the problem entirely by publishing all six services **sequentially in a single RUN** inside one `publish-all` stage. No cache-mount needed. If you ever fork the Dockerfile back to per-service publish stages, add `sharing=locked` to the cache mount: `--mount=type=cache,id=nuget,target=/root/.nuget/packages,sharing=locked`.
 
-## Coolify routes to wrong port on multi-port container
+## Coolify routes to wrong port on multi-port container [historical: no multi-port container is deployed since 0.18.0]
 
 **Symptom.** Service with multiple exposed ports returns 502 / Gateway Timeout even though the container is healthy and traffik labels exist. Rotating Redeploys may intermittently fix it.
 
@@ -366,7 +366,7 @@ Symmetric hygiene before the reverse: when switching from local compose testing 
 
 Long-term option: change `ConnectionStrings:db` port to something unlikely to collide (e.g. 15432) in `appsettings.json`, so dev never fights other Postgres-like containers.
 
-## Aspire Dashboard: every page throws `CryptographicException: key ... was not found in the key ring`
+## Aspire Dashboard: every page throws `CryptographicException: key ... was not found in the key ring` [historical: the dashboard left the deploy in 0.18.0]
 
 **Symptom.** Opening any tab in the Aspire Dashboard (StructuredLogs, Traces, Metrics, …) immediately fails with a Blazor unhandled-exception circuit error. Server logs show `The key {<guid>} was not found in the key ring` from `Microsoft.AspNetCore.DataProtection.KeyManagement.KeyRingBasedDataProtector.UnprotectCore`.
 
@@ -499,9 +499,9 @@ app.UseHttpsRedirection();
 ...
 app.MapStaticAssets();
 ```
-Done in `ConsoleGateway/Program.cs`. Apply the same change to any other Web SDK service that mixes the two.
+Done in `ConsoleGateway/ConsoleHost.cs`. Apply the same change to any other Web SDK service that mixes the two.
 
-## "Login to the dashboard at http://localhost:18888" startup log line
+## "Login to the dashboard at http://localhost:18888" startup log line [historical: the dashboard left the deploy in 0.18.0]
 
 **Symptom.** Aspire dashboard logs `Login to the dashboard at http://localhost:1...` (truncated). Looks alarming.
 

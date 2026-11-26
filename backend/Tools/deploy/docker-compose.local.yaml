@@ -9,9 +9,12 @@
 #     -f backend/Tools/deploy/docker-compose.yaml \
 #     -f backend/Tools/deploy/docker-compose.local.yaml up --build -d
 
-# Prod has two networks (mines-internal + external coolify) — locally there is
-# no Coolify bridge, so stub `coolify` out with a disposable local bridge and
-# keep `mines-internal` as the isolated internal one.
+# Prod has two networks (the Coolify Destination + the shared `observability` of the logs and traces stack) — locally
+# there is no Coolify bridge, so the Destination becomes a plain local bridge. Both stay external (no compose-created
+# network, see docker-compose.yaml): create them once with
+#   docker network create mines-leader-local && docker network create observability
+# The observability stack itself is optional locally (tools/framework/deploy/observability/README.md): without it the
+# services start, only their logs, traces and the console's backend trace pages are empty.
 networks:
   mines-leader-production:
     name: mines-leader-local
@@ -62,8 +65,3 @@ services:
         ASSEMBLY_NAME: ConsoleGateway
     ports:
       - "7102:8080"
-
-  aspire-dashboard:
-    ports:
-      - "7200:18888"
-      - "7201:18889"

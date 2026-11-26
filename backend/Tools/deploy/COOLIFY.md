@@ -12,25 +12,31 @@ Coolify host Docker + Traefik (Let's Encrypt TLS)
 ├── coordinator     (DeployIdentity + cluster tests)
 ├── meta            (public: meta.<domain>)
 ├── game            (public: game.<domain>)
-├── console         (public: console.<domain>)
-└── aspire-dashboard (optional, --profile with-dashboard; public: aspire.<domain>)
+└── console         (public: console.<domain>)
+
+network `observability` (shared with the other games of the host)
+└── otlp → victorialogs / victoriatraces  (logs and traces of every .NET service)
 ```
 
-All services share a single compose-network. Internal DNS names (`silo`, `coordinator`, `pgbouncer`, …) resolve automatically.
+All services share the Destination network `mines-leader-production`. Internal DNS names (`silo`, `coordinator`, `pgbouncer`, …) resolve automatically there. The .NET services join the external network `observability` next to it (higher `gw_priority`, so a short name resolves to this stack first), and export their logs and traces into it instead of the Aspire dashboard the deploy used before 0.18.0.
 
 External Postgres — Coolify-managed resource, reached by its Coolify-internal hostname via `pgbouncer` service.
 
 ## Build model
 
-Build context is repo root (`.`). One shared `backend/Orchestration/Dockerfile` publishes each service from source:
+Build context is repo root (`.`). One shared `backend/Orchestration/Dockerfile` publishes each service from source
+(`Orchestration/Services/<Role>/<Role>.Service.csproj` — the exe whose Program.cs calls the host factory of
+`Orchestration/<Role>`):
 
 ```
-docker build --build-arg PROJECT_PATH=backend/Orchestration/Silo/Silo.csproj \
-             --build-arg ASSEMBLY_NAME=Silo \
+docker build --build-arg ASSEMBLY_NAME=Silo \
              -f backend/Orchestration/Dockerfile .
 ```
 
-`dotnet publish -c Release /p:UseAppHost=false`, runtime image `mcr.microsoft.com/dotnet/aspnet:10.0`. Cache-mount for `~/.nuget/packages` keeps subsequent builds fast.
+The monolith is the same file with `target: monolith` (a separate publish of `Orchestration/Monolith`).
+
+`dotnet publish -c Release /p:UseAppHost=false`, runtime image `mcr.microsoft.com/dotnet/aspnet:10.0`. The `restore`
+stage is cached by its own layer (the project files only), so a source edit reuses the restored packages.
 
 A second Dockerfile `backend/Orchestration/Dockerfile.prebuilt` + `docker-compose.local.yaml` are for local smoke-tests only (publish on host via `tools/scripts/publish-local.sh`, Docker only copies). Coolify uses the full self-contained `Dockerfile`.
 
@@ -38,7 +44,7 @@ A second Dockerfile `backend/Orchestration/Dockerfile.prebuilt` + `docker-compos
 
 Coolify clones the repo before every build (`git clone --depth=1 -b <branch>`). The tip tree of `main` carries the Unity client, art and docs, while the backend images need ~11 MB of it — so a deploy spent most of its wall clock downloading files no service reads.
 
-Coolify therefore builds from the orphan branch **`deploy`**, which mirrors only `backend/`, `shared/`, `docs/obsidian/game/cards/icons/` (the card icons `ConsoleGateway.csproj` ships at `/card-icons`), `.dockerignore`, `.editorconfig` and the backend part of the framework submodule (`tools/framework/backend/`, `tools/framework/shared/`, `tools/framework/common/`, `Directory.Build.props`, `Directory.Packages.props`, `global.json` at the commit `main` pins) as plain files. The branch has no submodules, so Coolify needs no access to the private framework repository. A shallow clone of one branch never fetches the objects of the others. Paths are preserved, so Base Directory, Compose Location and `context: ../../..` are the same as for `main`. LFS files inside the mirrored paths (none today) are committed with their content and `.gitattributes` is not mirrored, so the branch needs no LFS.
+Coolify therefore builds from the orphan branch **`deploy`**, which mirrors only `backend/`, `shared/`, `docs/obsidian/game/cards/icons/` (the card icons the console csproj ships at `/card-icons`), `.dockerignore`, `.editorconfig` and the backend part of the framework submodule (`tools/framework/backend/`, `tools/framework/shared/`, `tools/framework/common/`, `Directory.Build.props`, `Directory.Packages.props`, `global.json` **and the Roslyn analyzer `client/core/Analyzers/Framework.Analyzers.dll` the backend compiles with** at the commit `main` pins) as plain files. The branch has no submodules, so Coolify needs no access to the private framework repository. A shallow clone of one branch never fetches the objects of the others. Paths are preserved, so Base Directory, Compose Location and `context: ../../..` are the same as for `main`. LFS files inside the mirrored paths (none today) are committed with their content and `.gitattributes` is not mirrored, so the branch needs no LFS.
 
 The branch is refreshed by `.github/workflows/sync-deploy-branch.yml` on every push to `main` that touches `backend/**`, `shared/**`, `docs/obsidian/game/cards/icons/**`, `tools/framework` (the submodule pointer), `.dockerignore` or `.editorconfig` (plus manual *Run workflow* in the Actions tab). The runner checks out blobless + sparse, fetches the framework part with the `FRAMEWORK_TOKEN` secret (a token with read access to `noncasted/framework`, the same as for CI) and force-pushes the subset with the default `GITHUB_TOKEN` (`permissions: contents: write` in the workflow). **That push is what fires the Coolify deploy webhook**, so client-only commits no longer redeploy the backend.
 
@@ -68,7 +74,6 @@ Either via Coolify UI per-service, or via env vars (see Magic FQDN section):
 - `https://meta.<domain>` → service `meta` port `8080`
 - `https://game.<domain>` → service `game` port `8080`
 - `https://console.<domain>` → service `console` port `8080`
-- `https://aspire.<domain>` → service `aspire-dashboard` port `18888` (optional)
 
 Coolify Traefik handles TLS + WebSocket upgrade + X-Forwarded-* headers automatically. No nginx layer, no certificates to mount.
 
@@ -99,17 +104,55 @@ Set these in the Coolify UI ("Environment Variables" tab, all marked Build-time 
 | `SESSION_TICKET_SECRET` | yes | HMAC key of the game session tickets, base64 of at least 32 bytes (`openssl rand -base64 48`); the same value for meta and game (secret) |
 | `CORS_ALLOWED_ORIGINS` | no (`https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone`) | Comma-separated browser origins of the WebGL client; CORS and the WebSocket handshake of meta / game reject other origins |
 | `GAME_SERVER_URL` | yes | Public URL of the game gateway advertised to clients |
-| `ASPIRE_TOKEN` | yes | Aspire dashboard browser token (secret) |
-| `OTEL_API_KEY` | yes | Shared secret for OTLP export from the services to the dashboard (secret) |
-| `ASPIRE_API_KEY` | yes | Key of the dashboard telemetry HTTP API (`DASHBOARD__API__PRIMARYAPIKEY`, header `x-api-key`); the console reads the backend traces of the client startup records with it (`AspireDashboard__ApiKey`). `openssl rand -hex 32` (secret) |
 
 Required variables are written as `${NAME:?}` in the compose: if one is missing or empty, the deploy fails at `docker compose` with `required variable NAME is missing a value` instead of starting a half-configured stack. For `CONSOLE_TOKEN` there is a second guard: outside Development console, meta and game refuse to start with an empty token or the dev value `local-dev-token` (`ConsoleAccess`), because that value turns authentication off. The same goes for an empty `Cors__AllowedOrigins` (`AllowedOrigins`) and for `SESSION_TICKET_SECRET` that is not base64, shorter than 32 bytes or the development key (`SessionTicketsSetup`).
 
 A new domain for the client (another host, another itch.io origin) must be added to `CORS_ALLOWED_ORIGINS` before players use it. A handshake without `Origin` (Unity editor, native build) is not affected.
 
-`ASPIRE_API_KEY` turns on the key check of the dashboard telemetry API (`/api/telemetry/*` on the frontend port 18888, the public domain of the dashboard): without it the API would be open. Setting it up the first time or rotating it: generate a key (`openssl rand -hex 32`), set `ASPIRE_API_KEY` in Coolify, redeploy (or restart `aspire-dashboard` and `console`: both read it at start). The console calls `http://aspire-dashboard:18888` over the internal network.
-
 `SERVICE_FQDN_<NAME>_<PORT>` env vars are already baked into the compose. Coolify auto-generates URLs, or you can override per-service via Coolify UI.
+
+## Telemetry
+
+The .NET services export logs and traces over OTLP/HTTP into the observability stack of the host (`otlp:4318` in the
+external network `observability`, contract: `tools/framework/deploy/observability/CLAUDE.md`). Metrics are off
+(`Telemetry__ExportMetrics: "false"`: the stack stores none). The resource attributes are
+`service.namespace=mines-leader,deployment.environment=production`, `service.name` is the role.
+
+Prerequisites on the host, once:
+
+```bash
+ssh ovh 'sudo -n docker network create observability'   # the stack never creates it
+```
+
+The console reads the backend trace of a client startup record from `http://victoriatraces:10428`
+(`BackendTraces__Url`); in Development it uses the Aspire dashboard of the local AppHost instead.
+
+The dashboard of the previous deploy is gone with this: delete the Coolify variables `ASPIRE_TOKEN`, `OTEL_API_KEY` and
+`ASPIRE_API_KEY`, and the domain `aspire.<domain>` of the backend application. Read the logs and traces with the skill
+`backend-logs` (`prod errors`, `prod logs`, `prod trace`, `prod around`), not from a browser page.
+
+## Monolith
+
+`docker-compose.monolith.yaml` runs every role in one container `backend` (`Orchestration/Monolith`, `MonolithRunner` of
+the framework: `tools/framework/backend/Cluster/CLAUDE.md` § Monolith). It is the other **Compose Location of the same
+Coolify application** — nothing else changes:
+
+- **Docker Compose Location:** `/backend/Tools/deploy/docker-compose.monolith.yaml`
+- Domains: the Coolify **Domains of `backend` stay empty**. Coolify keeps one port per service and drops `:port` from a
+  Domain, so the three public roles are routed by the Traefik labels of the compose (`meta.minesleader.xyz` -> 8081,
+  `game...` -> 8082, `console...` -> 8083); silo and coordinator are internal (8084, 8085).
+- Healthcheck: `/ready` of all five ports. `stop_grace_period: 30s`: the runner stops every host on SIGTERM and exits 0.
+- The `console-keys` volume is the one of the services compose, and `ConsoleHost` sets a fixed DataProtection application
+  name, so the console cookies survive a switch between the two modes (the first deploy with the name logs the users out
+  once).
+- Memory, idle (framework `backend/measurements/RESULTS.md`, another game): five services ~666 MiB -> monolith
+  ~140 MiB. `DOTNET_gcServer=0` (workstation GC) is in the compose.
+
+The registry (`tools/framework/deploy/registry.json`) records `mode: monolith` and both compose paths
+(`compose.services` / `compose.monolith`): `backend/measurements/tools/local.sh` and the log tools read them.
+
+Switching back to services: set the Compose Location to `docker-compose.yaml` and restore the Domains of `meta`, `game`,
+`console` (one per service, port 8080).
 
 ## Readiness ordering
 

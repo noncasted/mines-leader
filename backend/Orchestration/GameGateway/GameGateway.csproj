@@ -1,9 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
+    <!-- The host of the GameGateway role (a factory of its WebApplication): run alone by Services/GameGateway, next to
+         the other roles by a monolith. -->
     <PropertyGroup>
-        <AssemblyName>GameGateway</AssemblyName>
+        <AssemblyName>Orchestration.GameGateway</AssemblyName>
         <RootNamespace>GameGateway</RootNamespace>
     </PropertyGroup>
+
+    <Import Project="..\Roles.props"/>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet"/>

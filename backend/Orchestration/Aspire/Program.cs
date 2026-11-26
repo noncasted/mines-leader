@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Orchestration;
 using Projects;
-using Silo = Projects.Silo;
 
 // AppHost is dev-only: production runs through docker-compose.yaml + Coolify, which
 // does not boot this assembly.
@@ -36,23 +35,23 @@ var dbConnection = $"Host=127.0.0.1;" +
                    $"Username={upstream.User};" +
                    $"Password={upstream.Password}";
 
-var silo = builder.AddProject<Silo>("silo");
+var silo = builder.AddProject<Silo_Service>("silo");
 silo.WaitFor(pgbouncer.Resource);
 
-var coordinator = builder.AddProject<Coordinator>("coordinator");
+var coordinator = builder.AddProject<Coordinator_Service>("coordinator");
 var meta = builder
-           .AddProject<MetaGateway>("meta")
+           .AddProject<MetaGateway_Service>("meta")
            .WithEnvironment("CONSOLE_TOKEN", consoleToken)
            .WithEnvironment(SessionTicketsSetup.SecretKey, sessionTicketSecret);
 
 var console = builder
-              .AddProject<ConsoleGateway>("console")
+              .AddProject<ConsoleGateway_Service>("console")
               .WithEnvironment("CONSOLE_TOKEN", consoleToken);
 
 SetupDashboardApi();
 
 var game = builder
-           .AddProject<GameGateway>("game")
+           .AddProject<GameGateway_Service>("game")
            .WithEnvironment("GAME_SERVER_URL", serverUrl)
            .WithEnvironment("CONSOLE_TOKEN", consoleToken)
            .WithEnvironment(SessionTicketsSetup.SecretKey, sessionTicketSecret);

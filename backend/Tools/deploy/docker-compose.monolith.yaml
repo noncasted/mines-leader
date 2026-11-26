@@ -1,0 +1,174 @@
+# Test deploy of the backend as a monolith: pgbouncer, migrator and ONE container `backend` that runs every role
+# (Orchestration/Monolith, MonolithRunner of the framework: backend/Cluster/CLAUDE.md § Monolith). The separate
+# services stay in docker-compose.yaml; this file is the other compose location of the same Coolify application
+# (COOLIFY.md § Monolith).
+#
+# Coolify: literals instead of ${NAME:-default} (Coolify keeps the first value it saw of a default); ${NAME:?} only for
+# the variables set in the Coolify UI. Networks: as docker-compose.yaml (the external network `mines-leader-production`,
+# and `observability` of the logs and traces stack for `backend`).
+
+name: mines-leader
+
+networks:
+  mines-leader-production:
+    external: true
+  observability:
+    external: true
+
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.26.0-p0
+    environment:
+      DB_HOST: ${DB_HOST:?}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:?}
+      DB_PASSWORD: ${DB_PASSWORD:?}
+      DB_NAME: ${DB_NAME:?}
+      LISTEN_PORT: "6432"
+      POOL_MODE: transaction
+      AUTH_TYPE: scram-sha-256
+      MAX_CLIENT_CONN: "200"
+      DEFAULT_POOL_SIZE: "20"
+      SERVER_TLS_SSLMODE: prefer
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "6432"
+    restart: unless-stopped
+    networks:
+      - mines-leader-production
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U ${DB_USER:?} || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+  migrator:
+    build:
+      context: ../../..
+      dockerfile: ./backend/Tools/DeploySetup/Dockerfile
+    image: mines-leader/migrator:latest
+    environment:
+      ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
+      postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - mines-leader-production
+
+  # Every role in one process, one port per role (Monolith:Hosts:<Tag>:Port): meta 8081, game 8082, console 8083,
+  # silo 8084, coordinator 8085. Public: meta, game, console, routed by the Traefik labels below (COOLIFY.md § Monolith).
+  backend:
+    build:
+      context: ../../..
+      dockerfile: ./backend/Orchestration/Dockerfile
+      target: monolith
+    image: mines-leader/monolith:latest
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+      # Workstation GC: idle 136 MiB against 159 MiB of the server GC (tools/framework/backend/measurements/RESULTS.md).
+      DOTNET_gcServer: "0"
+      # service.name of the spans and metrics of the process; the runner names the logs of each host by its role.
+      SERVICE_NAME: mines-leader
+      Monolith__Hosts__Meta__Port: "8081"
+      Monolith__Hosts__Game__Port: "8082"
+      Monolith__Hosts__Console__Port: "8083"
+      Monolith__Hosts__Silo__Port: "8084"
+      Monolith__Hosts__Coordinator__Port: "8085"
+      # Logs and traces to the observability stack, metrics off: as docker-compose.yaml.
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otlp:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=mines-leader,deployment.environment=production
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: in_memory
+      Telemetry__ExportMetrics: "false"
+      # The backend trace of a client startup record in the console (ConsoleHost).
+      BackendTraces__Url: http://victoriatraces:10428
+      ConnectionStrings__postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
+      postgres: "Host=pgbouncer;Port=6432;Database=${DB_NAME:?};Username=${DB_USER:?};Password=${DB_PASSWORD:?}"
+      # Orleans membership rows are keyed by ClusterId: another game on the same Postgres must use other values.
+      Orleans__ClusterId: "${ORLEANS_CLUSTER_ID:-mines-leader}"
+      Orleans__ServiceId: "${ORLEANS_SERVICE_ID:-mines-leader}"
+      CONSOLE_TOKEN: ${CONSOLE_TOKEN:?}
+      SESSION_TICKET_SECRET: ${SESSION_TICKET_SECRET:?}
+      GAME_SERVER_URL: ${GAME_SERVER_URL:?}
+      Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-https://minesleader.xyz,https://play.minesleader.xyz,https://html-classic.itch.zone}
+    expose:
+      - "8081"
+      - "8082"
+      - "8083"
+      - "8084"
+      - "8085"
+    user: root
+    volumes:
+      # DataProtection keyring of the console (auth + antiforgery cookies), the volume of `console` in
+      # docker-compose.yaml: with the fixed application name of ConsoleHost the cookies survive the switch between the
+      # two modes.
+      - console-keys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    # SIGTERM: the runner stops every host and exits 0.
+    stop_grace_period: 30s
+    networks:
+      mines-leader-production:
+        gw_priority: 100
+      observability: {}
+    # Routing by hand: Coolify keeps one port per service (the API drops ":port" of the Domains, a SERVICE_FQDN_<NAME>_<port>
+    # names the port of all domains of the service), so the three public roles get their routers here and the Domains of
+    # `backend` stay empty. The names mirror the labels Coolify generates (entry points http / https, resolver letsencrypt).
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mines-leader-production"
+      - "traefik.http.middlewares.mines-leader-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.mines-leader-gzip.compress.excludedcontenttypes=text/event-stream"
+      - "traefik.http.routers.mines-leader-meta-http.entryPoints=http"
+      - "traefik.http.routers.mines-leader-meta-http.rule=Host(`meta.minesleader.xyz`)"
+      - "traefik.http.routers.mines-leader-meta-http.middlewares=mines-leader-to-https"
+      - "traefik.http.routers.mines-leader-meta-http.service=mines-leader-meta"
+      - "traefik.http.routers.mines-leader-meta.entryPoints=https"
+      - "traefik.http.routers.mines-leader-meta.rule=Host(`meta.minesleader.xyz`)"
+      - "traefik.http.routers.mines-leader-meta.middlewares=mines-leader-gzip"
+      - "traefik.http.routers.mines-leader-meta.service=mines-leader-meta"
+      - "traefik.http.routers.mines-leader-meta.tls=true"
+      - "traefik.http.routers.mines-leader-meta.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mines-leader-meta.loadbalancer.server.port=8081"
+      - "traefik.http.routers.mines-leader-game-http.entryPoints=http"
+      - "traefik.http.routers.mines-leader-game-http.rule=Host(`game.minesleader.xyz`)"
+      - "traefik.http.routers.mines-leader-game-http.middlewares=mines-leader-to-https"
+      - "traefik.http.routers.mines-leader-game-http.service=mines-leader-game"
+      - "traefik.http.routers.mines-leader-game.entryPoints=https"
+      - "traefik.http.routers.mines-leader-game.rule=Host(`game.minesleader.xyz`)"
+      - "traefik.http.routers.mines-leader-game.middlewares=mines-leader-gzip"
+      - "traefik.http.routers.mines-leader-game.service=mines-leader-game"
+      - "traefik.http.routers.mines-leader-game.tls=true"
+      - "traefik.http.routers.mines-leader-game.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mines-leader-game.loadbalancer.server.port=8082"
+      - "traefik.http.routers.mines-leader-console-http.entryPoints=http"
+      - "traefik.http.routers.mines-leader-console-http.rule=Host(`console.minesleader.xyz`)"
+      - "traefik.http.routers.mines-leader-console-http.middlewares=mines-leader-to-https"
+      - "traefik.http.routers.mines-leader-console-http.service=mines-leader-console"
+      - "traefik.http.routers.mines-leader-console.entryPoints=https"
+      - "traefik.http.routers.mines-leader-console.rule=Host(`console.minesleader.xyz`)"
+      - "traefik.http.routers.mines-leader-console.middlewares=mines-leader-gzip"
+      - "traefik.http.routers.mines-leader-console.service=mines-leader-console"
+      - "traefik.http.routers.mines-leader-console.tls=true"
+      - "traefik.http.routers.mines-leader-console.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mines-leader-console.loadbalancer.server.port=8083"
+    healthcheck:
+      # No shared /ready: every role answers on its own port (the coordinator is ready once the others registered).
+      test: ["CMD-SHELL", "for p in 8081 8082 8083 8084 8085; do curl -fsS http://localhost:$$p/ready > /dev/null || exit 1; done"]
+      interval: 3s
+      timeout: 5s
+      retries: 60
+      start_period: 15s
+
+volumes:
+  console-keys:

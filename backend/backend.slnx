@@ -6,7 +6,15 @@
         <Project Path="Orchestration/Extensions/Extensions.csproj" />
         <Project Path="Orchestration/GameGateway/GameGateway.csproj" />
         <Project Path="Orchestration/MetaGateway/MetaGateway.csproj" />
+        <Project Path="Orchestration/Monolith/Monolith.csproj" />
         <Project Path="Orchestration/Silo/Silo.csproj" />
+    </Folder>
+    <Folder Name="/Orchestration/Services/">
+        <Project Path="Orchestration/Services/ConsoleGateway/ConsoleGateway.Service.csproj" />
+        <Project Path="Orchestration/Services/Coordinator/Coordinator.Service.csproj" />
+        <Project Path="Orchestration/Services/GameGateway/GameGateway.Service.csproj" />
+        <Project Path="Orchestration/Services/MetaGateway/MetaGateway.Service.csproj" />
+        <Project Path="Orchestration/Services/Silo/Silo.Service.csproj" />
     </Folder>
     <Folder Name="/Tools/">
         <Project Path="../shared/shared.csproj" />
